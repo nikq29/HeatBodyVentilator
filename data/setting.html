@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>M5Atom Settings</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    :root {
+      --primary: #4a6fa5;
+      --secondary: #166088;
+    }
+    
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+    
+    .header {
+      display: flex;
+      align-items: center;
+      height: 60px;
+      background: #fff;
+      border-bottom: 2px solid #e0e0e0;
+      padding: 0 24px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 100;
+      box-sizing: border-box;
+    }
+    
+    .header-logo {
+      height: 40px;
+      width: auto;
+      display: block;
+      margin-right: 18px;
+    }
+    
+    .header-title {
+      font-size: 2rem;
+      color: var(--primary);
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin: 0;
+      line-height: 1;
+    }
+    
+    .main-layout {
+      display: flex;
+      flex-direction: row;
+    }
+    
+    .content {
+      flex: 1;
+      padding: 30px;
+      margin-left: 0;
+      margin-top: 60px;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    /* Hamburger Menu CSS */
+    .hamburger-menu {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      width: 35px;
+      height: 30px;
+      cursor: pointer;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .hamburger-menu span {
+      width: 100%;
+      height: 3px;
+      background-color: var(--primary);
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    .hamburger-menu:hover span {
+      background-color: var(--secondary);
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -300px;
+      width: 280px;
+      height: 100vh;
+      background: linear-gradient(135deg, #1e2832 0%, #0f1419 100%);
+      border-right: 2px solid var(--primary);
+      transition: left 0.3s ease;
+      z-index: 999;
+      overflow-y: auto;
+    }
+
+    .sidebar.active {
+      left: 0;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      background: rgba(74, 111, 165, 0.1);
+      border-bottom: 1px solid var(--primary);
+    }
+
+    .sidebar-header h3 {
+      color: var(--primary);
+      font-size: 1.2rem;
+      margin: 0;
+      text-align: center;
+    }
+
+    .nav-menu {
+      list-style: none;
+      padding: 20px 0;
+      margin: 0;
+    }
+
+    .nav-menu li {
+      margin: 0;
+    }
+
+    .nav-menu a {
+      display: block;
+      padding: 15px 25px;
+      color: #e0e6ed;
+      text-decoration: none;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-menu a:hover {
+      background: rgba(74, 111, 165, 0.1);
+      border-left-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .nav-menu a:active {
+      background: rgba(74, 111, 165, 0.2);
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 998;
+      display: none;
+    }
+
+    .overlay.active {
+      display: block;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .hamburger-menu {
+        top: 12px;
+        right: 15px;
+      }
+      
+      .sidebar {
+        width: 260px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .sidebar {
+        width: 100%;
+        left: -100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Hamburger Menu Button -->
+  <div class="hamburger-menu" onclick="toggleSidebar()">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <div class="header">
+    <img src="/img/logo.png" alt="Logo" class="header-logo">
+    <h1 class="header-title">FlowHeaThink</h1>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h3>Navigation</h3>
+    </div>
+    <ul class="nav-menu">
+      <li><a href="#" onclick="navigateWithToken('main')">Home</a></li>
+      <li><a href="#" onclick="navigateWithToken('setting')">Settings</a></li>
+      <li><a href="#" onclick="logout()">Logout</a></li>
+    </ul>
+  </div>
+
+  <!-- Overlay -->
+  <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="main-layout">
+    <div class="content">
+
+<h2 class="settings-title">Device settings</h2>
+<div class="settings-group">
+  <div class="settings-card">
+    <div class="settings-item">
+      <span><span class="icon">ℹ️</span> Device name</span>
+      <div style="display: flex; gap: 8px;">
+        <input type="text" id="deviceName" class="settings-input" value="%DEVICE_NAME%" placeholder="Enter device name">
+        <button class="settings-btn" onclick="saveDeviceName()">Save</button>
+      </div>
+    </div>
+    <div class="settings-item"><span class="icon">⏻</span> Reboot device <button class="settings-btn" onclick="rebootDevice()">Reboot →</button></div>
+    <div class="settings-item"><span class="icon">🔄</span> Factory reset <button class="settings-btn" onclick="factoryReset()">Reset →</button></div>
+    <div class="settings-item">
+      <span><span class="icon">🔒</span> Authentication</span>
+      <button class="settings-btn" onclick="showPasswordModal()">Change →</button>
+    </div>
+    <div class="settings-item">
+      <span><span class="icon">🖥️</span> Firmware</span>
+      <div style="display: flex; gap: 8px;">
+        <span class="settings-info">Version: %FIRMWARE_VERSION%</span>
+        <button class="settings-btn" onclick="checkUpdate()">Check →</button>
+      </div>
+    </div>
+    <div class="settings-item">
+      <span><span class="icon">🌡️</span> Temperature unit</span>
+      <div style="display: flex; gap: 8px;">
+        <select id="tempUnit" class="settings-select">
+          <option value="celsius" %CELSIUS_SELECTED%>Celsius (°C)</option>
+          <option value="fahrenheit" %FAHRENHEIT_SELECTED%>Fahrenheit (°F)</option>
+        </select>
+        <button class="settings-btn" onclick="saveTempUnit()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 class="settings-title">Network settings</h2>
+<div class="settings-group">
+  <div class="settings-card">
+    <div class="settings-item">
+      <span><span class="icon">📶</span> Access Point</span>
+      <div style="display: flex; gap: 8px;">
+        <span class="settings-info">Status: %AP_STATUS%</span>
+        <button class="settings-btn" onclick="toggleAP()" id="apToggleBtn">%AP_BUTTON_TEXT%</button>
+      </div>
+    </div>
+    <div class="settings-item">
+      <span><span class="icon">📡</span> Wi-Fi</span>
+      <button class="settings-btn" onclick="showWiFiModal()">Configure →</button>
+    </div>
+  </div>
+</div>
+
+<h2 class="settings-title">Connectivity settings</h2>
+<div class="settings-group">
+  <div class="settings-card">
+    <div class="settings-item">
+      <span><span class="icon">📶</span> MQTT</span>
+      <button class="settings-btn" onclick="showMQTTSettings()">Configure →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MQTT Settings Modal -->
+<div id="mqttModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>MQTT & Home Assistant</h3>
+      <span class="close" onclick="closeMQTTModal()">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div class="mqtt-status">
+        <h4>Connection Status</h4>
+        <div class="status-item">
+          <label>Status:</label>
+          <span id="mqttConnectionStatus" class="status-indicator disconnected">Not Connected</span>
+        </div>
+      </div>
+      
+      <div class="mqtt-config">
+        <h4>MQTT Broker Settings</h4>
+        <div class="form-group">
+          <label for="mqttServer">Server:</label>
+          <input type="text" id="mqttServer" class="settings-input" value="%MQTT_SERVER%" placeholder="homeassistant.local or IP">
+        </div>
+        <div class="form-group">
+          <label for="mqttPort">Port:</label>
+          <input type="number" id="mqttPort" class="settings-input" value="%MQTT_PORT%" placeholder="1883">
+        </div>
+        <div class="form-group">
+          <label for="mqttUser">Username:</label>
+          <input type="text" id="mqttUser" class="settings-input" value="%MQTT_USER%" placeholder="Username (optional)">
+        </div>
+        <div class="form-group">
+          <label for="mqttPass">Password:</label>
+          <input type="password" id="mqttPass" class="settings-input" value="%MQTT_PASS%" placeholder="Password (optional)">
+        </div>
+        <div class="form-group">
+          <label for="mqttTopic">Topic Prefix:</label>
+          <input type="text" id="mqttTopic" class="settings-input" value="%MQTT_TOPIC%" placeholder="home/esp32">
+        </div>
+      </div>
+      
+      <div class="home-assistant-info">
+        <h4>🏠 Home Assistant Auto Discovery</h4>
+        <p>When connected to MQTT, this device will automatically appear in Home Assistant with:</p>
+        <ul>
+          <li>🔘 LED Switch - Control the built-in LED</li>
+          <li>📊 WiFi Signal Sensor - Monitor connection strength</li>
+          <li>⏱️ Uptime Sensor - Track device runtime</li>
+          <li>🔄 Restart Button - Remote device restart</li>
+        </ul>
+        <p><strong>Device ID:</strong> <code>%DEVICE_ID%</code></p>
+      </div>
+      
+      <div class="modal-buttons">
+        <button class="settings-btn" onclick="testMQTTConnection()">Test Connection</button>
+        <button class="settings-btn" onclick="saveMQTTSettings()">Save Settings</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Password Change Modal -->
+<div id="passwordModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Change Password</h3>
+      <span class="close" onclick="closePasswordModal()">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="currentPassword">Current Password:</label>
+        <input type="password" id="currentPassword" class="settings-input" placeholder="Enter current password" required>
+      </div>
+      <div class="form-group">
+        <label for="newPassword">New Password:</label>
+        <input type="password" id="newPassword" class="settings-input" placeholder="Enter new password (min. 6 characters)" required>
+      </div>
+      <div class="form-group">
+        <label for="confirmPassword">Confirm New Password:</label>
+        <input type="password" id="confirmPassword" class="settings-input" placeholder="Confirm new password" required>
+      </div>
+      <div class="password-requirements">
+        <small>Password must be at least 6 characters long</small>
+      </div>
+      <div class="modal-buttons">
+        <button class="settings-btn secondary" onclick="closePasswordModal()">Cancel</button>
+        <button class="settings-btn" onclick="changePassword()">Change Password</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WiFi Settings Modal -->
+<div id="wifiModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Wi-Fi Settings</h3>
+      <span class="close" onclick="closeWiFiModal()">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div class="wifi-status">
+        <h4>Current Connection</h4>
+        <div class="status-grid">
+          <div class="status-item">
+            <label>Network:</label>
+            <span id="currentSSID">%WIFI_SSID%</span>
+          </div>
+          <div class="status-item">
+            <label>IP Address:</label>
+            <span id="currentIP">%WIFI_IP%</span>
+          </div>
+          <div class="status-item">
+            <label>MAC Address:</label>
+            <span id="currentMAC">%WIFI_MAC%</span>
+          </div>
+          <div class="status-item">
+            <label>Status:</label>
+            <span id="connectionStatus" class="status-indicator">%WIFI_STATUS%</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="wifi-config">
+        <h4>Connect to Network</h4>
+        <div class="form-group">
+          <label for="wifiSSID">Network (SSID):</label>
+          <select id="wifiSSID" class="settings-select">
+            <option value="">-- Select Network --</option>
+            %WIFI_OPTIONS%
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="wifiPassword">Password:</label>
+          <input type="password" id="wifiPassword" class="settings-input" value="%WIFI_PASSWORD%" placeholder="Enter network password">
+        </div>
+        <div class="form-group">
+          <button class="settings-btn secondary" onclick="scanWiFiNetworks()">🔄 Scan Networks</button>
+        </div>
+      </div>
+      
+      <div class="modal-buttons">
+        <button class="settings-btn secondary" onclick="closeWiFiModal()">Cancel</button>
+        <button class="settings-btn danger" onclick="clearWiFiData()">Clear WiFi Data</button>
+        <button class="settings-btn secondary" onclick="disconnectWiFi()">Disconnect</button>
+        <button class="settings-btn" onclick="connectWiFi()">Connect</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.settings-title {
+  color: #fff;
+  font-size: 1.2rem;
+  margin: 32px 0 12px 0;
+  font-weight: bold;
+}
+.settings-group {
+  margin-bottom: 24px;
+}
+.settings-card {
+  background: #232b32;
+  border-radius: 10px;
+  padding: 18px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+}
+.settings-item {
+  display: flex;
+  align-items: center;
+  color: #e0e6ed;
+  font-size: 1.1rem;
+  padding: 12px 24px;
+  border-bottom: 1px solid #2d3741;
+  justify-content: space-between;
+}
+.settings-item:last-child {
+  border-bottom: none;
+}
+.icon {
+  margin-right: 16px;
+  font-size: 1.3em;
+  width: 28px;
+  text-align: center;
+}
+.settings-btn {
+  background: #2196f3;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 14px;
+  font-size: 1em;
+  cursor: pointer;
+  margin-left: 12px;
+  transition: background 0.2s;
+}
+.settings-btn:hover {
+  background: #1769aa;
+}
+.settings-btn.secondary {
+  background: #6c757d;
+}
+.settings-btn.secondary:hover {
+  background: #545b62;
+}
+.settings-btn.danger {
+  background: #dc3545;
+}
+.settings-btn.danger:hover {
+  background: #c82333;
+}
+.settings-input, .settings-select {
+  background: #1e262d;
+  color: #e0e6ed;
+  border: 1px solid #3d4751;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 0.9em;
+  min-width: 120px;
+}
+.settings-input:focus, .settings-select:focus {
+  outline: none;
+  border-color: #2196f3;
+}
+.settings-info {
+  color: #9e9e9e;
+  font-size: 0.9em;
+}
+.password-requirements {
+  margin-top: 10px;
+  padding: 8px 10px;
+  background: rgba(255, 193, 7, 0.1);
+  border-left: 3px solid #ffc107;
+  border-radius: 0 4px 4px 0;
+}
+.password-requirements small {
+  color: #ffc107;
+  font-size: 0.8em;
+}
+.wifi-status {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #2d3741;
+}
+.wifi-status h4, .wifi-config h4, .mqtt-status h4, .mqtt-config h4 {
+  color: #fff;
+  margin: 0 0 10px 0;
+  font-size: 1rem;
+}
+.mqtt-status, .mqtt-config {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #2d3741;
+}
+.home-assistant-info {
+  background: rgba(3, 102, 214, 0.1);
+  border-left: 3px solid #0366d6;
+  border-radius: 0 4px 4px 0;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+.home-assistant-info h4 {
+  color: #0366d6;
+  margin: 0 0 10px 0;
+  font-size: 1rem;
+}
+.home-assistant-info p {
+  color: #e0e6ed;
+  margin: 8px 0;
+  line-height: 1.4;
+}
+.home-assistant-info ul {
+  color: #e0e6ed;
+  margin: 10px 0 10px 20px;
+  line-height: 1.5;
+}
+.home-assistant-info code {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 0.9em;
+}
+.status-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.status-item {
+  display: flex;
+  flex-direction: column;
+}
+.status-item label {
+  color: #9e9e9e;
+  font-size: 0.8em;
+  margin-bottom: 2px;
+}
+.status-item span {
+  color: #e0e6ed;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+.status-indicator {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.8em !important;
+  background: #28a745;
+  color: #fff !important;
+}
+.status-indicator.disconnected {
+  background: #dc3545;
+}
+.wifi-config {
+  margin-bottom: 20px;
+}
+.modal {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
+  overflow-y: auto;
+  padding: 10px;
+  box-sizing: border-box;
+}
+.modal-content {
+  background-color: #232b32;
+  margin: 20px auto;
+  padding: 0;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 500px;
+  min-height: fit-content;
+  max-height: calc(100vh - 40px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #2d3741;
+  flex-shrink: 0;
+}
+.modal-header h3 {
+  color: #fff;
+  margin: 0;
+}
+.close {
+  color: #9e9e9e;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.close:hover {
+  color: #fff;
+}
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+.form-group {
+  margin-bottom: 15px;
+}
+.form-group label {
+  display: block;
+  color: #e0e6ed;
+  margin-bottom: 5px;
+  font-size: 0.9em;
+}
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+@media (max-width: 700px) {
+  .settings-card { padding: 8px 0; }
+  .settings-item { font-size: 1em; padding: 10px 10px; flex-direction: column; align-items: flex-start; gap: 10px; }
+  .settings-title { font-size: 1rem; }
+  .modal { padding: 5px; }
+  .modal-content { 
+    width: 95%; 
+    margin: 10px auto;
+    max-height: calc(100vh - 20px);
+  }
+  .modal-buttons { flex-direction: column; }
+  .modal-header { padding: 15px; }
+  .modal-body { padding: 15px; }
+}
+
+/* Zusätzliche Regeln für sehr kleine Bildschirme */
+@media (max-width: 400px) {
+  .modal { padding: 0; }
+  .modal-content { 
+    width: 100%; 
+    margin: 0;
+    border-radius: 0;
+    max-height: 100vh;
+  }
+}
+</style>
+
+<script>
+function saveDeviceName() {
+  const deviceName = document.getElementById('deviceName').value;
+  if (!deviceName.trim()) {
+    alert('Please enter a device name');
+    return;
+  }
+  
+  fetch('/api/device-name?token=' + getToken(), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'name=' + encodeURIComponent(deviceName)
+  })
+  .then(response => response.text())
+  .then(data => {
+    if (data === 'OK') {
+      alert('Device name saved successfully');
+    } else {
+      alert('Error saving device name');
+    }
+  });
+}
+
+function rebootDevice() {
+  if (confirm('Are you sure you want to reboot the device?')) {
+    fetch('/api/reboot?token=' + getToken(), { method: 'POST' })
+    .then(() => {
+      alert('Device is rebooting...');
+      setTimeout(() => location.reload(), 5000);
+    });
+  }
+}
+
+function factoryReset() {
+  if (confirm('Are you sure you want to factory reset? All settings will be lost!')) {
+    if (confirm('This action cannot be undone. Proceed?')) {
+      fetch('/api/factory-reset?token=' + getToken(), { method: 'POST' })
+      .then(() => {
+        alert('Factory reset initiated. Device will reboot...');
+        setTimeout(() => location.href = '/login', 3000);
+      });
+    }
+  }
+}
+
+function changePassword() {
+  const currentPassword = document.getElementById('currentPassword').value;
+  const newPassword = document.getElementById('newPassword').value;
+  const confirmPassword = document.getElementById('confirmPassword').value;
+  
+  // Validate inputs
+  if (!currentPassword) {
+    alert('Please enter your current password');
+    return;
+  }
+  
+  if (!newPassword || newPassword.length < 6) {
+    alert('New password must be at least 6 characters long');
+    return;
+  }
+  
+  if (newPassword !== confirmPassword) {
+    alert('New passwords do not match');
+    return;
+  }
+  
+  if (currentPassword === newPassword) {
+    alert('New password must be different from the current password');
+    return;
+  }
+  
+  fetch('/api/change-password?token=' + getToken(), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'currentPassword=' + encodeURIComponent(currentPassword) + '&newPassword=' + encodeURIComponent(newPassword)
+  })
+  .then(response => response.text())
+  .then(data => {
+    if (data === 'OK') {
+      alert('Password changed successfully. Please login again.');
+      location.href = '/login';
+    } else if (data === 'WRONG_PASSWORD') {
+      alert('Current password is incorrect');
+    } else {
+      alert('Error changing password: ' + data);
+    }
+  })
+  .catch(error => {
+    alert('Error changing password: ' + error);
+  });
+}
+
+function showPasswordModal() {
+  // Clear form fields
+  document.getElementById('currentPassword').value = '';
+  document.getElementById('newPassword').value = '';
+  document.getElementById('confirmPassword').value = '';
+  document.getElementById('passwordModal').style.display = 'block';
+}
+
+function closePasswordModal() {
+  document.getElementById('passwordModal').style.display = 'none';
+}
+
+function checkUpdate() {
+  alert('Current firmware version: %FIRMWARE_VERSION%\nUpdate check feature coming soon...');
+}
+
+function saveTempUnit() {
+  const tempUnit = document.getElementById('tempUnit').value;
+  
+  fetch('/api/temp-unit?token=' + getToken(), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'unit=' + encodeURIComponent(tempUnit)
+  })
+  .then(response => response.text())
+  .then(data => {
+    if (data === 'OK') {
+      alert('Temperature unit saved successfully');
+    } else {
+      alert('Error saving temperature unit');
+    }
+  });
+}
+
+function toggleAP() {
+  const button = document.getElementById('apToggleBtn');
+  const isEnabled = button.textContent.includes('Disable');
+  
+  fetch('/api/toggle-ap?token=' + getToken(), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'enable=' + (!isEnabled ? '1' : '0')
+  })
+  .then(response => response.text())
+  .then(data => {
+    if (data === 'OK') {
+      alert('Access Point ' + (isEnabled ? 'disabled' : 'enabled') + '. Device will reboot...');
+      setTimeout(() => location.reload(), 3000);
+    } else {
+      alert('Error toggling Access Point');
+    }
+  });
+}
+
+function showMQTTSettings() {
+  document.getElementById('mqttModal').style.display = 'block';
+  // Load current MQTT status
+  loadMQTTStatus();
+}
+
+function closeMQTTModal() {
+  document.getElementById('mqttModal').style.display = 'none';
+}
+
+function loadMQTTStatus() {
+  fetch('/api/mqtt-status?token=' + getToken())
+  .then(response => response.json())
+  .then(data => {
+    const statusElement = document.getElementById('mqttConnectionStatus');
+    if (data.connected) {
+      statusElement.textContent = 'Connected';
+      statusElement.className = 'status-indicator';
+    } else {
+      statusElement.textContent = data.status || 'Not Connected';
+      statusElement.className = 'status-indicator disconnected';
+    }
+  })
+  .catch(error => {
+    console.error('Error loading MQTT status:', error);
+    const statusElement = document.getElementById('mqttConnectionStatus');
+    statusElement.textContent = 'Unknown';
+    statusElement.className = 'status-indicator disconnected';
+  });
+}
+
+function testMQTTConnection() {
+  const server = document.getElementById('mqttServer').value;
+  const port = document.getElementById('mqttPort').value;
+  
+  if (!server || !port) {
+    alert('Please enter server and port');
+    return;
+  }
+  
+  fetch('/api/mqtt-test?token=' + getToken(), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `server=${encodeURIComponent(server)}&port=${port}&user=${encodeURIComponent(document.getElementById('mqttUser').value)}&pass=${encodeURIComponent(document.getElementById('mqttPass').value)}`
+  })
+  .then(response => response.text())
+  .then(data => {
+    alert(data === 'OK' ? 'MQTT connection successful!' : 'MQTT connection failed: ' + data);
+  });
+}
+
+function saveMQTTSettings() {
+  const server = document.getElementById('mqttServer').value;
+  const port = document.getElementById('mqttPort').value;
+  const user = document.getElementById('mqttUser').value;
+  const pass = document.getElementById('mqttPass').value;
+  const topic = document.getElementById('mqttTopic').value;
+  
+  if (!server || !port) {
+    alert('Please enter at least server and port');
+    return;
+  }
+  
+  fetch('/api/mqtt-settings?token=' + getToken(), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `server=${encodeURIComponent(server)}&port=${port}&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}&topic=${encodeURIComponent(topic)}`
+  })
+  .then(response => response.text())
+  .then(data => {
+    if (data === 'OK') {
+      alert('MQTT settings saved successfully');
+      closeMQTTModal();
+    } else {
+      alert('Error saving MQTT settings');
+    }
+  });
+}
+
+function showWiFiModal() {
+  document.getElementById('wifiModal').style.display = 'block';
+  // Load current WiFi status
+  loadWiFiStatus();
+}
+
+function closeWiFiModal() {
+  document.getElementById('wifiModal').style.display = 'none';
+}
+
+function loadWiFiStatus() {
+  fetch('/api/wifi-status?token=' + getToken())
+  .then(response => response.json())
+  .then(data => {
+    document.getElementById('currentSSID').textContent = data.ssid || '-';
+    document.getElementById('currentIP').textContent = data.ip || '-';
+    document.getElementById('currentMAC').textContent = data.mac || '-';
+    
+    const statusElement = document.getElementById('connectionStatus');
+    statusElement.textContent = data.status || 'Unknown';
+    statusElement.className = 'status-indicator ' + (data.connected ? '' : 'disconnected');
+  })
+  .catch(error => {
+    console.error('Error loading WiFi status:', error);
+  });
+}
+
+function scanWiFiNetworks() {
+  const button = event.target;
+  button.disabled = true;
+  button.textContent = '🔄 Scanning...';
+  
+  fetch('/api/wifi-scan?token=' + getToken())
+  .then(response => response.json())
+  .then(data => {
+    const select = document.getElementById('wifiSSID');
+    select.innerHTML = '<option value="">-- Select Network --</option>';
+    
+    if (data.networks && data.networks.length > 0) {
+      data.networks.forEach(network => {
+        const option = document.createElement('option');
+        option.value = network.ssid;
+        option.textContent = `${network.ssid} (${network.rssi}dBm)`;
+        if (network.selected) {
+          option.selected = true;
+        }
+        select.appendChild(option);
+      });
+    } else {
+      select.innerHTML = '<option value="">No networks found</option>';
+    }
+    
+    button.disabled = false;
+    button.textContent = '🔄 Scan Networks';
+  })
+  .catch(error => {
+    console.error('Error scanning WiFi networks:', error);
+    alert('Error scanning networks');
+    button.disabled = false;
+    button.textContent = '🔄 Scan Networks';
+  });
+}
+
+function connectWiFi() {
+  const ssid = document.getElementById('wifiSSID').value;
+  const password = document.getElementById('wifiPassword').value;
+  
+  if (!ssid) {
+    alert('Please select a network');
+    return;
+  }
+  
+  if (!password) {
+    if (!confirm('Connect to network without password?')) {
+      return;
+    }
+  }
+  
+  fetch('/wifi_connect?token=' + getToken(), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `ssid=${encodeURIComponent(ssid)}&password=${encodeURIComponent(password)}`
+  })
+  .then(response => response.text())
+  .then(data => {
+    if (data === 'OK') {
+      alert('WiFi connection initiated. Please wait...');
+      closeWiFiModal();
+      setTimeout(() => {
+        location.reload();
+      }, 5000);
+    } else {
+      alert('Error connecting to WiFi');
+    }
+  })
+  .catch(error => {
+    console.error('Error connecting to WiFi:', error);
+    alert('Error connecting to WiFi');
+  });
+}
+
+function disconnectWiFi() {
+  if (confirm('Disconnect from current WiFi network?')) {
+    fetch('/api/wifi-disconnect?token=' + getToken(), {
+      method: 'POST'
+    })
+    .then(response => response.text())
+    .then(data => {
+      if (data === 'OK') {
+        alert('WiFi disconnected');
+        loadWiFiStatus();
+      } else {
+        alert('Error disconnecting WiFi');
+      }
+    });
+  }
+}
+
+function clearWiFiData() {
+  if (confirm('This will delete all saved WiFi credentials. Are you sure?')) {
+    if (confirm('This action cannot be undone. The device will disconnect from WiFi. Continue?')) {
+      fetch('/api/wifi-clear?token=' + getToken(), {
+        method: 'POST'
+      })
+      .then(response => response.text())
+      .then(data => {
+        if (data === 'OK') {
+          alert('WiFi credentials cleared successfully');
+          // Clear the form
+          document.getElementById('wifiSSID').value = '';
+          document.getElementById('wifiPassword').value = '';
+          // Reload WiFi status
+          loadWiFiStatus();
+          // Close modal after a short delay
+          setTimeout(() => {
+            closeWiFiModal();
+          }, 1000);
+        } else {
+          alert('Error clearing WiFi credentials');
+        }
+      })
+      .catch(error => {
+        console.error('Error clearing WiFi credentials:', error);
+        alert('Error clearing WiFi credentials');
+      });
+    }
+  }
+}
+
+function getToken() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('token') || '';
+}
+
+// Navigate with token
+function navigateWithToken(page) {
+  const token = getToken();
+  if (token) {
+    window.location.href = page + '?token=' + token;
+  } else {
+    window.location.href = page;
+  }
+}
+
+// Hamburger menu functions
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  sidebar.classList.toggle('active');
+  overlay.classList.toggle('active');
+}
+
+function logout() {
+  if (confirm('Are you sure you want to logout?')) {
+    window.location.href = 'login.html';
+  }
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+  const mqttModal = document.getElementById('mqttModal');
+  const passwordModal = document.getElementById('passwordModal');
+  const wifiModal = document.getElementById('wifiModal');
+  
+  if (event.target === mqttModal) {
+    closeMQTTModal();
+  } else if (event.target === passwordModal) {
+    closePasswordModal();
+  } else if (event.target === wifiModal) {
+    closeWiFiModal();
+  }
+}
+</script>
+
+    </div>
+  </div>
+</body>
+</html>

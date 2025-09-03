@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>ESP32 Login</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Login specific styles */
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a252f 0%, #0f1419 100%);
+      background-attachment: fixed;
+    }
+    
+    .login-container {
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+    }
+    
+    .login-card {
+      background: rgba(35, 43, 50, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+      animation: loginShow 0.6s ease forwards;
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    
+    @keyframes loginShow {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    .logo-container {
+      margin-bottom: 30px;
+    }
+    
+    .logo-img {
+      width: 120px;
+      height: auto;
+      margin: 0 auto 20px;
+      display: block;
+      border-radius: 10px;
+      animation: logoFloat 3s ease-in-out infinite;
+    }
+    
+    .logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2196f3, #21cbf3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 2rem;
+      animation: logoFloat 3s ease-in-out infinite;
+    }
+    
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    .login-title {
+      color: #fff;
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin: 0 0 10px 0;
+    }
+    
+    .login-subtitle {
+      color: #9e9e9e;
+      font-size: 0.9rem;
+      margin: 0 0 30px 0;
+    }
+    
+    .login-form {
+      width: 100%;
+    }
+    
+    .password-group {
+      position: relative;
+      margin-bottom: 25px;
+    }
+    
+    .password-input {
+      width: 100%;
+      padding: 15px 50px 15px 20px;
+      background: rgba(30, 38, 45, 0.8);
+      border: 2px solid transparent;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 16px; /* Prevents zoom on iOS */
+      transition: all 0.3s ease;
+      outline: none;
+    }
+    
+    .password-input:focus {
+      border-color: #2196f3;
+      background: rgba(30, 38, 45, 1);
+      box-shadow: 0 0 20px rgba(33, 150, 243, 0.2);
+    }
+    
+    .password-input::placeholder {
+      color: #666;
+    }
+    
+    .password-toggle {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #9e9e9e;
+      cursor: pointer;
+      padding: 5px;
+      transition: color 0.2s ease;
+    }
+    
+    .password-toggle:hover {
+      color: #2196f3;
+    }
+    
+    .login-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #2196f3, #1976d2);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(33, 150, 243, 0.4);
+    }
+    
+    .login-btn:active {
+      transform: translateY(0);
+    }
+    
+    .login-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .login-btn .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top: 2px solid #fff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 10px;
+    }
+    
+    .error-message {
+      background: rgba(220, 53, 69, 0.1);
+      border: 1px solid rgba(220, 53, 69, 0.3);
+      color: #dc3545;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+      display: none;
+    }
+    
+    .device-info {
+      background: rgba(33, 150, 243, 0.05);
+      border: 1px solid rgba(33, 150, 243, 0.2);
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 20px;
+      text-align: left;
+    }
+    
+    .device-info h4 {
+      color: #2196f3;
+      margin: 0 0 10px 0;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.8rem;
+    }
+    
+    .info-row:last-child {
+      margin-bottom: 0;
+    }
+    
+    .info-label {
+      color: #9e9e9e;
+    }
+    
+    .info-value {
+      color: #fff;
+      font-family: monospace;
+    }
+    
+    .security-notice {
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(255, 193, 7, 0.1);
+      border: 1px solid rgba(255, 193, 7, 0.3);
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: #ffc107;
+      text-align: left;
+    }
+    
+    .security-notice strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+    
+    /* Tablet optimizations */
+    @media (min-width: 600px) {
+      .login-container {
+        max-width: 500px;
+      }
+      
+      .login-card {
+        padding: 50px;
+      }
+      
+      .logo-img {
+        width: 150px;
+      }
+      
+      .logo {
+        width: 100px;
+        height: 100px;
+        font-size: 2.5rem;
+      }
+      
+      .login-title {
+        font-size: 2.2rem;
+      }
+      
+      .login-subtitle {
+        font-size: 1rem;
+      }
+    }
+    
+    /* Desktop optimizations */
+    @media (min-width: 1024px) {
+      .login-container {
+        max-width: 450px;
+      }
+      
+      .login-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+      }
+    }
+    
+    /* Loading animation */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .loading-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .loading-content {
+      text-align: center;
+      color: #fff;
+    }
+    
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top: 3px solid #2196f3;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <!-- Logo -->
+      <div class="logo-container">
+        <img src="/img/logo.png" alt="Logo" class="logo-img">
+        <h1 class="login-title">HeatBodyVentilator</h1>
+        <p class="login-subtitle">design by SmartHome-Assistant.info</p>
+      </div>
+
+      <!-- Error Message -->
+      <div id="errorMessage" class="error-message"></div>
+
+      <!-- Login Form -->
+      <form class="login-form" id="loginForm" action="/login" method="POST">
+        <div class="password-group">
+          <input 
+            type="password" 
+            name="password" 
+            id="password"
+            class="password-input" 
+            placeholder="Enter your password" 
+            required
+            autocomplete="current-password"
+          >
+          <button type="button" class="password-toggle" id="togglePassword">
+            👁️
+          </button>
+        </div>
+        
+        <button type="submit" class="login-btn" id="loginBtn">
+          <span id="loginText">🔐 Sign In</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <div>Authenticating...</div>
+    </div>
+  </div>
+
+  <script>
+    // Password toggle functionality
+    document.getElementById('togglePassword').addEventListener('click', function() {
+      const passwordInput = document.getElementById('password');
+      const toggleBtn = this;
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleBtn.textContent = '🙈';
+      } else {
+        passwordInput.type = 'password';
+        toggleBtn.textContent = '👁️';
+      }
+    });
+
+    // Form submission with enhanced UX
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      const loginBtn = document.getElementById('loginBtn');
+      const loginText = document.getElementById('loginText');
+      const loadingOverlay = document.getElementById('loadingOverlay');
+      
+      // Show loading state
+      loginBtn.disabled = true;
+      loginText.innerHTML = '<span class="spinner"></span>Signing In...';
+      loadingOverlay.classList.add('show');
+      
+      // Hide any previous error
+      hideError();
+    });
+
+    // Error handling from URL parameters
+    function checkForErrors() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const error = urlParams.get('error');
+      
+      if (error === 'invalid') {
+        showError('Invalid password. Please try again.');
+      } else if (error === 'expired') {
+        showError('Session expired. Please login again.');
+      }
+    }
+
+    function showError(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+      
+      // Shake animation
+      errorDiv.style.animation = 'shake 0.5s ease-in-out';
+    }
+
+    function hideError() {
+      const errorDiv = document.getElementById('errorMessage');
+      errorDiv.style.display = 'none';
+    }
+
+    // Focus handling for better UX
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check for errors
+      checkForErrors();
+      
+      // Auto-focus password field
+      document.getElementById('password').focus();
+      
+      // Remove loading overlay on page load
+      document.getElementById('loadingOverlay').classList.remove('show');
+      
+      // Device-specific optimizations
+      if (window.innerWidth < 600) {
+        // Mobile optimizations
+        document.querySelector('.security-notice').style.display = 'none';
+      }
+      
+      // Handle network connectivity
+      window.addEventListener('online', function() {
+        showNotification('Connection restored', 'success');
+      });
+      
+      window.addEventListener('offline', function() {
+        showNotification('No internet connection', 'error');
+      });
+    });
+
+    // Notification system
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 6px;
+        color: white;
+        font-weight: 500;
+        z-index: 10000;
+        max-width: 300px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        animation: slideIn 0.3s ease;
+      `;
+      
+      if (type === 'success') notification.style.background = '#28a745';
+      else if (type === 'error') notification.style.background = '#dc3545';
+      else notification.style.background = '#2196f3';
+      
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => notification.remove(), 3000);
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      // Enter key submits form
+      if (e.key === 'Enter' && e.target.id !== 'loginBtn') {
+        document.getElementById('loginForm').requestSubmit();
+      }
+      
+      // Escape key clears password
+      if (e.key === 'Escape') {
+        document.getElementById('password').value = '';
+        document.getElementById('password').focus();
+      }
+    });
+
+    // Add shake animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>

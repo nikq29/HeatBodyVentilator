@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>M5Atom Control</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    :root {
+      --primary: #4a6fa5;
+      --secondary: #166088;
+    }
+    
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+    
+    .header {
+      display: flex;
+      align-items: center;
+      height: 60px;
+      background: #fff;
+      border-bottom: 2px solid #e0e0e0;
+      padding: 0 24px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 100;
+      box-sizing: border-box;
+    }
+    
+    .header-logo {
+      height: 40px;
+      width: auto;
+      display: block;
+      margin-right: 18px;
+    }
+    
+    .header-title {
+      font-size: 2rem;
+      color: var(--primary);
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin: 0;
+      line-height: 1;
+    }
+    
+    .main-layout {
+      display: flex;
+      flex-direction: row;
+    }
+    
+    .content {
+      flex: 1;
+      padding: 30px;
+      margin-left: 0;
+      margin-top: 60px;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    .card h3 {
+      margin-top: 0;
+      color: var(--primary);
+      font-size: 1.3rem;
+      margin-bottom: 15px;
+    }
+
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.2s;
+      margin-right: 10px;
+    }
+
+    .btn:hover {
+      background: var(--secondary);
+    }
+
+    /* Hamburger Menu CSS */
+    .hamburger-menu {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      width: 35px;
+      height: 30px;
+      cursor: pointer;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .hamburger-menu span {
+      width: 100%;
+      height: 3px;
+      background-color: var(--primary);
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    .hamburger-menu:hover span {
+      background-color: var(--secondary);
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -300px;
+      width: 280px;
+      height: 100vh;
+      background: linear-gradient(135deg, #1e2832 0%, #0f1419 100%);
+      border-right: 2px solid var(--primary);
+      transition: left 0.3s ease;
+      z-index: 999;
+      overflow-y: auto;
+    }
+
+    .sidebar.active {
+      left: 0;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      background: rgba(74, 111, 165, 0.1);
+      border-bottom: 1px solid var(--primary);
+    }
+
+    .sidebar-header h3 {
+      color: var(--primary);
+      font-size: 1.2rem;
+      margin: 0;
+      text-align: center;
+    }
+
+    .nav-menu {
+      list-style: none;
+      padding: 20px 0;
+      margin: 0;
+    }
+
+    .nav-menu li {
+      margin: 0;
+    }
+
+    .nav-menu a {
+      display: block;
+      padding: 15px 25px;
+      color: #e0e6ed;
+      text-decoration: none;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-menu a:hover {
+      background: rgba(74, 111, 165, 0.1);
+      border-left-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .nav-menu a:active {
+      background: rgba(74, 111, 165, 0.2);
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 998;
+      display: none;
+    }
+
+    .overlay.active {
+      display: block;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .hamburger-menu {
+        top: 12px;
+        right: 15px;
+      }
+      
+      .sidebar {
+        width: 260px;
+      }
+
+      .header {
+        padding: 0 60px 0 60px;
+      }
+      
+      .header-title {
+        font-size: 1.5rem;
+      }
+      
+      .content {
+        padding: 15px;
+      }
+      
+      .card {
+        padding: 15px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .sidebar {
+        width: 100%;
+        left: -100%;
+      }
+
+      .header-title {
+        font-size: 1.2rem;
+      }
+      
+      .content {
+        padding: 10px;
+      }
+      
+      .card {
+        padding: 12px;
+      }
+      
+      .btn {
+        width: 100%;
+        margin-bottom: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Hamburger Menu Button -->
+  <div class="hamburger-menu" onclick="toggleSidebar()">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <div class="header">
+    <img src="/img/logo.png" alt="Logo" class="header-logo">
+    <h1 class="header-title">FlowHeaThink</h1>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h3>Navigation</h3>
+    </div>
+    <ul class="nav-menu">
+      <li><a href="#" onclick="navigateWithToken('index')">Home</a></li>
+      <li><a href="#" onclick="navigateWithToken('setting')">Settings</a></li>
+      <li><a href="#" onclick="logout()">Logout</a></li>
+    </ul>
+  </div>
+
+  <!-- Overlay -->
+  <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="main-layout">
+    <div class="content">
+      <!-- Welcome Block -->
+      <div class="card">
+        <h3>Welcome!</h3>
+        <p>Control your M5Atom device from this interface.</p>
+      </div>
+
+      <!-- LED Control Block -->
+      <div class="card">
+        <h3>LED Control</h3>
+        <button class="btn btn-primary" onclick="toggleLED()">Toggle LED</button>
+      </div>
+
+      <!-- Device Status Block -->
+      <div class="card">
+        <h3>Device Status</h3>
+        <p>Device: M5Atom Matrix</p>
+        <p>IP: %DEVICE_IP%</p>
+        <p>WiFi: %WIFI_SSID%</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleLED() {
+      fetch('/api/led-toggle?token=' + getToken(), { method: 'POST' })
+        .then(response => response.text())
+        .then(data => {
+          alert(data === 'OK' ? 'LED toggled' : 'Error');
+        });
+    }
+    
+    function getToken() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('token') || '';
+    }
+
+    // Navigate with token
+    function navigateWithToken(page) {
+      const token = getToken();
+      if (token) {
+        window.location.href = page + '?token=' + token;
+      } else {
+        window.location.href = page;
+      }
+    }
+
+    // Hamburger menu functions
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('overlay');
+      sidebar.classList.toggle('active');
+      overlay.classList.toggle('active');
+    }
+
+    function logout() {
+      if (confirm('Are you sure you want to logout?')) {
+        window.location.href = 'login.html';
+      }
+    }
+  </script>
+</body>
+</html>

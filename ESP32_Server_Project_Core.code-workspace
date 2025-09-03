@@ -1,0 +1,30 @@
+{
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "git.autofetch": true,
+        "git.confirmSync": false,
+        "git.enableSmartCommit": true,
+        "git.postCommitCommand": "sync",
+        "files.autoSave": "onFocusChange",
+        "git.autoRepositoryDetection": true,
+        "gitHistoryView.showTags": true,
+        "gitlens.advanced.messages": {
+            "suppressCommitHasNoPreviousCommitWarning": true,
+            "suppressGitVersionWarning": true,
+            "suppressLineUncommittedWarning": true
+        }
+    },
+    "extensions": {
+        "recommendations": [
+            "platformio.platformio-ide",
+            "ms-vscode.cpptools",
+            "eamodio.gitlens",
+            "mhutchie.git-graph",
+            "donjayamanne.githistory"
+        ]
+    }
+}

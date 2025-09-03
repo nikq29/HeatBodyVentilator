@@ -12,6 +12,8 @@
         "files.autoSave": "onFocusChange",
         "git.autoRepositoryDetection": true,
         "gitHistoryView.showTags": true,
+        "files.autoSaveDelay": 5000,
+        "git.enableStatusBarSync": true,
         "gitlens.advanced.messages": {
             "suppressCommitHasNoPreviousCommitWarning": true,
             "suppressGitVersionWarning": true,

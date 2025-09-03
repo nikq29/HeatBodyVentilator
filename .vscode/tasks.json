@@ -47,6 +47,41 @@
 			"group": "build"
 		},
 		{
+			"label": "Git Auto-Backup",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-ExecutionPolicy", "Bypass",
+				"-File", "${workspaceFolder}\\auto-backup.ps1"
+			],
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Git Backup with Message",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-ExecutionPolicy", "Bypass",
+				"-File", "${workspaceFolder}\\auto-backup.ps1",
+				"-Message", "${input:commitMessage}"
+			],
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
 			"label": "Build Responsive Design",
 			"type": "shell",
 			"command": "pio run",
@@ -72,6 +107,14 @@
 			],
 			"isBackground": false,
 			"group": "build"
+		}
+	],
+	"inputs": [
+		{
+			"id": "commitMessage",
+			"description": "Commit message",
+			"default": "Update: $(date)",
+			"type": "promptString"
 		}
 	]
 }

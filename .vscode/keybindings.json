@@ -1,11 +1,11 @@
 [
     {
-        "key": "ctrl+shift+s",
+        "key": "ctrl+alt+g",
         "command": "workbench.action.tasks.runTask",
         "args": "Git Auto-Backup"
     },
     {
-        "key": "ctrl+shift+alt+s",
+        "key": "ctrl+shift+alt+g",
         "command": "workbench.action.tasks.runTask",
         "args": "Git Backup with Message"
     }

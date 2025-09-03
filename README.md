@@ -4,7 +4,7 @@ Ein ESP32-basiertes Webserver-Projekt mit MQTT-Integration für Home Assistant.
 
 ## Features
 
-- 🌐 **Web Interface**: Responsive Weboberfläche mit Hamburger-Menü
+- 🌐 **Web Interface**: Responsive Weboberfläche mit Hamburger-Menü...
 - 📡 **MQTT Integration**: Home Assistant Auto Discovery Support
 - 💡 **LED Control**: FastLED-basierte LED-Steuerung
 - 🔐 **Authentication**: Token-basierte Authentifizierung

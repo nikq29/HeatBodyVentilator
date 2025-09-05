@@ -166,7 +166,7 @@ void ServerManager::handleSetting() {
     
     // Access Point status
     String apStatus = Config::AP_ENABLED ? "Enabled" : "Disabled";
-    String apButtonText = Config::AP_ENABLED ? "Disable →" : "Enable →";
+    String apButtonText = Config::AP_ENABLED ? "Disable" : "Enable";
     html.replace("%AP_STATUS%", apStatus);
     html.replace("%AP_BUTTON_TEXT%", apButtonText);
     

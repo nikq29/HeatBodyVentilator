@@ -5,8 +5,18 @@
 WiFiManager wifi; // Nur HIER die Definition!
 
 void WiFiManager::beginAP() {
-    WiFi.mode(WIFI_AP_STA); // Dual Mode aktivieren
-    WiFi.softAP(Config::AP_SSID, Config::AP_PASS);
+    WiFi.mode(WIFI_AP_STA);
+    WiFi.softAP("ESP32-Setup", "12345678");
+    Serial.println("Access Point started");
+    Serial.print("AP IP address: ");
+    Serial.println(WiFi.softAPIP());
+}
+
+void WiFiManager::stopAP() {
+    Serial.println("Stopping Access Point...");
+    WiFi.softAPdisconnect(true);
+    WiFi.mode(WIFI_STA);
+    Serial.println("Access Point stopped - WiFi mode set to STA only");
 }
 
 void WiFiManager::beginSTA(const char* ssid, const char* pass) {

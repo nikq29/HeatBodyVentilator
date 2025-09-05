@@ -5,6 +5,7 @@
 class WiFiManager {
 public:
     void beginAP();
+    void stopAP();
     void beginSTA(const char* ssid, const char* pass);
     void beginAutoSTA();
     bool isConnected();

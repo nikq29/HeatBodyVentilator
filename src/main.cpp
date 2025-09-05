@@ -9,6 +9,7 @@
 
 ServerManager web;
 LEDManager led;
+extern WiFiManager wifi; // Use the existing instance from WiFiManager.cpp
 bool hasWifiCredentials = false;
 unsigned long lastWifiCheck = 0;
 const unsigned long WIFI_CHECK_INTERVAL = 10000; // Check every 10 seconds (reduced from 30)
@@ -58,6 +59,11 @@ void setup() {
     // Initialize WiFi based on AP_ENABLED setting
     if (Config::AP_ENABLED) {
         wifi.beginAP();
+        Serial.println("Starting in AP mode (Access Point enabled)");
+    } else {
+        // Ensure AP is stopped if disabled
+        wifi.stopAP();
+        Serial.println("AP mode disabled");
     }
     wifi.beginAutoSTA(); // Verbindet sich automatisch mit gespeicherter SSID/Passwort
     

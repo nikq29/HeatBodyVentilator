@@ -223,28 +223,63 @@
 <div class="settings-group">
   <div class="settings-card">
     <div class="settings-item">
-      <span><span class="icon"><i class="fas fa-tag"></i><span class="icon-fallback" style="display:none;">⊞</span></span> Device name</span>
-      <div style="display: flex; gap: 8px;">
+      <div class="settings-header">
+        <span class="icon"><i class="fas fa-tag"></i><span class="icon-fallback" style="display:none;">⊞</span></span> 
+        <span class="settings-label">Device name</span>
+      </div>
+      <div class="settings-controls">
         <input type="text" id="deviceName" class="settings-input" value="%DEVICE_NAME%" placeholder="Enter device name">
         <button class="settings-btn" onclick="saveDeviceName()">Save</button>
       </div>
     </div>
-    <div class="settings-item"><span class="icon"><i class="fas fa-power-off"></i><span class="icon-fallback" style="display:none;">⏻</span></span> Reboot device <button class="settings-btn" onclick="rebootDevice()">Reboot →</button></div>
-    <div class="settings-item"><span class="icon"><i class="fas fa-undo-alt"></i><span class="icon-fallback" style="display:none;">↻</span></span> Factory reset <button class="settings-btn" onclick="factoryReset()">Reset →</button></div>
+    
     <div class="settings-item">
-      <span><span class="icon"><i class="fas fa-lock"></i><span class="icon-fallback" style="display:none;">🔒</span></span> Authentication</span>
-      <button class="settings-btn" onclick="showPasswordModal()">Change →</button>
+      <div class="settings-header">
+        <span class="icon"><i class="fas fa-power-off"></i><span class="icon-fallback" style="display:none;">⏻</span></span>
+        <span class="settings-label">Reboot device</span>
+      </div>
+      <div class="settings-controls">
+        <button class="settings-btn" onclick="rebootDevice()">Reboot →</button>
+      </div>
     </div>
+    
     <div class="settings-item">
-      <span><span class="icon"><i class="fas fa-microchip"></i><span class="icon-fallback" style="display:none;">⚙</span></span> Firmware</span>
-      <div style="display: flex; gap: 8px;">
+      <div class="settings-header">
+        <span class="icon"><i class="fas fa-undo-alt"></i><span class="icon-fallback" style="display:none;">↻</span></span>
+        <span class="settings-label">Factory reset</span>
+      </div>
+      <div class="settings-controls">
+        <button class="settings-btn" onclick="factoryReset()">Reset →</button>
+      </div>
+    </div>
+    
+    <div class="settings-item">
+      <div class="settings-header">
+        <span class="icon"><i class="fas fa-lock"></i><span class="icon-fallback" style="display:none;">🔒</span></span>
+        <span class="settings-label">Authentication</span>
+      </div>
+      <div class="settings-controls">
+        <button class="settings-btn" onclick="showPasswordModal()">Change →</button>
+      </div>
+    </div>
+    
+    <div class="settings-item">
+      <div class="settings-header">
+        <span class="icon"><i class="fas fa-microchip"></i><span class="icon-fallback" style="display:none;">⚙</span></span>
+        <span class="settings-label">Firmware</span>
+      </div>
+      <div class="settings-controls">
         <span class="settings-info">Version: %FIRMWARE_VERSION%</span>
         <button class="settings-btn" onclick="checkUpdate()">Check →</button>
       </div>
     </div>
+    
     <div class="settings-item">
-      <span><span class="icon"><i class="fas fa-thermometer-half"></i><span class="icon-fallback" style="display:none;">🌡</span></span> Temperature unit</span>
-      <div style="display: flex; gap: 8px;">
+      <div class="settings-header">
+        <span class="icon"><i class="fas fa-thermometer-half"></i><span class="icon-fallback" style="display:none;">🌡</span></span>
+        <span class="settings-label">Temperature unit</span>
+      </div>
+      <div class="settings-controls">
         <select id="tempUnit" class="settings-select">
           <option value="celsius" %CELSIUS_SELECTED%>Celsius (°C)</option>
           <option value="fahrenheit" %FAHRENHEIT_SELECTED%>Fahrenheit (°F)</option>
@@ -259,15 +294,24 @@
 <div class="settings-group">
   <div class="settings-card">
     <div class="settings-item">
-      <span><span class="icon"><i class="fas fa-wifi"></i><span class="icon-fallback" style="display:none;">📶</span></span> Access Point</span>
-      <div style="display: flex; gap: 8px;">
+      <div class="settings-header">
+        <span class="icon"><i class="fas fa-wifi"></i><span class="icon-fallback" style="display:none;">📶</span></span>
+        <span class="settings-label">Access Point</span>
+      </div>
+      <div class="settings-controls">
         <span class="settings-info">Status: %AP_STATUS%</span>
         <button class="settings-btn" onclick="toggleAP()" id="apToggleBtn">%AP_BUTTON_TEXT%</button>
       </div>
     </div>
+    
     <div class="settings-item">
-      <span><span class="icon"><i class="fas fa-network-wired"></i><span class="icon-fallback" style="display:none;">📡</span></span> Wi-Fi</span>
-      <button class="settings-btn" onclick="showWiFiModal()">Configure →</button>
+      <div class="settings-header">
+        <span class="icon"><i class="fas fa-network-wired"></i><span class="icon-fallback" style="display:none;">📡</span></span>
+        <span class="settings-label">Wi-Fi</span>
+      </div>
+      <div class="settings-controls">
+        <button class="settings-btn" onclick="showWiFiModal()">Configure →</button>
+      </div>
     </div>
   </div>
 </div>
@@ -276,8 +320,13 @@
 <div class="settings-group">
   <div class="settings-card">
     <div class="settings-item">
-      <span><span class="icon"><i class="fas fa-exchange-alt"></i><span class="icon-fallback" style="display:none;">↔</span></span> MQTT</span>
-      <button class="settings-btn" onclick="showMQTTSettings()">Configure →</button>
+      <div class="settings-header">
+        <span class="icon"><i class="fas fa-exchange-alt"></i><span class="icon-fallback" style="display:none;">↔</span></span>
+        <span class="settings-label">MQTT</span>
+      </div>
+      <div class="settings-controls">
+        <button class="settings-btn" onclick="showMQTTSettings()">Configure →</button>
+      </div>
     </div>
   </div>
 </div>
@@ -508,27 +557,49 @@
 }
 .settings-item {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   color: #f0f4f8;
   font-size: 1.1rem;
-  padding: 16px 28px;
+  padding: 20px 28px;
   border-bottom: 1px solid rgba(74, 111, 165, 0.2);
-  justify-content: space-between;
   transition: all 0.3s ease;
   position: relative;
 }
 
+.settings-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.settings-label {
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: #ffffff;
+}
+
+.settings-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: 56px; /* Align with label text */
+  flex-wrap: wrap;
+}
+
 .settings-item:hover {
   background: rgba(74, 111, 165, 0.1);
-  color: #ffffff;
   padding-left: 32px;
+}
+
+.settings-item:hover .settings-controls {
+  margin-left: 60px; /* Adjust for hover padding */
 }
 
 .settings-item:last-child {
   border-bottom: none;
 }
 .icon {
-  margin-right: 20px;
+  margin-right: 16px;
   font-size: 1.2em;
   width: 36px;
   height: 36px;
@@ -542,6 +613,7 @@
   align-items: center;
   justify-content: center;
   color: #ffffff;
+  flex-shrink: 0;
 }
 
 .icon i {
@@ -799,7 +871,24 @@
 }
 @media (max-width: 700px) {
   .settings-card { padding: 8px 0; }
-  .settings-item { font-size: 1em; padding: 10px 10px; flex-direction: column; align-items: flex-start; gap: 10px; }
+  .settings-item { 
+    font-size: 1em; 
+    padding: 16px 16px;
+  }
+  .settings-controls {
+    margin-left: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    width: 100%;
+  }
+  .settings-input, .settings-select {
+    width: 100%;
+    min-width: unset;
+  }
+  .settings-item:hover .settings-controls {
+    margin-left: 4px;
+  }
   .settings-title { font-size: 1rem; }
   .modal { padding: 5px; }
   .modal-content { 

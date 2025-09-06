@@ -40,6 +40,11 @@ namespace Config {
         String mqttPass = prefs.getString("mqtt_pass", "");
         strncpy(MQTT_PASS, mqttPass.c_str(), sizeof(MQTT_PASS));
         MQTT_PASS[sizeof(MQTT_PASS)-1] = '\0';
+        Serial.print("Loaded MQTT password length: ");
+        Serial.println(mqttPass.length());
+        Serial.print("MQTT_PASS content: [");
+        Serial.print(MQTT_PASS);
+        Serial.println("]");
         
         String mqttTopic = prefs.getString("mqtt_topic", "home/esp32");
         strncpy(MQTT_TOPIC, mqttTopic.c_str(), sizeof(MQTT_TOPIC));
@@ -89,6 +94,11 @@ namespace Config {
         prefs.putUShort("mqtt_port", port);
         prefs.putString("mqtt_user", user);
         prefs.putString("mqtt_pass", pass);
+        Serial.print("Saving MQTT password: [");
+        Serial.print(pass);
+        Serial.println("]");
+        Serial.print("Password length: ");
+        Serial.println(strlen(pass));
         prefs.putString("mqtt_topic", topic);
         
         strncpy(MQTT_SERVER, server, sizeof(MQTT_SERVER));

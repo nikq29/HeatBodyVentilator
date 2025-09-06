@@ -32,6 +32,8 @@ private:
     void handleWiFiDisconnect();
     void handleWiFiClear();
     void handleLEDToggle();
+    void handleStatus();
+    void handleGetSettings();
     
     bool isAuthenticated();
 };

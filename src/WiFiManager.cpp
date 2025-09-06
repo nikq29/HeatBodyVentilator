@@ -5,11 +5,26 @@
 WiFiManager wifi; // Nur HIER die Definition!
 
 void WiFiManager::beginAP() {
+    Serial.println("DEBUG: Starting Access Point...");
+    Serial.println("DEBUG: AP_ENABLED = " + String(Config::AP_ENABLED));
+    
+    // Use config values instead of hardcoded values
     WiFi.mode(WIFI_AP_STA);
-    WiFi.softAP("ESP32-Setup", "12345678");
-    Serial.println("Access Point started");
-    Serial.print("AP IP address: ");
-    Serial.println(WiFi.softAPIP());
+    bool result = WiFi.softAP(Config::AP_SSID, Config::AP_PASS);
+    
+    if (result) {
+        Serial.println("Access Point started successfully");
+        Serial.print("AP IP address: ");
+        Serial.println(WiFi.softAPIP());
+        Serial.print("AP SSID: ");
+        Serial.println(Config::AP_SSID);
+        Serial.print("AP Password: ");
+        Serial.println(Config::AP_PASS);
+        Serial.print("Number of connected stations: ");
+        Serial.println(WiFi.softAPgetStationNum());
+    } else {
+        Serial.println("ERROR: Failed to start Access Point!");
+    }
 }
 
 void WiFiManager::stopAP() {
@@ -59,8 +74,8 @@ void WiFiManager::beginAutoSTA() {
             // Emergency fallback: Start AP for user access, regardless of AP_ENABLED setting
             Serial.println("Starting emergency Access Point for initial setup/troubleshooting...");
             WiFi.mode(WIFI_AP_STA);
-            WiFi.softAP("ESP32-Setup", "12345678");
-            Serial.println("Emergency AP started - connect to ESP32-Setup network");
+            WiFi.softAP(Config::AP_SSID, Config::AP_PASS);
+            Serial.println("Emergency AP started - connect to " + String(Config::AP_SSID) + " network");
             Serial.print("Emergency AP IP: ");
             Serial.println(WiFi.softAPIP());
         }
@@ -88,7 +103,15 @@ void WiFiManager::checkWiFiConnection() {
         if (savedSsid.length() > 0 && savedPassword.length() > 0) {
             WiFi.disconnect();
             delay(1000);
-            WiFi.mode(WIFI_STA); // Start with STA only for reconnection attempt
+            
+            // Preserve dual mode if AP is enabled, otherwise use STA only
+            if (Config::AP_ENABLED) {
+                Serial.println("DEBUG: Preserving dual mode (AP+STA) for WiFi reconnect");
+                WiFi.mode(WIFI_AP_STA);
+            } else {
+                WiFi.mode(WIFI_STA);
+            }
+            
             WiFi.begin(savedSsid.c_str(), savedPassword.c_str());
             
             unsigned long startAttemptTime = millis();
@@ -104,8 +127,8 @@ void WiFiManager::checkWiFiConnection() {
                 Serial.println("Reconnect failed. Starting emergency Access Point for user access...");
                 // Emergency fallback: Start AP regardless of user setting
                 WiFi.mode(WIFI_AP_STA);
-                WiFi.softAP("ESP32-Setup", "12345678");
-                Serial.println("Emergency AP started - user can access via ESP32-Setup network");
+                WiFi.softAP(Config::AP_SSID, Config::AP_PASS);
+                Serial.println("Emergency AP started - user can access via " + String(Config::AP_SSID) + " network");
                 Serial.print("Emergency AP IP: ");
                 Serial.println(WiFi.softAPIP());
             }

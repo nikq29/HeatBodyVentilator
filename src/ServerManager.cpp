@@ -8,6 +8,7 @@
 
 // External references
 extern LEDManager led;
+extern MQTTManager mqttManager;
 
 extern const uint8_t _binary_data_index_html_start[] asm("_binary_data_index_html_start");
 extern const uint8_t _binary_data_index_html_end[]   asm("_binary_data_index_html_end");
@@ -33,6 +34,8 @@ ServerManager::ServerManager()
 void ServerManager::begin() {
     setupRoutes();
     server.begin();
+    Serial.print("Web server started on port ");
+    Serial.println(Config::HTTP_PORT);
 }
 
 void ServerManager::handleClient() {
@@ -85,6 +88,8 @@ void ServerManager::setupRoutes() {
   server.on("/api/wifi-disconnect", HTTP_POST, [this]() { handleWiFiDisconnect(); });
   server.on("/api/wifi-clear", HTTP_POST, [this]() { handleWiFiClear(); });
   server.on("/api/led-toggle", HTTP_POST, [this]() { handleLEDToggle(); });
+  server.on("/api/status", HTTP_GET, [this]() { handleStatus(); });
+  server.on("/api/settings", HTTP_GET, [this]() { handleGetSettings(); });
 }
 
 void ServerManager::handleRoot() {
@@ -111,23 +116,39 @@ void ServerManager::handleRoot() {
 }
 
 void ServerManager::handleLogin() {
+  Serial.println("Login handler called");
+  
   if (server.method() == HTTP_POST) {
+    Serial.println("POST request received");
     String password = server.arg("password");
+    Serial.print("Password received: ");
+    Serial.println(password);
+    
     if (password == Config::WEB_PASSWORD) {
+      Serial.println("Password correct - redirecting");
       sessionToken = String(random(0xffff), HEX);
-      String redirectUrl = "/main?token=" + sessionToken;
-      server.sendHeader("Location", redirectUrl);
-      server.send(301);
+      
+      // Direkte Weiterleitung zur Hauptseite
+      server.sendHeader("Location", "/main?token=" + sessionToken);
+      server.send(302);
       return;
+    } else {
+      Serial.println("Password incorrect");
     }
+  } else {
+    Serial.println("GET request - showing login page");
   }
-    size_t len = _binary_data_login_html_end - _binary_data_login_html_start;
-    server.setContentLength(len);
-    server.send(200, "text/html", "");
-    server.sendContent_P(reinterpret_cast<const char*>(_binary_data_login_html_start), len);
+  
+  // Login-Seite anzeigen (bei GET oder falschem Passwort)
+  Serial.println("Sending login page");
+  size_t len = _binary_data_login_html_end - _binary_data_login_html_start;
+  server.setContentLength(len);
+  server.send(200, "text/html", "");
+  server.sendContent_P(reinterpret_cast<const char*>(_binary_data_login_html_start), len);
 }
 
 void ServerManager::handleNotFound() {
+    Serial.println("404 - Page not found: " + server.uri());
     server.send(404, "text/plain", "Nicht gefunden");
 }
 
@@ -183,17 +204,19 @@ void ServerManager::handleSetting() {
     html.replace("%DEVICE_ID%", deviceId);
 
     // WiFi settings for modal
-    String ssid, ip, mac, status, wifiOptions, savedPassword;
+    String ssid, ip, mac, rssi, status, wifiOptions, savedPassword;
     
     if (WiFi.status() == WL_CONNECTED) {
         ssid = WiFi.SSID();
         ip = WiFi.localIP().toString();
         mac = WiFi.macAddress();
-        status = "Connected. RSSI: " + String(WiFi.RSSI()) + "dBm";
+        rssi = String(WiFi.RSSI());
+        status = "Connected. RSSI: " + rssi + "dBm";
     } else {
         ssid = "-";
         ip = "-";
         mac = WiFi.macAddress();
+        rssi = "-";
         status = "Not connected";
     }
     
@@ -215,6 +238,7 @@ void ServerManager::handleSetting() {
     html.replace("%WIFI_SSID%", ssid);
     html.replace("%WIFI_IP%", ip);
     html.replace("%WIFI_MAC%", mac);
+    html.replace("%WIFI_RSSI%", rssi);
     html.replace("%WIFI_STATUS%", status);
     html.replace("%WIFI_OPTIONS%", wifiOptions);
     html.replace("%WIFI_PASSWORD%", savedPassword);
@@ -395,14 +419,14 @@ void ServerManager::handleMQTTTest() {
         return;
     }
     
-    // Get test parameters
-    String testServer = server.arg("server");
-    String testPort = server.arg("port");
-    String testUser = server.arg("user");
-    String testPass = server.arg("pass");
+    // Use current MQTT settings for test
+    String testServer = String(Config::MQTT_SERVER);
+    int testPort = Config::MQTT_PORT;
+    String testUser = String(Config::MQTT_USER);
+    String testPass = String(Config::MQTT_PASS);
     
-    if (testServer.length() == 0 || testPort.toInt() <= 0) {
-        server.send(400, "text/plain", "Invalid server or port");
+    if (testServer.length() == 0 || testPort <= 0) {
+        server.send(200, "application/json", "{\"success\":false,\"error\":\"No MQTT server configured\"}");
         return;
     }
     
@@ -410,7 +434,7 @@ void ServerManager::handleMQTTTest() {
     WiFiClient testClient;
     PubSubClient testMqtt(testClient);
     
-    testMqtt.setServer(testServer.c_str(), testPort.toInt());
+    testMqtt.setServer(testServer.c_str(), testPort);
     
     String clientId = "ESP32-Test-" + String(random(0xffff), HEX);
     bool connected;
@@ -423,10 +447,10 @@ void ServerManager::handleMQTTTest() {
     
     if (connected) {
         testMqtt.disconnect();
-        server.send(200, "text/plain", "OK");
+        server.send(200, "application/json", "{\"success\":true}");
     } else {
         String error = "Connection failed (Code: " + String(testMqtt.state()) + ")";
-        server.send(200, "text/plain", error);
+        server.send(200, "application/json", "{\"success\":false,\"error\":\"" + error + "\"}");
     }
 }
 
@@ -469,6 +493,8 @@ void ServerManager::handleWiFiScan() {
         json += "{";
         json += "\"ssid\":\"" + WiFi.SSID(i) + "\",";
         json += "\"rssi\":" + String(WiFi.RSSI(i)) + ",";
+        json += "\"channel\":" + String(WiFi.channel(i)) + ",";
+        json += "\"encryption\":" + String(WiFi.encryptionType(i)) + ",";
         json += "\"selected\":" + String(WiFi.SSID(i) == WiFi.SSID() ? "true" : "false");
         json += "}";
     }
@@ -548,4 +574,37 @@ void ServerManager::handleLEDToggle() {
     }
     
     server.send(200, "text/plain", "OK");
+}
+
+void ServerManager::handleStatus() {
+    String status = "{";
+    status += "\"uptime\":" + String(millis()/1000) + ",";
+    status += "\"heap\":" + String(ESP.getFreeHeap()) + ",";
+    status += "\"wifi_connected\":" + String(WiFi.status() == WL_CONNECTED ? "true" : "false") + ",";
+    status += "\"wifi_ip\":\"" + WiFi.localIP().toString() + "\",";
+    status += "\"wifi_rssi\":" + String(WiFi.RSSI()) + ",";
+    status += "\"mqtt_connected\":" + String(mqttManager.isConnected() ? "true" : "false");
+    status += "}";
+    server.send(200, "application/json", status);
+}
+
+void ServerManager::handleGetSettings() {
+    String settings = "{";
+    settings += "\"device_name\":\"" + String(Config::DEVICE_NAME) + "\",";
+    settings += "\"mqtt_server\":\"" + String(Config::MQTT_SERVER) + "\",";
+    settings += "\"mqtt_port\":" + String(Config::MQTT_PORT) + ",";
+    settings += "\"mqtt_user\":\"" + String(Config::MQTT_USER) + "\",";
+    // Mask password for security - show asterisks if password exists
+    String maskedPassword = "";
+    if (strlen(Config::MQTT_PASS) > 0) {
+        for (int i = 0; i < strlen(Config::MQTT_PASS); i++) {
+            maskedPassword += "*";
+        }
+    }
+    settings += "\"mqtt_pass\":\"" + maskedPassword + "\",";
+    settings += "\"ap_enabled\":" + String(Config::AP_ENABLED ? "true" : "false") + ",";
+    settings += "\"temp_unit\":\"" + String(Config::TEMP_UNIT) + "\",";
+    settings += "\"mqtt_connected\":" + String(mqttManager.isConnected() ? "true" : "false");
+    settings += "}";
+    server.send(200, "application/json", settings);
 }

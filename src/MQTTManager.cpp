@@ -34,7 +34,7 @@ void MQTTManager::loop() {
     
     if (!mqttClient.connected()) {
         unsigned long now = millis();
-        if (now - lastReconnectAttempt > 5000) {
+        if (now - lastReconnectAttempt > 30000) { // Try only every 30 seconds instead of 5
             lastReconnectAttempt = now;
             if (connect()) {
                 Serial.println("MQTT: Connected successfully");

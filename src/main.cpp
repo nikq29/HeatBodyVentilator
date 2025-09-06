@@ -10,6 +10,7 @@
 ServerManager web;
 LEDManager led;
 extern WiFiManager wifi; // Use the existing instance from WiFiManager.cpp
+extern MQTTManager mqttManager; // Use the existing instance from MQTTManager.cpp
 bool hasWifiCredentials = false;
 unsigned long lastWifiCheck = 0;
 const unsigned long WIFI_CHECK_INTERVAL = 10000; // Check every 10 seconds (reduced from 30)
@@ -57,15 +58,24 @@ void setup() {
     }
     
     // Initialize WiFi based on AP_ENABLED setting
+    Serial.println("DEBUG: Checking AP_ENABLED setting...");
+    Serial.println("DEBUG: Config::AP_ENABLED = " + String(Config::AP_ENABLED ? "true" : "false"));
+    
     if (Config::AP_ENABLED) {
+        Serial.println("DEBUG: Starting dual mode (AP + STA)...");
         wifi.beginAP();
-        Serial.println("Starting in AP mode (Access Point enabled)");
+        Serial.println("Access Point started");
+        // Also start STA mode for dual functionality
+        wifi.beginAutoSTA();
+        Serial.println("Starting in dual mode (Access Point + Station enabled)");
     } else {
+        Serial.println("DEBUG: AP disabled, STA only mode...");
         // Ensure AP is stopped if disabled
         wifi.stopAP();
         Serial.println("AP mode disabled");
+        // Only try STA mode if AP is disabled
+        wifi.beginAutoSTA(); // Verbindet sich automatisch mit gespeicherter SSID/Passwort
     }
-    wifi.beginAutoSTA(); // Verbindet sich automatisch mit gespeicherter SSID/Passwort
     
     web.begin();
     mqttManager.begin();

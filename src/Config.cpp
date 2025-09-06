@@ -3,7 +3,7 @@
 
 namespace Config {
     char WEB_PASSWORD[32] = "your_password_here";
-    char DEVICE_NAME[32] = "ESP32 Device";
+    char DEVICE_NAME[32] = "ESP32-Test";
     char MQTT_SERVER[64] = "";
     uint16_t MQTT_PORT = 1883;
     char MQTT_USER[32] = "";
@@ -23,7 +23,7 @@ namespace Config {
         strncpy(WEB_PASSWORD, pw.c_str(), sizeof(WEB_PASSWORD));
         WEB_PASSWORD[sizeof(WEB_PASSWORD)-1] = '\0';
         
-        String deviceName = prefs.getString("device_name", "ESP32 Device");
+        String deviceName = prefs.getString("device_name", "ESP32-Test");
         strncpy(DEVICE_NAME, deviceName.c_str(), sizeof(DEVICE_NAME));
         DEVICE_NAME[sizeof(DEVICE_NAME)-1] = '\0';
         
@@ -159,7 +159,7 @@ namespace Config {
         
         // Reset to defaults
         strcpy(WEB_PASSWORD, "your_password_here");
-        strcpy(DEVICE_NAME, "ESP32 Device");
+        strcpy(DEVICE_NAME, "ESP32-Test");
         strcpy(MQTT_SERVER, "");
         MQTT_PORT = 1883;
         strcpy(MQTT_USER, "");

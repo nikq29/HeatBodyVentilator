@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5.0">
-  <title>M5Atom Settings</title>
+  <title>FlowHeatThink - %DEVICE_NAME% Settings</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
@@ -390,7 +390,7 @@
   <nav class="navbar">
     <a href="#" class="navbar-brand" onclick="navigateWithToken('main')">
       <img src="/img/logo.png" alt="Logo">
-      FlowHeaThink
+      FlowHeaThink - <span id="navbar-device-name">%DEVICE_NAME%</span>
     </a>
     
     <!-- Hamburger Menu Button -->
@@ -404,7 +404,7 @@
   <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <h3>Navigation</h3>
+      <h3 id="sidebar-title">FlowHeatThink - %DEVICE_NAME%</h3>
     </div>
     <ul class="nav-menu">
       <li><a href="#" onclick="navigateWithToken('index')">🏠 Home</a></li>
@@ -649,28 +649,14 @@
           
           <div class="setting-item">
             <div class="setting-label">
-              <span>MAC Address</span>
+              <span>Device Name</span>
             </div>
             <div class="setting-control">
-              <span style="font-family: monospace;">%MAC_ADDRESS%</span>
-            </div>
-          </div>
-          
-          <div class="setting-item">
-            <div class="setting-label">
-              <span>IP Address</span>
-            </div>
-            <div class="setting-control">
-              <span style="font-family: monospace;">%DEVICE_IP%</span>
-            </div>
-          </div>
-          
-          <div class="setting-item">
-            <div class="setting-label">
-              <span>Free Memory</span>
-            </div>
-            <div class="setting-control">
-              <span id="free-memory">%FREE_MEMORY% KB</span>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <input type="text" id="device-name" value="%DEVICE_NAME%" placeholder="Enter device name" 
+                       style="flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                <button class="btn-primary" onclick="saveDeviceName()" style="padding: 8px 16px; white-space: nowrap;">Save</button>
+              </div>
             </div>
           </div>
         </div>
@@ -916,6 +902,57 @@
             });
         }
       }
+    }
+
+    function saveDeviceName() {
+      const deviceName = document.getElementById('device-name').value.trim();
+      if (!deviceName) {
+        showNotification('Please enter a device name', 'error');
+        return;
+      }
+      
+      if (deviceName.length > 31) {
+        showNotification('Device name too long (max 31 characters)', 'error');
+        return;
+      }
+
+      fetch('/api/device-name?token=' + getToken(), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'name=' + encodeURIComponent(deviceName)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showNotification('Device name saved successfully', 'success');
+          // Update the header if it exists
+          updateHeaderDeviceName(deviceName);
+        } else {
+          showNotification('Failed to save device name', 'error');
+        }
+      })
+      .catch(error => {
+        showNotification('Error saving device name', 'error');
+      });
+    }
+
+    function updateHeaderDeviceName(deviceName) {
+      // Update the navbar device name
+      const navbarDeviceName = document.getElementById('navbar-device-name');
+      if (navbarDeviceName) {
+        navbarDeviceName.textContent = deviceName;
+      }
+      
+      // Update the sidebar title
+      const sidebarTitle = document.getElementById('sidebar-title');
+      if (sidebarTitle) {
+        sidebarTitle.textContent = 'FlowHeatThink - ' + deviceName;
+      }
+      
+      // Update the page title
+      document.title = 'FlowHeatThink - ' + deviceName + ' Settings';
     }
 
     // WiFi Modal Functions

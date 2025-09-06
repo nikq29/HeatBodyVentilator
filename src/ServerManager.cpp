@@ -292,15 +292,15 @@ void ServerManager::handleWifiConnect() {
 
 void ServerManager::handleDeviceName() {
     if (!isAuthenticated()) {
-        server.send(401, "text/plain", "Unauthorized");
+        server.send(401, "application/json", "{\"success\":false,\"error\":\"Unauthorized\"}");
         return;
     }
     String deviceName = server.arg("name");
     if (deviceName.length() > 0 && deviceName.length() < 32) {
         Config::saveDeviceName(deviceName.c_str());
-        server.send(200, "text/plain", "OK");
+        server.send(200, "application/json", "{\"success\":true,\"message\":\"Device name saved\"}");
     } else {
-        server.send(400, "text/plain", "Invalid device name");
+        server.send(400, "application/json", "{\"success\":false,\"error\":\"Invalid device name\"}");
     }
 }
 

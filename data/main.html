@@ -310,8 +310,6 @@
   <!-- Main Content -->
   <main class="main-content">
     <div class="container">
-      <h1 class="text-center">System Dashboard</h1>
-      
       <!-- System Status Grid -->
       <div class="dashboard-grid">
         <!-- System Overview Card -->
@@ -337,30 +335,7 @@
           </div>
         </div>
         
-        <!-- Network Status Card -->
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Network Status</h3>
-          </div>
-          <div class="status-item">
-            <span class="status-label">WiFi Network</span>
-            <span class="status-value">%WIFI_SSID%</span>
-          </div>
-          <div class="status-item">
-            <span class="status-label">Signal Strength</span>
-            <span class="status-value" id="wifi-signal">%WIFI_RSSI% dBm</span>
-          </div>
-          <div class="status-item">
-            <span class="status-label">IP Address</span>
-            <span class="status-value">%DEVICE_IP%</span>
-          </div>
-          <div class="status-item">
-            <span class="status-label">MAC Address</span>
-            <span class="status-value">%MAC_ADDRESS%</span>
-          </div>
-        </div>
-        
-        <!-- Quick Controls Card -->
+        <!-- LED Control Card -->
         <div class="card">
           <div class="card-header">
             <h3 class="card-title">LED Steuerung</h3>
@@ -391,63 +366,10 @@
             </div>
           </div>
         </div>
-
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Quick Controls</h3>
-          </div>
-          <div class="control-panel">
-            <button class="btn btn-secondary" onclick="restartDevice()">
-              🔄 Restart
-            </button>
-            <button class="btn btn-success" onclick="navigateWithToken('setting')">
-              ⚙️ Settings
-            </button>
-          </div>
-        </div>
       </div>
       
       <!-- Additional Information Row -->
       <div class="row">
-        <div class="col col-md-6">
-          <div class="card">
-            <div class="card-header">
-              <h3 class="card-title">Device Information</h3>
-            </div>
-            <div class="status-item">
-              <span class="status-label">Device Type</span>
-              <span class="status-value">M5Stack Atom</span>
-            </div>
-            <div class="status-item">
-              <span class="status-label">Flash Size</span>
-              <span class="status-value">4MB</span>
-            </div>
-            <div class="status-item">
-              <span class="status-label">CPU Frequency</span>
-              <span class="status-value">240MHz</span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="col col-md-6">
-          <div class="card">
-            <div class="card-header">
-              <h3 class="card-title">MQTT Status</h3>
-            </div>
-            <div class="status-item">
-              <span class="status-label">Connection</span>
-              <span class="status-value" id="mqtt-status">%MQTT_STATUS%</span>
-            </div>
-            <div class="status-item">
-              <span class="status-label">Server</span>
-              <span class="status-value">%MQTT_SERVER%</span>
-            </div>
-            <div class="status-item">
-              <span class="status-label">Topic</span>
-              <span class="status-value">homeassistant/light/m5atom</span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </main>
@@ -459,16 +381,8 @@
         .then(response => response.json())
         .then(data => {
           document.getElementById('uptime').textContent = data.uptime;
-          document.getElementById('wifi-signal').textContent = data.wifi_rssi + ' dBm';
           document.getElementById('memory').textContent = data.memory_usage + '%';
           document.getElementById('temperature').textContent = data.temperature + '°C';
-          
-          // Update MQTT status
-          const mqttStatus = document.getElementById('mqtt-status');
-          if (mqttStatus) {
-            mqttStatus.textContent = data.mqtt_connected ? 'Connected' : 'Disconnected';
-            mqttStatus.style.color = data.mqtt_connected ? 'var(--success)' : 'var(--danger)';
-          }
           
           // Update LED status
           if (data.led_state !== undefined) {

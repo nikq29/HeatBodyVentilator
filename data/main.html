@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5.0">
-  <title>FlowHeatThink - %DEVICE_NAME% Dashboard</title>
+  <title>HeatBodyVentilator / %DEVICE_NAME% - Home</title>
   <link rel="stylesheet" href="style.css">
   <style>
     /* Hamburger Menu Styles */
@@ -187,7 +187,7 @@
   <nav class="navbar">
     <a href="#" class="navbar-brand" onclick="navigateWithToken('index')">
       <img src="/img/logo.png" alt="Logo">
-      FlowHeaThink - <span id="navbar-device-name">%DEVICE_NAME%</span>
+      HeatBodyVentilator - <span id="navbar-device-name">%DEVICE_NAME%</span>
     </a>
     
     <!-- Hamburger Menu Button -->
@@ -201,11 +201,11 @@
   <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <h3>FlowHeatThink - %DEVICE_NAME%</h3>
+      <h3>HeatBodyVentilator - %DEVICE_NAME%</h3>
     </div>
     <ul class="nav-menu">
       <li><a href="#" onclick="navigateWithToken('index')">🏠 Home</a></li>
-      <li><a href="#" onclick="navigateWithToken('setting')">⚙️ Settings</a></li>
+      <li><a href="#" onclick="navigateWithToken('setting')">⚙️ Einstellungen</a></li>
       <li><a href="#" onclick="logout()">🚪 Logout</a></li>
     </ul>
   </div>
@@ -356,21 +356,21 @@
         .then(response => response.text())
         .then(data => {
           if (data === 'OK') {
-            showNotification('LED toggled successfully', 'success');
+            showNotification('LED umgeschaltet', 'success');
           } else {
-            showNotification('Error toggling LED', 'error');
+            showNotification('Fehler beim Umschalten der LED', 'error');
           }
         })
         .catch(error => {
-          showNotification('Network error', 'error');
+          showNotification('Netzwerkfehler', 'error');
         });
     }
     
     function restartDevice() {
-      if (confirm('Are you sure you want to restart the device?')) {
+      if (confirm('Sind Sie sicher, dass Sie das Gerät neu starten möchten?')) {
         fetch('/api/restart?token=' + getToken(), { method: 'POST' })
           .then(() => {
-            showNotification('Device is restarting...', 'info');
+            showNotification('Gerät wird neu gestartet...', 'info');
             setTimeout(() => {
               location.reload();
             }, 5000);
@@ -428,7 +428,7 @@
     }
 
     function logout() {
-      if (confirm('Are you sure you want to logout?')) {
+      if (confirm('Sind Sie sicher, dass Sie sich abmelden möchten?')) {
         window.location.href = 'login.html';
       }
     }

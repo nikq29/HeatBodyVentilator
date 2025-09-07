@@ -11,6 +11,8 @@ private:
     WebServer server;
     void setupRoutes();
     void handleRoot();
+    void handleMain();
+    void handleIndex();
     void handleLogin();
     void handleNotFound();
     void handleSetting();

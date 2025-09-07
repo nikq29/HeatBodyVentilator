@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5.0">
-  <title>FlowHeatThink - %DEVICE_NAME% Settings</title>
+  <title>HeatBodyVentilator / %DEVICE_NAME% - Einstellungen</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
@@ -404,13 +404,12 @@
   <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <h3 id="sidebar-title">FlowHeatThink - %DEVICE_NAME%</h3>
+      <h3 id="sidebar-title">HeatBodyVentilator - %DEVICE_NAME%</h3>
     </div>
     <ul class="nav-menu">
-      <li><a href="#" onclick="navigateWithToken('index')">🏠 Home</a></li>
-      <li><a href="#" onclick="navigateWithToken('main')">📊 Dashboard</a></li>
-      <li><a href="#" onclick="navigateWithToken('setting')">⚙️ Settings</a></li>
-      <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+      <li><a href="#" onclick="navigateWithToken('main')">🏠 Home</a></li>
+      <li><a href="#" onclick="navigateWithToken('setting')">⚙️ Einstellungen</a></li>
+      <li><a href="#" onclick="logout()">🚪 Abmelden</a></li>
     </ul>
   </div>
 
@@ -420,8 +419,8 @@
   <!-- Main Content -->
   <main class="main-content">
     <div class="container">
-      <h1 class="text-center">Device Settings</h1>
-      
+      <h1 class="text-center">Geräteeinstellungen</h1>
+
       <!-- Settings Grid -->
       <div class="settings-grid">
         
@@ -430,13 +429,13 @@
           <div class="card-header">
             <h3 class="card-title">
               <i class="fas fa-wifi" aria-hidden="true"></i>
-              <span class="icon-fallback">📶</span> WiFi Settings
+              <span class="icon-fallback">📶</span> WiFi Einstellungen
             </h3>
           </div>
           
           <div class="setting-item">
             <div class="setting-label">
-              <span>Current Network</span>
+              <span>Aktuelles Netzwerk</span>
             </div>
             <div class="setting-control">
               <span class="status-indicator status-connected" id="wifi-status">
@@ -449,7 +448,7 @@
           
           <div class="setting-item">
             <div class="setting-label">
-              <span>IP Address</span>
+              <span>IP-Adresse</span>
             </div>
             <div class="setting-control">
               <span id="wifi-ip">%WIFI_IP%</span>
@@ -458,7 +457,7 @@
           
           <div class="setting-item">
             <div class="setting-label">
-              <span>MAC Address</span>
+              <span>MAC-Adresse</span>
             </div>
             <div class="setting-control">
               <span id="wifi-mac">%WIFI_MAC%</span>
@@ -467,7 +466,7 @@
           
           <div class="setting-item">
             <div class="setting-label">
-              <span>Signal Strength</span>
+              <span>Signalstärke</span>
             </div>
             <div class="setting-control">
               <span id="wifi-signal">%WIFI_RSSI% dBm</span>
@@ -477,11 +476,11 @@
           <div class="setting-group">
             <button class="btn btn-primary btn-block" onclick="openWifiModal()">
               <i class="fas fa-cog" aria-hidden="true"></i>
-              <span class="icon-fallback">⚙️</span> WiFi Settings
+              <span class="icon-fallback">⚙️</span> WiFi Einstellungen
             </button>
             <button class="btn btn-secondary btn-block" onclick="disconnectWifi()">
               <i class="fas fa-unlink" aria-hidden="true"></i>
-              <span class="icon-fallback">🔓</span> Disconnect
+              <span class="icon-fallback">🔓</span> Trennen
             </button>
           </div>
         </div>
@@ -497,8 +496,8 @@
           
           <div class="setting-item">
             <div class="setting-label">
-              <span>Enable Access Point</span>
-              <small class="d-block" style="color: #6c757d;">Allow device setup mode</small>
+              <span>Einschalten Access Point</span>
+              <small class="d-block" style="color: #6c757d;">Geräteeinrichtungsmodus aktivieren</small>
             </div>
             <div class="setting-control">
               <label class="toggle-switch">
@@ -510,13 +509,13 @@
           
           <div class="setting-item">
             <div class="setting-label">
-              <span>Emergency Mode</span>
-              <small class="d-block" style="color: #6c757d;">Auto-enable if WiFi fails</small>
+              <span>Notfallmodus</span>
+              <small class="d-block" style="color: #6c757d;">Automatisch aktivieren, wenn WiFi fehlschlägt</small>
             </div>
             <div class="setting-control">
               <span class="status-indicator status-connected">
                 <i class="fas fa-shield-alt"></i>
-                <span class="icon-fallback">🛡️</span> Active
+                <span class="icon-fallback">🛡️</span> Aktiv
               </span>
             </div>
           </div>
@@ -527,18 +526,18 @@
           <div class="card-header">
             <h3 class="card-title">
               <i class="fas fa-exchange-alt" aria-hidden="true"></i>
-              <span class="icon-fallback">🔄</span> MQTT Settings
+              <span class="icon-fallback">🔄</span> MQTT Einstellungen
             </h3>
           </div>
           
           <div class="setting-item">
             <div class="setting-label">
-              <span>Connection Status</span>
+              <span>Verbindungsstatus</span>
             </div>
             <div class="setting-control">
               <span class="status-indicator" id="mqtt-status">
                 <i class="fas fa-circle"></i>
-                <span class="icon-fallback">⚫</span> Unknown
+                <span class="icon-fallback">⚫</span> Unbekannt
               </span>
             </div>
           </div>
@@ -546,11 +545,11 @@
           <div class="setting-group">
             <button class="btn btn-primary btn-block" onclick="openMqttModal()">
               <i class="fas fa-cog" aria-hidden="true"></i>
-              <span class="icon-fallback">⚙️</span> Configure MQTT
+              <span class="icon-fallback">⚙️</span> MQTT Konfigurieren
             </button>
             <button class="btn btn-success btn-block" onclick="testMqttConnection()">
               <i class="fas fa-play" aria-hidden="true"></i>
-              <span class="icon-fallback">▶️</span> Test Connection
+              <span class="icon-fallback">▶️</span> Verbindung Testen
             </button>
           </div>
         </div>
@@ -560,18 +559,18 @@
           <div class="card-header">
             <h3 class="card-title">
               <i class="fas fa-lightbulb" aria-hidden="true"></i>
-              <span class="icon-fallback">💡</span> LED Settings
+              <span class="icon-fallback">💡</span> LED Einstellungen
             </h3>
           </div>
           
           <div class="setting-item">
             <div class="setting-label">
-              <span>LED Control</span>
+              <span>LED Steuerung</span>
             </div>
             <div class="setting-control">
               <button class="btn btn-primary" onclick="toggleLED()">
                 <i class="fas fa-power-off" aria-hidden="true"></i>
-                <span class="icon-fallback">🔘</span> Toggle
+                <span class="icon-fallback">🔘</span> Umschalten
               </button>
             </div>
           </div>
@@ -579,12 +578,12 @@
           <div class="setting-item">
             <div class="setting-label">
               <span>Auto Discovery</span>
-              <small class="d-block" style="color: #6c757d;">Home Assistant integration</small>
+              <small class="d-block" style="color: #6c757d;">Home Assistant Integration</small>
             </div>
             <div class="setting-control">
               <span class="status-indicator status-connected">
                 <i class="fas fa-home" aria-hidden="true"></i>
-                <span class="icon-fallback">🏠</span> Active
+                <span class="icon-fallback">🏠</span> Aktiv
               </span>
             </div>
           </div>
@@ -634,13 +633,13 @@
           <div class="card-header">
             <h3 class="card-title">
               <i class="fas fa-info-circle" aria-hidden="true"></i>
-              <span class="icon-fallback">ℹ️</span> Device Info
+              <span class="icon-fallback">ℹ️</span> Geräteinformationen
             </h3>
           </div>
           
           <div class="setting-item">
             <div class="setting-label">
-              <span>Device Type</span>
+              <span>Gerätetyp</span>
             </div>
             <div class="setting-control">
               <span>M5Stack Atom</span>
@@ -649,7 +648,7 @@
           
           <div class="setting-item">
             <div class="setting-label">
-              <span>Device Name</span>
+              <span>Gerätename</span>
             </div>
             <div class="setting-control">
               <div style="display: flex; gap: 8px; align-items: center;">
@@ -669,48 +668,48 @@
   <div id="wifiModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>WiFi Networks</h3>
+        <h3>Wifi Netzwerke</h3>
         <span class="close" onclick="closeWifiModal()">&times;</span>
       </div>
       
       <!-- Available Networks Section - moved to top -->
       <div class="form-group">
-        <h4>Available Networks</h4>
+        <h4>Verfügbare Netzwerke</h4>
         <button type="button" class="btn btn-primary btn-block" onclick="scanWifi()">
           <i class="fas fa-sync" aria-hidden="true"></i>
-          <span class="icon-fallback">🔄</span> Refresh Networks
+          <span class="icon-fallback">🔄</span> Netzwerke Aktualisieren
         </button>
         <div id="networkList" class="network-list">
-          <div class="text-center p-3" style="color: #6c757d;">Click "Refresh Networks" to scan for available WiFi networks</div>
+          <div class="text-center p-3" style="color: #6c757d;">Klicken Sie auf "Netzwerke Aktualisieren", um nach verfügbaren Wifi-Netzwerken zu suchen</div>
         </div>
       </div>
       
       <!-- Manual WiFi Configuration -->
       <div style="margin-top: 20px; border-top: 1px solid #ddd; padding-top: 20px;">
-        <h4>Manual Configuration</h4>
+        <h4>Manuelle Konfiguration</h4>
         <form id="wifiForm">
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label" for="ssid">Network Name (SSID)</label>
-              <input type="text" id="ssid" class="form-control" required placeholder="Enter WiFi network name">
+              <label class="form-label" for="ssid">Netzwerkname (SSID)</label>
+              <input type="text" id="ssid" class="form-control" required placeholder="Geben Sie den WiFi-Netzwerknamen ein">
             </div>
             <div class="form-group">
-              <label class="form-label" for="password">Password</label>
-              <input type="password" id="password" class="form-control" placeholder="Enter WiFi password">
+              <label class="form-label" for="password">Passwort</label>
+              <input type="password" id="password" class="form-control" placeholder="Geben Sie das WiFi-Passwort ein">
             </div>
           </div>
           
           <div class="form-row">
             <button type="submit" class="btn btn-success">
               <i class="fas fa-link" aria-hidden="true"></i>
-              <span class="icon-fallback">🔗</span> Connect
+              <span class="icon-fallback">🔗</span> Verbinden
             </button>
             <button type="button" class="btn btn-warning" onclick="clearWifiSettings()">
               <i class="fas fa-trash" aria-hidden="true"></i>
-              <span class="icon-fallback">🗑️</span> Clear Settings
+              <span class="icon-fallback">🗑️</span> Einstellungen zurücksetzen
             </button>
             <button type="button" class="btn btn-secondary" onclick="closeWifiModal()">
-              Cancel
+              Abbrechen
             </button>
           </div>
         </form>
@@ -722,7 +721,7 @@
   <div id="mqttModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>MQTT Configuration</h3>
+        <h3>MQTT Konfiguration</h3>
         <span class="close" onclick="closeMqttModal()">&times;</span>
       </div>
       
@@ -738,23 +737,23 @@
             <input type="number" id="mqttPort" class="form-control" value="%MQTT_PORT%" min="1" max="65535">
           </div>
           <div class="form-group">
-            <label class="form-label" for="mqttUser">Username</label>
+            <label class="form-label" for="mqttUser">Benutzername</label>
             <input type="text" id="mqttUser" class="form-control" value="%MQTT_USER%">
           </div>
         </div>
         
         <div class="form-group">
-          <label class="form-label" for="mqttPass">Password</label>
+          <label class="form-label" for="mqttPass">Passwort</label>
           <input type="password" id="mqttPass" class="form-control">
         </div>
         
         <div class="form-row">
           <button type="submit" class="btn btn-success">
             <i class="fas fa-save" aria-hidden="true"></i>
-            <span class="icon-fallback">💾</span> Save Settings
+            <span class="icon-fallback">💾</span> Einstellungen speichern
           </button>
           <button type="button" class="btn btn-secondary" onclick="closeMqttModal()">
-            Cancel
+            Abbrechen
           </button>
         </div>
       </form>
@@ -801,7 +800,7 @@
             document.getElementById('free-memory').textContent = data.free_memory + ' KB';
           }
         })
-        .catch(error => console.log('Failed to load settings:', error));
+        .catch(error => console.log('Laden der Einstellungen fehlgeschlagen:', error));
     }
 
     function updateStatus() {
@@ -814,17 +813,17 @@
           document.getElementById('wifi-signal').textContent = data.wifi_rssi + ' dBm';
           updateMqttStatus(data.mqtt_connected);
         })
-        .catch(error => console.log('Status update failed:', error));
+        .catch(error => console.log('Statusaktualisierung fehlgeschlagen:', error));
     }
 
     function updateMqttStatus(connected) {
       const statusElement = document.getElementById('mqtt-status');
       if (connected) {
         statusElement.className = 'status-indicator status-connected';
-        statusElement.innerHTML = '<i class="fas fa-check-circle"></i><span class="icon-fallback">✅</span> Connected';
+        statusElement.innerHTML = '<i class="fas fa-check-circle"></i><span class="icon-fallback">✅</span> Verbunden';
       } else {
         statusElement.className = 'status-indicator status-disconnected';
-        statusElement.innerHTML = '<i class="fas fa-times-circle"></i><span class="icon-fallback">❌</span> Disconnected';
+        statusElement.innerHTML = '<i class="fas fa-times-circle"></i><span class="icon-fallback">❌</span> Getrennt';
       }
     }
 
@@ -841,18 +840,18 @@
       .then(response => response.text())
       .then(data => {
         if (data === 'OK') {
-          showNotification('Access Point ' + (isEnabled ? 'enabled' : 'disabled') + '. Device will restart...', 'success');
+          showNotification('Access Point ' + (isEnabled ? 'aktiviert' : 'deaktiviert') + '. Gerät wird neu gestartet...', 'success');
           setTimeout(() => {
             location.reload();
           }, 3000);
         } else {
-          showNotification('Failed to toggle Access Point', 'error');
+          showNotification('Fehler beim Umschalten des Access Points', 'error');
           // Revert toggle
           document.getElementById('toggleAP').checked = !isEnabled;
         }
       })
       .catch(error => {
-        showNotification('Network error', 'error');
+        showNotification('Netzwerkfehler', 'error');
         document.getElementById('toggleAP').checked = !isEnabled;
       });
     }
@@ -862,43 +861,43 @@
         .then(response => response.text())
         .then(data => {
           if (data === 'OK') {
-            showNotification('LED toggled successfully', 'success');
+            showNotification('LED erfolgreich umgeschaltet', 'success');
           } else {
-            showNotification('Error toggling LED', 'error');
+            showNotification('Fehler beim Umschalten der LED', 'error');
           }
         })
         .catch(error => {
-          showNotification('Network error', 'error');
+          showNotification('Netzwerkfehler', 'error');
         });
     }
 
     function restartDevice() {
-      if (confirm('Are you sure you want to restart the device?')) {
+      if (confirm('Sind Sie sicher, dass Sie das Gerät neu starten möchten?')) {
         fetch('/api/restart?token=' + getToken(), { method: 'POST' })
           .then(() => {
-            showNotification('Device is restarting...', 'info');
+            showNotification('Gerät wird neu gestartet...', 'info');
             setTimeout(() => {
               location.reload();
             }, 10000);
           })
           .catch(error => {
-            showNotification('Restart failed', 'error');
+            showNotification('Neustart fehlgeschlagen', 'error');
           });
       }
     }
 
     function factoryReset() {
-      if (confirm('WARNING: This will erase all settings and return the device to factory defaults. Are you sure?')) {
-        if (confirm('This action cannot be undone. Click OK to proceed with factory reset.')) {
+      if (confirm('WARNUNG: Dies wird alle Einstellungen löschen und das Gerät auf die Werkseinstellungen zurücksetzen. Sind Sie sicher?')) {
+        if (confirm('Diese Aktion kann nicht rückgängig gemacht werden. Klicken Sie auf OK, um mit dem Zurücksetzen auf die Werkseinstellungen fortzufahren.')) {
           fetch('/api/factory-reset?token=' + getToken(), { method: 'POST' })
             .then(() => {
-              showNotification('Factory reset initiated. Device will restart...', 'warning');
+              showNotification('Werkseinstellungen werden zurückgesetzt. Gerät wird neu gestartet...', 'warning');
               setTimeout(() => {
                 window.location.href = '/';
               }, 5000);
             })
             .catch(error => {
-              showNotification('Factory reset failed', 'error');
+              showNotification('Fehler beim Zurücksetzen auf die Werkseinstellungen', 'error');
             });
         }
       }
@@ -907,12 +906,12 @@
     function saveDeviceName() {
       const deviceName = document.getElementById('device-name').value.trim();
       if (!deviceName) {
-        showNotification('Please enter a device name', 'error');
+        showNotification('Bitte geben Sie einen Gerätenamen ein', 'error');
         return;
       }
       
       if (deviceName.length > 31) {
-        showNotification('Device name too long (max 31 characters)', 'error');
+        showNotification('Gerätename zu lang (max 31 Zeichen)', 'error');
         return;
       }
 
@@ -926,15 +925,15 @@
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          showNotification('Device name saved successfully', 'success');
+          showNotification('Gerätename erfolgreich gespeichert', 'success');
           // Update the header if it exists
           updateHeaderDeviceName(deviceName);
         } else {
-          showNotification('Failed to save device name', 'error');
+          showNotification('Fehler beim Speichern des Gerätenamens', 'error');
         }
       })
       .catch(error => {
-        showNotification('Error saving device name', 'error');
+        showNotification('Fehler beim Speichern des Gerätenamens', 'error');
       });
     }
 
@@ -948,11 +947,11 @@
       // Update the sidebar title
       const sidebarTitle = document.getElementById('sidebar-title');
       if (sidebarTitle) {
-        sidebarTitle.textContent = 'FlowHeatThink - ' + deviceName;
+        sidebarTitle.textContent = 'HeatBodyVentilator - ' + deviceName;
       }
       
       // Update the page title
-      document.title = 'FlowHeatThink - ' + deviceName + ' Settings';
+      document.title = 'HeatBodyVentilator - ' + deviceName + ' Einstellungen';
     }
 
     // WiFi Modal Functions
@@ -982,7 +981,7 @@
       fetch('/api/wifi-status?token=' + getToken())
         .then(response => response.json())
         .then(data => {
-          if (data.ssid && data.ssid !== 'Not connected') {
+          if (data.ssid && data.ssid !== 'Nicht verbunden') {
             document.getElementById('ssid').value = data.ssid;
           }
         })
@@ -1000,12 +999,12 @@
 
     function scanWifi() {
       const networkList = document.getElementById('networkList');
-      networkList.innerHTML = '<div class="text-center p-3">Scanning for networks...</div>';
-      
+      networkList.innerHTML = '<div class="text-center p-3">Durchsuche nach Netzwerken...</div>';
+
       fetch('/api/wifi-scan?token=' + getToken())
         .then(response => {
           if (!response.ok) {
-            throw new Error('Network scan failed: ' + response.status);
+            throw new Error('Netzwerkscan fehlgeschlagen: ' + response.status);
           }
           return response.json();
         })
@@ -1015,7 +1014,7 @@
           const networks = data.networks || data;
           
           if (!networks || networks.length === 0) {
-            networkList.innerHTML = '<div class="text-center p-3" style="color: #6c757d;">No networks found</div>';
+            networkList.innerHTML = '<div class="text-center p-3" style="color: #6c757d;">Keine Netzwerke gefunden</div>';
             return;
           }
           
@@ -1025,10 +1024,10 @@
             networkItem.onclick = () => selectNetwork(network.ssid);
             
             // Determine security type
-            const security = network.encryption !== undefined ? 
-              (network.encryption > 0 ? 'Secured' : 'Open') : 
-              (network.security ? 'Secured' : 'Open');
-            
+            const security = network.encryption !== undefined ?
+              (network.encryption > 0 ? 'Sicher' : 'Offen') :
+              (network.security ? 'Sicher' : 'Offen');
+
             networkItem.innerHTML = `
               <div class="network-info">
                 <div class="network-name">${network.ssid}</div>
@@ -1044,7 +1043,7 @@
         })
         .catch(error => {
           console.error('WiFi scan error:', error);
-          networkList.innerHTML = '<div class="text-center p-3 text-danger">Failed to scan networks. Please try again.</div>';
+          networkList.innerHTML = '<div class="text-center p-3 text-danger">Netzwerkscan fehlgeschlagen. Bitte erneut versuchen.</div>';
         });
     }
 
@@ -1070,21 +1069,21 @@
     }
 
     function testMqttConnection() {
-      showNotification('Testing MQTT connection...', 'info');
-      
+      showNotification('MQTT-Verbindung wird getestet...', 'info');
+
       fetch('/api/mqtt-test?token=' + getToken(), { method: 'POST' })
         .then(response => response.json())
         .then(data => {
           if (data.success) {
-            showNotification('MQTT connection successful!', 'success');
+            showNotification('MQTT-Verbindung erfolgreich!', 'success');
             updateMqttStatus(true);
           } else {
-            showNotification('MQTT connection failed: ' + data.error, 'error');
+            showNotification('MQTT-Verbindung fehlgeschlagen: ' + data.error, 'error');
             updateMqttStatus(false);
           }
         })
         .catch(error => {
-          showNotification('MQTT test failed', 'error');
+          showNotification('MQTT-Test fehlgeschlagen', 'error');
         });
     }
 
@@ -1105,14 +1104,14 @@
       .then(response => response.text())
       .then(data => {
         if (data.includes('Success') || data.includes('OK')) {
-          showNotification('WiFi connection successful!', 'success');
+          showNotification('WiFi-Verbindung erfolgreich!', 'success');
           closeWifiModal();
         } else {
-          showNotification('WiFi connection failed', 'error');
+          showNotification('WiFi-Verbindung fehlgeschlagen', 'error');
         }
       })
       .catch(error => {
-        showNotification('Network error', 'error');
+        showNotification('Netzwerkfehler', 'error');
       });
     });
 
@@ -1134,41 +1133,41 @@
       .then(response => response.text())
       .then(data => {
         if (data === 'OK') {
-          showNotification('MQTT settings saved successfully!', 'success');
+          showNotification('MQTT-Einstellungen erfolgreich gespeichert!', 'success');
           closeMqttModal();
         } else {
-          showNotification('Failed to save MQTT settings', 'error');
+          showNotification('Fehler beim Speichern der MQTT-Einstellungen', 'error');
         }
       })
       .catch(error => {
-        showNotification('Network error', 'error');
+        showNotification('Netzwerkfehler', 'error');
       });
     });
 
     function disconnectWifi() {
-      if (confirm('Disconnect from current WiFi network?')) {
+      if (confirm('Von aktuellem WiFi-Netzwerk trennen?')) {
         fetch('/api/wifi-disconnect?token=' + getToken(), { method: 'POST' })
           .then(response => response.text())
           .then(data => {
-            showNotification('WiFi disconnected', 'info');
+            showNotification('WiFi getrennt', 'info');
             setTimeout(() => location.reload(), 2000);
           })
           .catch(error => {
-            showNotification('Failed to disconnect', 'error');
+            showNotification('Fehler beim Trennen', 'error');
           });
       }
     }
 
     function clearWifiSettings() {
-      if (confirm('Clear all saved WiFi credentials?')) {
+      if (confirm('Alle gespeicherten WiFi-Anmeldeinformationen löschen?')) {
         fetch('/api/wifi-clear?token=' + getToken(), { method: 'POST' })
           .then(response => response.text())
           .then(data => {
-            showNotification('WiFi settings cleared', 'warning');
+            showNotification('WiFi-Einstellungen gelöscht', 'warning');
             setTimeout(() => location.reload(), 2000);
           })
           .catch(error => {
-            showNotification('Failed to clear settings', 'error');
+            showNotification('Fehler beim Löschen der Einstellungen', 'error');
           });
       }
     }

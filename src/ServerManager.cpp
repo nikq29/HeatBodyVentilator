@@ -48,7 +48,7 @@ void ServerManager::setupRoutes() {
     server.sendHeader("Location", "/main");
     server.send(302);
   });
-  server.on("/main", HTTP_GET, [this]() { handleRoot(); });
+  server.on("/main", HTTP_GET, [this]() { handleMain(); });
   // style.css
   server.on("/style.css", HTTP_GET, [this]() {
     size_t len = _binary_data_style_css_end - _binary_data_style_css_start;
@@ -58,6 +58,7 @@ void ServerManager::setupRoutes() {
   });
   // favicon, login etc. wie gehabt…
   server.on("/favicon.ico", HTTP_GET, [this]() { server.send(204); });
+  server.on("/index", HTTP_GET, [this]() { handleIndex(); });
   server.on("/login", HTTP_GET, [this]() { handleLogin(); });
   server.on("/login", HTTP_POST, [this]() { handleLogin(); });
   server.onNotFound([this]() { handleNotFound(); });
@@ -107,6 +108,7 @@ void ServerManager::handleRoot() {
                        _binary_data_main_html_end - _binary_data_main_html_start);
 
     html.replace("%CONTENT%", pageContent);
+    html.replace("%DEVICE_NAME%", Config::DEVICE_NAME);
     html.replace("%TOKEN%", sessionToken);
     html.replace("%HOME_ACTIVE%", "active");
     html.replace("%SETTING_ACTIVE%", "");
@@ -150,6 +152,44 @@ void ServerManager::handleLogin() {
 void ServerManager::handleNotFound() {
     Serial.println("404 - Page not found: " + server.uri());
     server.send(404, "text/plain", "Nicht gefunden");
+}
+
+void ServerManager::handleMain() {
+    if (!isAuthenticated()) {
+        server.sendHeader("Location", "/login");
+        server.send(302);
+        return;
+    }
+    
+    // Lade main.html direkt
+    String html(reinterpret_cast<const char*>(_binary_data_main_html_start),
+                _binary_data_main_html_end - _binary_data_main_html_start);
+
+    // Replace dynamic values
+    html.replace("%DEVICE_NAME%", Config::DEVICE_NAME);
+    html.replace("%TOKEN%", sessionToken);
+
+    server.setContentLength(html.length());
+    server.send(200, "text/html", html);
+}
+
+void ServerManager::handleIndex() {
+    if (!isAuthenticated()) {
+        server.sendHeader("Location", "/login");
+        server.send(302);
+        return;
+    }
+    
+    // Lade index.html direkt
+    String html(reinterpret_cast<const char*>(_binary_data_index_html_start),
+                _binary_data_index_html_end - _binary_data_index_html_start);
+
+    // Replace dynamic values
+    html.replace("%DEVICE_NAME%", Config::DEVICE_NAME);
+    html.replace("%TOKEN%", sessionToken);
+
+    server.setContentLength(html.length());
+    server.send(200, "text/html", html);
 }
 
 bool ServerManager::isAuthenticated() {

@@ -37,6 +37,9 @@ private:
     void handleStatus();
     void handleGetSettings();
     void handleFirmwareUpdate();
+    void handlePWMControl();
+    void handlePWMStatus();
+    void handleSystemInfo(); // Neue API für Platzhalter-Daten
     
     bool isAuthenticated();
 };

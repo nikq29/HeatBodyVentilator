@@ -276,6 +276,47 @@
       }
     }
     
+    /* PWM Range Slider Styling */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 120px;
+      height: 6px;
+      border-radius: 3px;
+      background: #ddd;
+      outline: none;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    
+    input[type="range"]:hover {
+      opacity: 1;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb:hover {
+      background: var(--secondary);
+    }
+    
+    input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      border: none;
+    }
+
     /* Hamburger Menu Styles */
     .hamburger-menu {
       position: fixed;
@@ -398,7 +439,7 @@
   <nav class="navbar">
     <a href="#" class="navbar-brand" onclick="navigateWithToken('main')">
       <img src="/img/logo.png" alt="Logo">
-      FlowHeaThink - <span id="navbar-device-name">%DEVICE_NAME%</span>
+      HeatBodyVentilator - <span id="navbar-device-name">%DEVICE_NAME%</span>
     </a>
     
     <!-- Hamburger Menu Button -->
@@ -606,6 +647,96 @@
                 <i class="fas fa-home" aria-hidden="true"></i>
                 <span class="icon-fallback">🏠</span> Aktiv
               </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PWM Control Card -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="fas fa-sliders-h" aria-hidden="true"></i>
+              <span class="icon-fallback">🎛️</span> PWM Steuerung
+            </h3>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>PWM Status</span>
+              <small class="d-block" style="color: #6c757d;">M5Stack Atom PWM Erweiterung</small>
+            </div>
+            <div class="setting-control">
+              <span class="status-indicator status-connected" id="pwm-status">
+                <i class="fas fa-wave-square" aria-hidden="true"></i>
+                <span class="icon-fallback">📶</span> Bereit
+              </span>
+            </div>
+          </div>
+          
+          <!-- PWM Channel 0 -->
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>Kanal 0 (Pin 25)</span>
+              <small class="d-block" style="color: #6c757d;">PWM Duty Cycle: <span id="pwm0-value">0</span>%</small>
+            </div>
+            <div class="setting-control">
+              <input type="range" id="pwm0-slider" min="0" max="255" value="0" 
+                     style="width: 120px;" onchange="updatePWM(0, this.value)">
+            </div>
+          </div>
+          
+          <!-- PWM Channel 1 -->
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>Kanal 1 (Pin 26)</span>
+              <small class="d-block" style="color: #6c757d;">PWM Duty Cycle: <span id="pwm1-value">0</span>%</small>
+            </div>
+            <div class="setting-control">
+              <input type="range" id="pwm1-slider" min="0" max="255" value="0" 
+                     style="width: 120px;" onchange="updatePWM(1, this.value)">
+            </div>
+          </div>
+          
+          <!-- PWM Channel 2 -->
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>Kanal 2 (Pin 27)</span>
+              <small class="d-block" style="color: #6c757d;">PWM Duty Cycle: <span id="pwm2-value">0</span>%</small>
+            </div>
+            <div class="setting-control">
+              <input type="range" id="pwm2-slider" min="0" max="255" value="0" 
+                     style="width: 120px;" onchange="updatePWM(2, this.value)">
+            </div>
+          </div>
+          
+          <!-- PWM Channel 3 -->
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>Kanal 3 (Pin 28)</span>
+              <small class="d-block" style="color: #6c757d;">PWM Duty Cycle: <span id="pwm3-value">0</span>%</small>
+            </div>
+            <div class="setting-control">
+              <input type="range" id="pwm3-slider" min="0" max="255" value="0" 
+                     style="width: 120px;" onchange="updatePWM(3, this.value)">
+            </div>
+          </div>
+          
+          <div class="btn-separator"></div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>Alle Kanäle</span>
+              <small class="d-block" style="color: #6c757d;">Schnellsteuerung</small>
+            </div>
+            <div class="setting-control">
+              <button class="btn btn-secondary" onclick="resetAllPWM()">
+                <i class="fas fa-power-off" aria-hidden="true"></i>
+                <span class="icon-fallback">⚡</span> Alle Aus
+              </button>
+              <button class="btn btn-primary" onclick="testAllPWM()">
+                <i class="fas fa-play" aria-hidden="true"></i>
+                <span class="icon-fallback">▶️</span> Test Modus
+              </button>
             </div>
           </div>
         </div>
@@ -945,11 +1076,47 @@
   </div>
 
   <script>
+    // Load system info and replace placeholders
+    function loadSystemInfo() {
+      fetch('/api/system-info?token=' + getToken())
+        .then(response => response.json())
+        .then(data => {
+          console.log('DEBUG: System info loaded:', data);
+          
+          // Replace placeholders in the document
+          document.title = document.title.replace('%DEVICE_NAME%', data.device_name);
+          
+          // Replace placeholders in text content
+          const elements = document.querySelectorAll('*');
+          elements.forEach(element => {
+            if (element.childNodes.length === 1 && element.childNodes[0].nodeType === Node.TEXT_NODE) {
+              let text = element.textContent;
+              text = text.replace(/%DEVICE_NAME%/g, data.device_name);
+              text = text.replace(/%WIFI_SSID%/g, data.wifi_ssid);
+              text = text.replace(/%WIFI_IP%/g, data.wifi_ip);
+              text = text.replace(/%WIFI_MAC%/g, data.wifi_mac);
+              text = text.replace(/%WIFI_RSSI%/g, data.wifi_rssi);
+              element.textContent = text;
+            }
+          });
+          
+          console.log('DEBUG: Placeholders replaced');
+        })
+        .catch(error => {
+          console.error('ERROR: Failed to load system info:', error);
+        });
+    }
+
     // Load current settings on page load
     document.addEventListener('DOMContentLoaded', function() {
+      console.log('DEBUG: DOMContentLoaded event fired');
+      loadSystemInfo(); // Load system info first
       loadCurrentSettings();
+      console.log('DEBUG: Calling updatePWMStatus for initial load');
+      updatePWMStatus(); // Load initial PWM status
       // Auto-refresh status every 30 seconds
       setInterval(updateStatus, 30000);
+      console.log('DEBUG: Setup complete');
     });
 
     function loadCurrentSettings() {
@@ -1008,6 +1175,9 @@
             document.getElementById('toggleLED').checked = data.led_state;
             updateLEDStatus(data.led_state);
           }
+          
+          // Update PWM status
+          updatePWMStatus();
         })
         .catch(error => console.log('Statusaktualisierung fehlgeschlagen:', error));
     }
@@ -1088,6 +1258,102 @@
       } else {
         statusElement.className = 'status-indicator status-disconnected';
         statusElement.innerHTML = '<i class="fas fa-circle" aria-hidden="true"></i><span class="icon-fallback">⚫</span> Ausgeschaltet';
+      }
+    }
+
+    // PWM Control Functions
+    function updatePWM(channel, duty) {
+      console.log(`DEBUG: updatePWM called with channel=${channel}, duty=${duty}`);
+      const percentage = Math.round((duty / 255) * 100);
+      document.getElementById(`pwm${channel}-value`).textContent = percentage;
+      
+      console.log(`DEBUG: Sending PWM request for channel ${channel}`);
+      
+      fetch('/api/pwm-control?token=' + getToken(), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `channel=${channel}&duty=${duty}`
+      })
+        .then(response => {
+          console.log(`DEBUG: PWM response status: ${response.status}`);
+          return response.text();
+        })
+        .then(data => {
+          console.log(`DEBUG: PWM response data: ${data}`);
+          if (data === 'OK') {
+            showNotification(`PWM Kanal ${channel} auf ${percentage}% gesetzt`, 'success');
+          } else {
+            showNotification('PWM-Einstellung fehlgeschlagen', 'error');
+          }
+        })
+        .catch(error => {
+          console.error('DEBUG: PWM request error:', error);
+          showNotification('PWM-Netzwerkfehler', 'error');
+        });
+    }
+
+    function updatePWMStatus() {
+      console.log('DEBUG: updatePWMStatus called');
+      fetch('/api/pwm-status?token=' + getToken())
+        .then(response => {
+          console.log(`DEBUG: PWM status response status: ${response.status}`);
+          return response.json();
+        })
+        .then(data => {
+          console.log('DEBUG: PWM status data:', data);
+          if (data.pwm_channels) {
+            data.pwm_channels.forEach(channel => {
+              console.log(`DEBUG: Processing channel ${channel.channel}, duty ${channel.duty}`);
+              const slider = document.getElementById(`pwm${channel.channel}-slider`);
+              const value = document.getElementById(`pwm${channel.channel}-value`);
+              if (slider && value) {
+                slider.value = channel.duty;
+                value.textContent = Math.round((channel.duty / 255) * 100);
+                console.log(`DEBUG: Updated slider ${channel.channel} to ${channel.duty}`);
+              } else {
+                console.log(`DEBUG: Slider or value element not found for channel ${channel.channel}`);
+              }
+            });
+          } else {
+            console.log('DEBUG: No pwm_channels in response data');
+          }
+        })
+        .catch(error => {
+          console.error('DEBUG: PWM status error:', error);
+          console.log('PWM-Status-Update fehlgeschlagen:', error);
+        });
+    }
+
+    function resetAllPWM() {
+      if (confirm('Alle PWM-Kanäle auf 0% setzen?')) {
+        for (let i = 0; i < 4; i++) {
+          document.getElementById(`pwm${i}-slider`).value = 0;
+          updatePWM(i, 0);
+        }
+        showNotification('Alle PWM-Kanäle zurückgesetzt', 'info');
+      }
+    }
+
+    function testAllPWM() {
+      if (confirm('PWM Test-Modus starten? (Alle Kanäle auf 50% für 3 Sekunden)')) {
+        // Set all channels to 50% (127/255)
+        for (let i = 0; i < 4; i++) {
+          document.getElementById(`pwm${i}-slider`).value = 127;
+          updatePWM(i, 127);
+        }
+        
+        showNotification('PWM Test-Modus läuft...', 'info');
+        
+        // Reset after 3 seconds
+        setTimeout(() => {
+          for (let i = 0; i < 4; i++) {
+            document.getElementById(`pwm${i}-slider`).value = 0;
+            updatePWM(i, 0);
+          }
+          showNotification('PWM Test-Modus beendet', 'success');
+        }, 3000);
       }
     }
 

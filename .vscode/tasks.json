@@ -51,8 +51,10 @@
 			"type": "shell",
 			"command": "powershell",
 			"args": [
-				"-ExecutionPolicy", "Bypass",
-				"-File", "${workspaceFolder}\\auto-backup.ps1"
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\auto-backup.ps1"
 			],
 			"group": "build",
 			"presentation": {
@@ -68,9 +70,12 @@
 			"type": "shell",
 			"command": "powershell",
 			"args": [
-				"-ExecutionPolicy", "Bypass",
-				"-File", "${workspaceFolder}\\auto-backup.ps1",
-				"-Message", "${input:commitMessage}"
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\auto-backup.ps1",
+				"-Message",
+				"${input:commitMessage}"
 			],
 			"group": "build",
 			"presentation": {
@@ -104,6 +109,20 @@
 			"command": "C:\\Users\\Markus Schwarz\\.platformio\\penv\\Scripts\\platformio.exe",
 			"args": [
 				"run"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build & Upload Debug",
+			"type": "shell",
+			"command": "C:\\Users\\Markus Schwarz\\.platformio\\penv\\Scripts\\platformio.exe",
+			"args": [
+				"run",
+				"--target",
+				"upload",
+				"--upload-port",
+				"COM4"
 			],
 			"isBackground": false,
 			"group": "build"

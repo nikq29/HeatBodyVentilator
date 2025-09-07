@@ -93,6 +93,18 @@ void ServerManager::setupRoutes() {
   server.on("/api/led-toggle", HTTP_POST, [this]() { handleLEDToggle(); });
   server.on("/api/status", HTTP_GET, [this]() { handleStatus(); });
   server.on("/api/settings", HTTP_GET, [this]() { handleGetSettings(); });
+  server.on("/api/pwm-control", HTTP_POST, [this]() { 
+    Serial.println("DEBUG: PWM Control route triggered");
+    handlePWMControl(); 
+  });
+  server.on("/api/pwm-status", HTTP_GET, [this]() { 
+    Serial.println("DEBUG: PWM Status route triggered");
+    handlePWMStatus(); 
+  });
+  server.on("/api/system-info", HTTP_GET, [this]() { 
+    Serial.println("DEBUG: System Info route triggered");
+    handleSystemInfo(); 
+  });
   
   // Firmware update with file upload support
   server.on("/api/firmware-update", HTTP_POST, 
@@ -212,95 +224,33 @@ bool ServerManager::isAuthenticated() {
 }
 
 void ServerManager::handleSetting() {
+    Serial.println("DEBUG: handleSetting() called");
+    
     if (!isAuthenticated()) {
+        Serial.println("DEBUG: handleSetting() - Authentication failed, redirecting to login");
         server.sendHeader("Location", "/login");
         server.send(302);
         return;
     }
     
+    Serial.println("DEBUG: handleSetting() - Authentication successful");
+    
     // Lade setting.html direkt
     extern const uint8_t _binary_data_setting_html_start[] asm("_binary_data_setting_html_start");
     extern const uint8_t _binary_data_setting_html_end[]   asm("_binary_data_setting_html_end");
-    String html(reinterpret_cast<const char*>(_binary_data_setting_html_start),
-                       _binary_data_setting_html_end - _binary_data_setting_html_start);
-
-    // Replace dynamic values
-    html.replace("%DEVICE_NAME%", Config::DEVICE_NAME);
-    html.replace("%FIRMWARE_VERSION%", Config::FIRMWARE_VERSION);
-    html.replace("%LAST_PASSWORD_CHANGE%", Config::getLastPasswordChange());
     
-    // Temperature unit selection
-    if (strcmp(Config::TEMP_UNIT, "fahrenheit") == 0) {
-        html.replace("%CELSIUS_SELECTED%", "");
-        html.replace("%FAHRENHEIT_SELECTED%", "selected");
-    } else {
-        html.replace("%CELSIUS_SELECTED%", "selected");
-        html.replace("%FAHRENHEIT_SELECTED%", "");
-    }
+    size_t htmlSize = _binary_data_setting_html_end - _binary_data_setting_html_start;
+    Serial.printf("DEBUG: setting.html binary size: %d bytes\n", htmlSize);
     
-    // Access Point status
-    String apStatus = Config::AP_ENABLED ? "Enabled" : "Disabled";
-    String apButtonText = Config::AP_ENABLED ? "Disable" : "Enable";
-    html.replace("%AP_STATUS%", apStatus);
-    html.replace("%AP_BUTTON_TEXT%", apButtonText);
+    // Einfache Lösung: Sende HTML ohne Platzhalter-Ersetzung erstmal
+    // Die Platzhalter werden später via JavaScript ersetzt
+    const char* htmlData = reinterpret_cast<const char*>(_binary_data_setting_html_start);
     
-    // MQTT settings
-    html.replace("%MQTT_SERVER%", Config::MQTT_SERVER);
-    html.replace("%MQTT_PORT%", String(Config::MQTT_PORT));
-    html.replace("%MQTT_USER%", Config::MQTT_USER);
-    html.replace("%MQTT_PASS%", Config::MQTT_PASS);
-    html.replace("%MQTT_TOPIC%", Config::MQTT_TOPIC);
+    // Verwende send_P für direkte Übertragung
+    server.setContentLength(htmlSize);
+    server.send_P(200, "text/html", htmlData, htmlSize);
     
-    // Device ID for Home Assistant
-    String deviceId = WiFi.macAddress().substring(9); // Last 3 bytes of MAC
-    deviceId.replace(":", "");
-    html.replace("%DEVICE_ID%", deviceId);
-
-    // WiFi settings for modal
-    String ssid, ip, mac, rssi, status, wifiOptions, savedPassword;
-    
-    if (WiFi.status() == WL_CONNECTED) {
-        ssid = WiFi.SSID();
-        ip = WiFi.localIP().toString();
-        mac = WiFi.macAddress();
-        rssi = String(WiFi.RSSI());
-        status = "Connected. RSSI: " + rssi + "dBm";
-    } else {
-        ssid = "-";
-        ip = "-";
-        mac = WiFi.macAddress();
-        rssi = "-";
-        status = "Not connected";
-    }
-    
-    // Load saved WiFi password
-    Preferences prefs;
-    if (prefs.begin("wifi", true)) {
-        savedPassword = prefs.getString("password", "");
-        prefs.end();
-    }
-    
-    // Generate WiFi options
-    int n = WiFi.scanNetworks();
-    for (int i = 0; i < n; ++i) {
-        String networkSSID = WiFi.SSID(i);
-        String selected = (networkSSID == WiFi.SSID()) ? " selected" : "";
-        wifiOptions += "<option value=\"" + networkSSID + "\"" + selected + ">" + networkSSID + " (" + String(WiFi.RSSI(i)) + "dBm)</option>\n";
-    }
-    
-    html.replace("%WIFI_SSID%", ssid);
-    html.replace("%WIFI_IP%", ip);
-    html.replace("%WIFI_MAC%", mac);
-    html.replace("%WIFI_RSSI%", rssi);
-    html.replace("%WIFI_STATUS%", status);
-    html.replace("%WIFI_OPTIONS%", wifiOptions);
-    html.replace("%WIFI_PASSWORD%", savedPassword);
-    html.replace("%TOKEN%", sessionToken);
-    html.replace("%HOME_ACTIVE%", "");
-    html.replace("%SETTING_ACTIVE%", "active");
-
-    server.setContentLength(html.length());
-    server.send(200, "text/html", html);
+    Serial.println("DEBUG: HTML response sent directly");
 }
 
 /*
@@ -751,4 +701,110 @@ void ServerManager::handleFirmwareUpdate() {
             updateStarted = false;
         }
     }
+}
+
+// PWM Control Handler
+void ServerManager::handleSystemInfo() {
+    if (!isAuthenticated()) {
+        server.send(401, "application/json", "{\"error\":\"Unauthorized\"}");
+        return;
+    }
+    
+    // Erstelle JSON mit System-Informationen für Platzhalter
+    String json = "{";
+    json += "\"device_name\":\"" + String(Config::DEVICE_NAME) + "\",";
+    json += "\"wifi_ssid\":\"" + WiFi.SSID() + "\",";
+    json += "\"wifi_ip\":\"" + WiFi.localIP().toString() + "\",";
+    json += "\"wifi_mac\":\"" + WiFi.macAddress() + "\",";
+    json += "\"wifi_rssi\":\"" + String(WiFi.RSSI()) + "\"";
+    json += "}";
+    
+    Serial.println("DEBUG: System info JSON: " + json);
+    server.send(200, "application/json", json);
+}
+
+void ServerManager::handlePWMControl() {
+    Serial.println("DEBUG: PWM Control Handler called");
+    
+    if (!isAuthenticated()) {
+        Serial.println("DEBUG: PWM Control - Authentication failed");
+        server.send(401, "text/plain", "Unauthorized");
+        return;
+    }
+    
+    Serial.println("DEBUG: PWM Control - Authentication successful");
+    
+    if (server.hasArg("channel") && server.hasArg("duty")) {
+        int channel = server.arg("channel").toInt();
+        int duty = server.arg("duty").toInt();
+        
+        Serial.printf("DEBUG: PWM Control - Received channel=%d, duty=%d\n", channel, duty);
+        
+        // Validate channel (0-3 for M5Stack Atom PWM)
+        if (channel < 0 || channel > 3) {
+            Serial.printf("DEBUG: PWM Control - Invalid channel: %d\n", channel);
+            server.send(400, "text/plain", "Invalid channel");
+            return;
+        }
+        
+        // Validate duty cycle (0-255)
+        if (duty < 0 || duty > 255) {
+            Serial.printf("DEBUG: PWM Control - Invalid duty cycle: %d\n", duty);
+            server.send(400, "text/plain", "Invalid duty cycle");
+            return;
+        }
+        
+        Serial.printf("DEBUG: PWM Control - Configuring PWM channel %d with duty %d\n", channel, duty);
+        
+        // Configure PWM channel
+        ledcSetup(channel, 1000, 8); // 1kHz frequency, 8-bit resolution
+        ledcAttachPin(25 + channel, channel); // M5Stack Atom PWM pins start at 25
+        ledcWrite(channel, duty);
+        
+        Serial.printf("PWM Channel %d set to duty cycle %d\n", channel, duty);
+        Serial.println("DEBUG: PWM Control - Sending OK response");
+        server.send(200, "text/plain", "OK");
+    } else {
+        Serial.println("DEBUG: PWM Control - Missing parameters");
+        Serial.printf("DEBUG: PWM Control - Args count: %d\n", server.args());
+        for (int i = 0; i < server.args(); i++) {
+            Serial.printf("DEBUG: PWM Control - Arg %d: %s = %s\n", i, server.argName(i).c_str(), server.arg(i).c_str());
+        }
+        server.send(400, "text/plain", "Missing parameters");
+    }
+}
+
+// PWM Status Handler
+void ServerManager::handlePWMStatus() {
+    Serial.println("DEBUG: PWM Status Handler called");
+    
+    if (!isAuthenticated()) {
+        Serial.println("DEBUG: PWM Status - Authentication failed");
+        server.send(401, "text/plain", "Unauthorized");
+        return;
+    }
+    
+    Serial.println("DEBUG: PWM Status - Authentication successful");
+    Serial.println("DEBUG: PWM Status - Building JSON response");
+    
+    String json = "{";
+    json += "\"pwm_channels\": [";
+    
+    // Return status for 4 PWM channels (typical for M5Stack Atom PWM)
+    for (int i = 0; i < 4; i++) {
+        if (i > 0) json += ",";
+        json += "{";
+        json += "\"channel\": " + String(i) + ",";
+        json += "\"pin\": " + String(25 + i) + ",";
+        json += "\"duty\": " + String(ledcRead(i));
+        json += "}";
+        
+        Serial.printf("DEBUG: PWM Status - Channel %d, Pin %d, Duty %d\n", i, 25 + i, ledcRead(i));
+    }
+    
+    json += "]";
+    json += "}";
+    
+    Serial.printf("DEBUG: PWM Status - JSON: %s\n", json.c_str());
+    server.send(200, "application/json", json);
 }

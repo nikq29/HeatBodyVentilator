@@ -1,5 +1,6 @@
 #include <Preferences.h>
 #include "Config.h"
+#include <time.h>
 
 namespace Config {
     char WEB_PASSWORD[32] = "your_password_here";
@@ -11,6 +12,7 @@ namespace Config {
     char MQTT_TOPIC[64] = "home/esp32";
     char TEMP_UNIT[16] = "celsius";
     bool AP_ENABLED = true;
+    char LAST_PASSWORD_CHANGE[32] = "Nie geändert";
 
     void loadSettings() {
         Preferences prefs;
@@ -56,6 +58,10 @@ namespace Config {
         
         AP_ENABLED = prefs.getBool("ap_enabled", true);
         
+        String lastPwChange = prefs.getString("last_pw_change", "Nie geändert");
+        strncpy(LAST_PASSWORD_CHANGE, lastPwChange.c_str(), sizeof(LAST_PASSWORD_CHANGE));
+        LAST_PASSWORD_CHANGE[sizeof(LAST_PASSWORD_CHANGE)-1] = '\0';
+        
         prefs.end();
         Serial.println("Settings loaded successfully");
     }
@@ -69,6 +75,16 @@ namespace Config {
         prefs.putString("webpw", newPassword);
         strncpy(WEB_PASSWORD, newPassword, sizeof(WEB_PASSWORD));
         WEB_PASSWORD[sizeof(WEB_PASSWORD)-1] = '\0';
+        
+        // Save timestamp
+        time_t now = time(nullptr);
+        struct tm* timeinfo = localtime(&now);
+        char timestamp[32];
+        strftime(timestamp, sizeof(timestamp), "%d.%m.%Y %H:%M", timeinfo);
+        prefs.putString("last_pw_change", timestamp);
+        strncpy(LAST_PASSWORD_CHANGE, timestamp, sizeof(LAST_PASSWORD_CHANGE));
+        LAST_PASSWORD_CHANGE[sizeof(LAST_PASSWORD_CHANGE)-1] = '\0';
+        
         prefs.end();
     }
 
@@ -167,7 +183,12 @@ namespace Config {
         strcpy(MQTT_TOPIC, "home/esp32");
         strcpy(TEMP_UNIT, "celsius");
         AP_ENABLED = true;
+        strcpy(LAST_PASSWORD_CHANGE, "Nie geändert");
         
         Serial.println("Factory reset completed");
+    }
+
+    String getLastPasswordChange() {
+        return String(LAST_PASSWORD_CHANGE);
     }
 }

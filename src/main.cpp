@@ -6,6 +6,7 @@
 #include "Config.h"
 #include <Preferences.h>
 #include <nvs_flash.h>
+#include <time.h>
 
 ServerManager web;
 LEDManager led;
@@ -79,6 +80,10 @@ void setup() {
     
     web.begin();
     mqttManager.begin();
+    
+    // Configure time (NTP)
+    configTime(1 * 3600, 0, "pool.ntp.org", "time.nist.gov"); // UTC+1 for Germany
+    Serial.println("NTP time configured");
     
     // Register LED callback with MQTT manager
     mqttManager.setLEDCallback(onLEDStateChange);

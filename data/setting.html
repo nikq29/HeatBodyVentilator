@@ -589,6 +589,51 @@
           </div>
         </div>
 
+        <!-- Device Security Settings Card -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="fas fa-shield-alt" aria-hidden="true"></i>
+              <span class="icon-fallback">🔒</span> Gerätesicherheit
+            </h3>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>Login-Sicherheit</span>
+              <small class="d-block" style="color: #6c757d;">Aktuelles Passwort ändern</small>
+            </div>
+            <div class="setting-control">
+              <button class="btn btn-primary" onclick="openPasswordModal()">
+                <i class="fas fa-key" aria-hidden="true"></i>
+                <span class="icon-fallback">🔑</span> Passwort Ändern
+              </button>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>Letzte Passwort-Änderung</span>
+            </div>
+            <div class="setting-control">
+              <span id="last-password-change">%LAST_PASSWORD_CHANGE%</span>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>Session-Timeout</span>
+              <small class="d-block" style="color: #6c757d;">Automatische Abmeldung nach Inaktivität</small>
+            </div>
+            <div class="setting-control">
+              <span class="status-indicator status-connected">
+                <i class="fas fa-clock" aria-hidden="true"></i>
+                <span class="icon-fallback">⏰</span> 30 Minuten
+              </span>
+            </div>
+          </div>
+        </div>
+
         <!-- System Settings Card -->
         <div class="card">
           <div class="card-header">
@@ -753,6 +798,44 @@
             <span class="icon-fallback">💾</span> Einstellungen speichern
           </button>
           <button type="button" class="btn btn-secondary" onclick="closeMqttModal()">
+            Abbrechen
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Password Change Modal -->
+  <div id="passwordModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Passwort Ändern</h3>
+        <span class="close" onclick="closePasswordModal()">&times;</span>
+      </div>
+      
+      <form id="passwordForm">
+        <div class="form-group">
+          <label class="form-label" for="currentPassword">Aktuelles Passwort</label>
+          <input type="password" id="currentPassword" class="form-control" required placeholder="Geben Sie Ihr aktuelles Passwort ein">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="newPassword">Neues Passwort</label>
+          <input type="password" id="newPassword" class="form-control" required placeholder="Geben Sie ein neues Passwort ein" minlength="6">
+          <small class="form-text text-muted">Mindestens 6 Zeichen erforderlich</small>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="confirmPassword">Passwort Bestätigen</label>
+          <input type="password" id="confirmPassword" class="form-control" required placeholder="Bestätigen Sie das neue Passwort">
+        </div>
+        
+        <div class="form-row">
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-save" aria-hidden="true"></i>
+            <span class="icon-fallback">💾</span> Passwort Ändern
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="closePasswordModal()">
             Abbrechen
           </button>
         </div>
@@ -1216,6 +1299,67 @@
       }
     }
 
+    // Password Modal Functions
+    function openPasswordModal() {
+      document.getElementById('passwordModal').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePasswordModal() {
+      document.getElementById('passwordModal').style.display = 'none';
+      document.body.style.overflow = 'auto';
+      document.getElementById('passwordForm').reset();
+    }
+
+    // Handle password form submission
+    document.getElementById('passwordForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const currentPassword = document.getElementById('currentPassword').value;
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      
+      // Validate passwords match
+      if (newPassword !== confirmPassword) {
+        showNotification('Die neuen Passwörter stimmen nicht überein', 'error');
+        return;
+      }
+      
+      // Validate password length
+      if (newPassword.length < 6) {
+        showNotification('Das neue Passwort muss mindestens 6 Zeichen lang sein', 'error');
+        return;
+      }
+      
+      // Send password change request
+      fetch('/api/change-password?token=' + getToken(), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: 'current_password=' + encodeURIComponent(currentPassword) + 
+              '&new_password=' + encodeURIComponent(newPassword)
+      })
+      .then(response => response.text())
+      .then(data => {
+        if (data === 'OK') {
+          showNotification('Passwort erfolgreich geändert!', 'success');
+          closePasswordModal();
+          // Update last password change timestamp
+          const now = new Date().toLocaleString('de-DE');
+          document.getElementById('last-password-change').textContent = now;
+        } else if (data === 'INVALID') {
+          showNotification('Aktuelles Passwort ist falsch', 'error');
+        } else {
+          showNotification('Fehler beim Ändern des Passworts', 'error');
+        }
+      })
+      .catch(error => {
+        showNotification('Netzwerkfehler beim Ändern des Passworts', 'error');
+        console.error('Password change error:', error);
+      });
+    });
+
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
       const overlay = document.getElementById('overlay');
@@ -1233,11 +1377,14 @@
     window.onclick = function(event) {
       const wifiModal = document.getElementById('wifiModal');
       const mqttModal = document.getElementById('mqttModal');
+      const passwordModal = document.getElementById('passwordModal');
       
       if (event.target === wifiModal) {
         closeWifiModal();
       } else if (event.target === mqttModal) {
         closeMqttModal();
+      } else if (event.target === passwordModal) {
+        closePasswordModal();
       }
     }
 
@@ -1247,6 +1394,7 @@
         // Close any open modal or sidebar
         closeWifiModal();
         closeMqttModal();
+        closePasswordModal();
         
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');

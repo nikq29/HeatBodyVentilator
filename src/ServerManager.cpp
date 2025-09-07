@@ -215,6 +215,7 @@ void ServerManager::handleSetting() {
     // Replace dynamic values
     html.replace("%DEVICE_NAME%", Config::DEVICE_NAME);
     html.replace("%FIRMWARE_VERSION%", Config::FIRMWARE_VERSION);
+    html.replace("%LAST_PASSWORD_CHANGE%", Config::getLastPasswordChange());
     
     // Temperature unit selection
     if (strcmp(Config::TEMP_UNIT, "fahrenheit") == 0) {
@@ -371,12 +372,12 @@ void ServerManager::handleChangePassword() {
         return;
     }
     
-    String currentPassword = server.arg("currentPassword");
-    String newPassword = server.arg("newPassword");
+    String currentPassword = server.arg("current_password");
+    String newPassword = server.arg("new_password");
     
     // Validate current password
     if (currentPassword != Config::WEB_PASSWORD) {
-        server.send(200, "text/plain", "WRONG_PASSWORD");
+        server.send(200, "text/plain", "INVALID");
         return;
     }
     

@@ -20,6 +20,7 @@ namespace Config {
     extern char MQTT_TOPIC[64];
     extern char TEMP_UNIT[16];
     extern bool AP_ENABLED;
+    extern char LAST_PASSWORD_CHANGE[32];
 
     void loadSettings();
     void saveWebPassword(const char* newPassword);
@@ -28,4 +29,5 @@ namespace Config {
     void saveTempUnit(const char* unit);
     void saveAPEnabled(bool enabled);
     void factoryReset();
+    String getLastPasswordChange();
 }

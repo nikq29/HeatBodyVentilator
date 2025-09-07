@@ -5,7 +5,7 @@ namespace Config {
     constexpr uint16_t HTTP_PORT = 80;
     constexpr uint8_t LED_PIN    = 27;
     constexpr uint16_t NUM_LEDS  = 1;
-    constexpr char FIRMWARE_VERSION[] = "1.0.0";
+    constexpr char FIRMWARE_VERSION[] = "0.0.1";
 
     // Access Point Credentials
     constexpr char AP_SSID[] = "M5AtomAP";

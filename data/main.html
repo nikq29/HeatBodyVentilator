@@ -103,6 +103,100 @@
       display: block;
     }
 
+    /* Setting item styles for main page */
+    .setting-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-md) 0;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    .setting-item:last-child {
+      border-bottom: none;
+    }
+    
+    .setting-label {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      font-weight: 500;
+      color: var(--dark);
+    }
+    
+    .setting-control {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    /* Toggle Switch Styles */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+    
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 34px;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+      background-color: var(--primary);
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+
+    /* Status indicators */
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--border-radius-sm);
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    
+    .status-connected {
+      background-color: rgba(40, 167, 69, 0.1);
+      color: var(--success);
+    }
+    
+    .status-disconnected {
+      background-color: rgba(220, 53, 69, 0.1);
+      color: var(--danger);
+    }
+
     /* Page-specific responsive enhancements */
     .dashboard-grid {
       display: grid;
@@ -269,12 +363,40 @@
         <!-- Quick Controls Card -->
         <div class="card">
           <div class="card-header">
+            <h3 class="card-title">LED Steuerung</h3>
+          </div>
+          <div class="card-content">
+            <div class="setting-item">
+              <div class="setting-label">
+                <span>LED Status</span>
+              </div>
+              <div class="setting-control">
+                <span class="status-indicator" id="led-status-main">
+                  <i class="fas fa-circle" aria-hidden="true"></i>
+                  <span class="icon-fallback">⚫</span> Unbekannt
+                </span>
+              </div>
+            </div>
+            
+            <div class="setting-item">
+              <div class="setting-label">
+                <span>LED Schalter</span>
+              </div>
+              <div class="setting-control">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="toggleLED-main" onchange="toggleLEDMain()">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
             <h3 class="card-title">Quick Controls</h3>
           </div>
           <div class="control-panel">
-            <button class="btn btn-primary" onclick="toggleLED()">
-              💡 Toggle LED
-            </button>
             <button class="btn btn-secondary" onclick="restartDevice()">
               🔄 Restart
             </button>
@@ -347,9 +469,54 @@
             mqttStatus.textContent = data.mqtt_connected ? 'Connected' : 'Disconnected';
             mqttStatus.style.color = data.mqtt_connected ? 'var(--success)' : 'var(--danger)';
           }
+          
+          // Update LED status
+          if (data.led_state !== undefined) {
+            document.getElementById('toggleLED-main').checked = data.led_state;
+            updateLEDStatusMain(data.led_state);
+          }
         })
         .catch(error => console.log('Update failed:', error));
     }, 30000);
+
+    function toggleLEDMain() {
+      const isEnabled = document.getElementById('toggleLED-main').checked;
+      
+      fetch('/api/led-toggle?token=' + getToken(), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: 'state=' + (isEnabled ? '1' : '0')
+      })
+        .then(response => response.text())
+        .then(data => {
+          if (data === 'OK') {
+            updateLEDStatusMain(isEnabled);
+            showNotification('LED erfolgreich ' + (isEnabled ? 'eingeschaltet' : 'ausgeschaltet'), 'success');
+          } else {
+            showNotification('Fehler beim Umschalten der LED', 'error');
+            // Revert toggle on error
+            document.getElementById('toggleLED-main').checked = !isEnabled;
+          }
+        })
+        .catch(error => {
+          showNotification('Netzwerkfehler', 'error');
+          // Revert toggle on error
+          document.getElementById('toggleLED-main').checked = !isEnabled;
+        });
+    }
+
+    function updateLEDStatusMain(isOn) {
+      const statusElement = document.getElementById('led-status-main');
+      if (isOn) {
+        statusElement.className = 'status-indicator status-connected';
+        statusElement.innerHTML = '<i class="fas fa-lightbulb" aria-hidden="true"></i><span class="icon-fallback">💡</span> Eingeschaltet';
+      } else {
+        statusElement.className = 'status-indicator status-disconnected';
+        statusElement.innerHTML = '<i class="fas fa-circle" aria-hidden="true"></i><span class="icon-fallback">⚫</span> Ausgeschaltet';
+      }
+    }
 
     function toggleLED() {
       fetch('/api/led-toggle?token=' + getToken(), { method: 'POST' })

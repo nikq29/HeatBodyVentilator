@@ -30,6 +30,14 @@
       margin-bottom: var(--spacing-lg);
     }
     
+    /* Button separator in setting groups */
+    .btn-separator {
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(0,0,0,0.1), transparent);
+      margin: var(--spacing-md) 0;
+      border: none;
+    }
+    
     .setting-item {
       display: flex;
       justify-content: space-between;
@@ -565,13 +573,26 @@
           
           <div class="setting-item">
             <div class="setting-label">
+              <span>LED Status</span>
+              <small class="d-block" style="color: #6c757d;">Aktuelle LED-Anzeige</small>
+            </div>
+            <div class="setting-control">
+              <span class="status-indicator" id="led-status">
+                <i class="fas fa-circle" aria-hidden="true"></i>
+                <span class="icon-fallback">⚫</span> Unbekannt
+              </span>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
               <span>LED Steuerung</span>
             </div>
             <div class="setting-control">
-              <button class="btn btn-primary" onclick="toggleLED()">
-                <i class="fas fa-power-off" aria-hidden="true"></i>
-                <span class="icon-fallback">🔘</span> Umschalten
-              </button>
+              <label class="toggle-switch">
+                <input type="checkbox" id="toggleLED" onchange="toggleLED()">
+                <span class="slider"></span>
+              </label>
             </div>
           </div>
           
@@ -662,10 +683,20 @@
           </div>
           
           <div class="setting-group">
+            <button class="btn btn-primary btn-block" onclick="openFirmwareModal()">
+              <i class="fas fa-upload" aria-hidden="true"></i>
+              <span class="icon-fallback">📤</span> Firmware Hochladen
+            </button>
+            
+            <div class="btn-separator"></div>
+            
             <button class="btn btn-warning btn-block" onclick="restartDevice()">
               <i class="fas fa-redo" aria-hidden="true"></i>
               <span class="icon-fallback">🔄</span> Restart Device
             </button>
+            
+            <div class="btn-separator"></div>
+            
             <button class="btn btn-danger btn-block" onclick="factoryReset()">
               <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
               <span class="icon-fallback">⚠️</span> Factory Reset
@@ -843,6 +874,76 @@
     </div>
   </div>
 
+  <!-- Firmware Update Modal -->
+  <div id="firmwareModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Firmware Update</h3>
+        <span class="close" onclick="closeFirmwareModal()">&times;</span>
+      </div>
+      
+      <div id="firmware-upload-section">
+        <div class="form-group">
+          <label class="form-label" for="firmwareFile">Firmware-Datei auswählen (.bin)</label>
+          <input type="file" id="firmwareFile" class="form-control" accept=".bin" required>
+          <small class="form-text text-muted">Nur .bin Dateien werden unterstützt</small>
+        </div>
+        
+        <div class="form-group">
+          <div class="alert alert-warning" style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 12px; border-radius: 4px; margin: 10px 0;">
+            <strong>⚠️ Warnung:</strong> Trennen Sie das Gerät während des Updates nicht von der Stromversorgung. 
+            Ein unterbrochenes Update kann das Gerät unbrauchbar machen.
+          </div>
+        </div>
+        
+        <div id="firmware-file-info" style="display: none; background-color: #f8f9fa; padding: 12px; border-radius: 4px; margin: 10px 0;">
+          <h5>Datei-Informationen:</h5>
+          <p><strong>Name:</strong> <span id="file-name"></span></p>
+          <p><strong>Größe:</strong> <span id="file-size"></span></p>
+          <p><strong>Typ:</strong> <span id="file-type"></span></p>
+        </div>
+        
+        <div class="form-row">
+          <button type="button" class="btn btn-success" onclick="startFirmwareUpdate()" id="upload-button" disabled>
+            <i class="fas fa-upload" aria-hidden="true"></i>
+            <span class="icon-fallback">📤</span> Update Starten
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="closeFirmwareModal()">
+            Abbrechen
+          </button>
+        </div>
+      </div>
+      
+      <div id="firmware-progress-section" style="display: none;">
+        <h4>Update wird durchgeführt...</h4>
+        <div class="progress" style="width: 100%; height: 20px; background-color: #e9ecef; border-radius: 10px; overflow: hidden; margin: 20px 0;">
+          <div id="firmware-progress-bar" style="height: 100%; background-color: #28a745; width: 0%; transition: width 0.3s ease;"></div>
+        </div>
+        <p id="firmware-status">Update wird vorbereitet...</p>
+        <div class="alert alert-info" style="background-color: #d1ecf1; border: 1px solid #bee5eb; padding: 12px; border-radius: 4px;">
+          <strong>ℹ️ Hinweis:</strong> Das Gerät wird nach erfolgreichem Update automatisch neu gestartet.
+        </div>
+      </div>
+      
+      <div id="firmware-success-section" style="display: none;">
+        <div class="alert alert-success" style="background-color: #d4edda; border: 1px solid #c3e6cb; padding: 12px; border-radius: 4px;">
+          <h4>✅ Update Erfolgreich!</h4>
+          <p>Die Firmware wurde erfolgreich aktualisiert. Das Gerät wird in wenigen Sekunden neu gestartet.</p>
+        </div>
+      </div>
+      
+      <div id="firmware-error-section" style="display: none;">
+        <div class="alert alert-danger" style="background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 12px; border-radius: 4px;">
+          <h4>❌ Update Fehlgeschlagen</h4>
+          <p id="firmware-error-message">Ein unbekannter Fehler ist aufgetreten.</p>
+          <button type="button" class="btn btn-primary" onclick="resetFirmwareModal()">
+            Erneut Versuchen
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // Load current settings on page load
     document.addEventListener('DOMContentLoaded', function() {
@@ -875,6 +976,12 @@
           // Update MQTT status
           updateMqttStatus(data.mqtt_connected);
           
+          // Update LED status
+          if (data.led_state !== undefined) {
+            document.getElementById('toggleLED').checked = data.led_state;
+            updateLEDStatus(data.led_state);
+          }
+          
           // Update system info
           if (data.uptime) {
             document.getElementById('uptime').textContent = data.uptime;
@@ -895,6 +1002,12 @@
           document.getElementById('free-memory').textContent = data.free_memory + ' KB';
           document.getElementById('wifi-signal').textContent = data.wifi_rssi + ' dBm';
           updateMqttStatus(data.mqtt_connected);
+          
+          // Update LED status
+          if (data.led_state !== undefined) {
+            document.getElementById('toggleLED').checked = data.led_state;
+            updateLEDStatus(data.led_state);
+          }
         })
         .catch(error => console.log('Statusaktualisierung fehlgeschlagen:', error));
     }
@@ -940,18 +1053,42 @@
     }
 
     function toggleLED() {
-      fetch('/api/led-toggle?token=' + getToken(), { method: 'POST' })
+      const isEnabled = document.getElementById('toggleLED').checked;
+      
+      fetch('/api/led-toggle?token=' + getToken(), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: 'state=' + (isEnabled ? '1' : '0')
+      })
         .then(response => response.text())
         .then(data => {
           if (data === 'OK') {
-            showNotification('LED erfolgreich umgeschaltet', 'success');
+            updateLEDStatus(isEnabled);
+            showNotification('LED erfolgreich ' + (isEnabled ? 'eingeschaltet' : 'ausgeschaltet'), 'success');
           } else {
             showNotification('Fehler beim Umschalten der LED', 'error');
+            // Revert toggle on error
+            document.getElementById('toggleLED').checked = !isEnabled;
           }
         })
         .catch(error => {
           showNotification('Netzwerkfehler', 'error');
+          // Revert toggle on error
+          document.getElementById('toggleLED').checked = !isEnabled;
         });
+    }
+
+    function updateLEDStatus(isOn) {
+      const statusElement = document.getElementById('led-status');
+      if (isOn) {
+        statusElement.className = 'status-indicator status-connected';
+        statusElement.innerHTML = '<i class="fas fa-lightbulb" aria-hidden="true"></i><span class="icon-fallback">💡</span> Eingeschaltet';
+      } else {
+        statusElement.className = 'status-indicator status-disconnected';
+        statusElement.innerHTML = '<i class="fas fa-circle" aria-hidden="true"></i><span class="icon-fallback">⚫</span> Ausgeschaltet';
+      }
     }
 
     function restartDevice() {
@@ -1360,6 +1497,146 @@
       });
     });
 
+    // Firmware Update Modal Functions
+    function openFirmwareModal() {
+      document.getElementById('firmwareModal').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+      resetFirmwareModal();
+    }
+
+    function closeFirmwareModal() {
+      document.getElementById('firmwareModal').style.display = 'none';
+      document.body.style.overflow = 'auto';
+      resetFirmwareModal();
+    }
+
+    function resetFirmwareModal() {
+      // Show upload section, hide others
+      document.getElementById('firmware-upload-section').style.display = 'block';
+      document.getElementById('firmware-progress-section').style.display = 'none';
+      document.getElementById('firmware-success-section').style.display = 'none';
+      document.getElementById('firmware-error-section').style.display = 'none';
+      
+      // Reset form
+      document.getElementById('firmwareFile').value = '';
+      document.getElementById('upload-button').disabled = true;
+      document.getElementById('firmware-file-info').style.display = 'none';
+    }
+
+    // Handle file selection
+    document.getElementById('firmwareFile').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      const uploadButton = document.getElementById('upload-button');
+      const fileInfo = document.getElementById('firmware-file-info');
+      
+      if (file) {
+        // Validate file type
+        if (!file.name.toLowerCase().endsWith('.bin')) {
+          showNotification('Nur .bin Dateien sind erlaubt', 'error');
+          e.target.value = '';
+          uploadButton.disabled = true;
+          fileInfo.style.display = 'none';
+          return;
+        }
+        
+        // Validate file size (max 2MB for ESP32)
+        if (file.size > 2 * 1024 * 1024) {
+          showNotification('Datei ist zu groß. Maximum: 2MB', 'error');
+          e.target.value = '';
+          uploadButton.disabled = true;
+          fileInfo.style.display = 'none';
+          return;
+        }
+        
+        // Show file info
+        document.getElementById('file-name').textContent = file.name;
+        document.getElementById('file-size').textContent = (file.size / 1024).toFixed(1) + ' KB';
+        document.getElementById('file-type').textContent = file.type || 'application/octet-stream';
+        fileInfo.style.display = 'block';
+        uploadButton.disabled = false;
+      } else {
+        fileInfo.style.display = 'none';
+        uploadButton.disabled = true;
+      }
+    });
+
+    function startFirmwareUpdate() {
+      const fileInput = document.getElementById('firmwareFile');
+      const file = fileInput.files[0];
+      
+      if (!file) {
+        showNotification('Bitte wählen Sie eine Firmware-Datei aus', 'error');
+        return;
+      }
+      
+      // Confirm before starting
+      if (!confirm('Sind Sie sicher, dass Sie das Firmware-Update starten möchten?\n\nWährend des Updates darf das Gerät NICHT von der Stromversorgung getrennt werden!')) {
+        return;
+      }
+      
+      // Hide upload section, show progress
+      document.getElementById('firmware-upload-section').style.display = 'none';
+      document.getElementById('firmware-progress-section').style.display = 'block';
+      
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('firmware', file);
+      formData.append('token', getToken());
+      
+      // Start upload with progress tracking
+      const xhr = new XMLHttpRequest();
+      
+      xhr.upload.addEventListener('progress', function(e) {
+        if (e.lengthComputable) {
+          const percentComplete = (e.loaded / e.total) * 100;
+          document.getElementById('firmware-progress-bar').style.width = percentComplete + '%';
+          document.getElementById('firmware-status').textContent = 
+            `Upload läuft: ${percentComplete.toFixed(1)}% (${(e.loaded / 1024).toFixed(1)} KB von ${(e.total / 1024).toFixed(1)} KB)`;
+        }
+      });
+      
+      xhr.addEventListener('load', function() {
+        if (xhr.status === 200) {
+          const response = xhr.responseText;
+          if (response === 'OK') {
+            // Success
+            document.getElementById('firmware-progress-section').style.display = 'none';
+            document.getElementById('firmware-success-section').style.display = 'block';
+            
+            // Auto-close modal after success
+            setTimeout(() => {
+              closeFirmwareModal();
+              showNotification('Firmware-Update erfolgreich! Gerät wird neu gestartet...', 'success');
+            }, 3000);
+          } else {
+            // Error response from server
+            showFirmwareError('Server-Fehler: ' + response);
+          }
+        } else {
+          // HTTP error
+          showFirmwareError('HTTP-Fehler: ' + xhr.status + ' - ' + xhr.statusText);
+        }
+      });
+      
+      xhr.addEventListener('error', function() {
+        showFirmwareError('Netzwerkfehler beim Upload');
+      });
+      
+      xhr.addEventListener('timeout', function() {
+        showFirmwareError('Upload-Timeout - Versuchen Sie es erneut');
+      });
+      
+      xhr.timeout = 120000; // 2 minutes timeout
+      xhr.open('POST', '/api/firmware-update?token=' + getToken());
+      xhr.send(formData);
+    }
+
+    function showFirmwareError(message) {
+      document.getElementById('firmware-progress-section').style.display = 'none';
+      document.getElementById('firmware-error-section').style.display = 'block';
+      document.getElementById('firmware-error-message').textContent = message;
+    }
+
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
       const overlay = document.getElementById('overlay');
@@ -1378,6 +1655,7 @@
       const wifiModal = document.getElementById('wifiModal');
       const mqttModal = document.getElementById('mqttModal');
       const passwordModal = document.getElementById('passwordModal');
+      const firmwareModal = document.getElementById('firmwareModal');
       
       if (event.target === wifiModal) {
         closeWifiModal();
@@ -1385,6 +1663,8 @@
         closeMqttModal();
       } else if (event.target === passwordModal) {
         closePasswordModal();
+      } else if (event.target === firmwareModal) {
+        closeFirmwareModal();
       }
     }
 
@@ -1395,6 +1675,7 @@
         closeWifiModal();
         closeMqttModal();
         closePasswordModal();
+        closeFirmwareModal();
         
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');

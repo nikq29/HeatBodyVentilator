@@ -5,6 +5,7 @@
 #include "LEDManager.h"
 #include <WiFi.h> // oder #include <ESP8266WiFi.h> für ESP8266
 #include <Preferences.h>
+#include <Update.h>
 
 // External references
 extern LEDManager led;
@@ -25,6 +26,7 @@ extern const uint8_t _binary_data_main_html_end[]   asm("_binary_data_main_html_
 // extern const uint8_t _binary_data_setting_wifi_html_end[]   asm("_binary_data_setting_wifi_html_end");
 
 String sessionToken;
+static bool ledState = false; // Global LED state tracking
 
 
 
@@ -91,6 +93,18 @@ void ServerManager::setupRoutes() {
   server.on("/api/led-toggle", HTTP_POST, [this]() { handleLEDToggle(); });
   server.on("/api/status", HTTP_GET, [this]() { handleStatus(); });
   server.on("/api/settings", HTTP_GET, [this]() { handleGetSettings(); });
+  
+  // Firmware update with file upload support
+  server.on("/api/firmware-update", HTTP_POST, 
+    [this]() { 
+      // This is called when upload is complete - don't send response here
+      // Response is handled in handleFirmwareUpdate
+    },
+    [this]() { 
+      // This is called during upload process
+      handleFirmwareUpdate(); 
+    }
+  );
 }
 
 void ServerManager::handleRoot() {
@@ -123,8 +137,6 @@ void ServerManager::handleLogin() {
   if (server.method() == HTTP_POST) {
     Serial.println("POST request received");
     String password = server.arg("password");
-    Serial.print("Password received: ");
-    Serial.println(password);
     
     if (password == Config::WEB_PASSWORD) {
       Serial.println("Password correct - redirecting");
@@ -605,8 +617,14 @@ void ServerManager::handleLEDToggle() {
         return;
     }
     
-    static bool ledState = false;
-    ledState = !ledState;
+    // Check if state parameter is provided
+    if (server.hasArg("state")) {
+        String state = server.arg("state");
+        ledState = (state == "1");
+    } else {
+        // If no state parameter, toggle current state
+        ledState = !ledState;
+    }
     
     if (ledState) {
         led.setColor(CRGB::Blue);  // LED an (blau)
@@ -624,7 +642,8 @@ void ServerManager::handleStatus() {
     status += "\"wifi_connected\":" + String(WiFi.status() == WL_CONNECTED ? "true" : "false") + ",";
     status += "\"wifi_ip\":\"" + WiFi.localIP().toString() + "\",";
     status += "\"wifi_rssi\":" + String(WiFi.RSSI()) + ",";
-    status += "\"mqtt_connected\":" + String(mqttManager.isConnected() ? "true" : "false");
+    status += "\"mqtt_connected\":" + String(mqttManager.isConnected() ? "true" : "false") + ",";
+    status += "\"led_state\":" + String(ledState ? "true" : "false");
     status += "}";
     server.send(200, "application/json", status);
 }
@@ -645,7 +664,91 @@ void ServerManager::handleGetSettings() {
     settings += "\"mqtt_pass\":\"" + maskedPassword + "\",";
     settings += "\"ap_enabled\":" + String(Config::AP_ENABLED ? "true" : "false") + ",";
     settings += "\"temp_unit\":\"" + String(Config::TEMP_UNIT) + "\",";
-    settings += "\"mqtt_connected\":" + String(mqttManager.isConnected() ? "true" : "false");
+    settings += "\"mqtt_connected\":" + String(mqttManager.isConnected() ? "true" : "false") + ",";
+    settings += "\"led_state\":" + String(ledState ? "true" : "false");
     settings += "}";
     server.send(200, "application/json", settings);
+}
+
+void ServerManager::handleFirmwareUpdate() {
+    // Check authentication - for uploads, we need to check if token exists in args
+    bool authenticated = false;
+    if (server.hasArg("token")) {
+        authenticated = (server.arg("token") == sessionToken);
+    }
+    
+    if (!authenticated) {
+        Serial.println("Firmware update: Authentication failed");
+        server.send(401, "text/plain", "Unauthorized");
+        return;
+    }
+    
+    Serial.println("Firmware update request received (authenticated)");
+    
+    HTTPUpload& upload = server.upload();
+    
+    static bool updateStarted = false;
+    static size_t totalBytes = 0;
+    
+    if (upload.status == UPLOAD_FILE_START) {
+        updateStarted = false;
+        totalBytes = 0;
+        
+        Serial.printf("Firmware update started: %s\n", upload.filename.c_str());
+        
+        // Validate file extension
+        if (!upload.filename.endsWith(".bin")) {
+            Serial.println("Invalid file extension");
+            return;
+        }
+        
+        Serial.println("Starting OTA update...");
+        
+        // Start OTA update with maximum possible size
+        if (!Update.begin(UPDATE_SIZE_UNKNOWN)) {
+            Update.printError(Serial);
+            Serial.println("OTA update begin failed");
+            return;
+        }
+        
+        updateStarted = true;
+        Serial.println("OTA update started successfully");
+        
+    } else if (upload.status == UPLOAD_FILE_WRITE && updateStarted) {
+        // Write firmware data
+        size_t written = Update.write(upload.buf, upload.currentSize);
+        if (written != upload.currentSize) {
+            Update.printError(Serial);
+            Serial.printf("OTA write failed: expected %u, written %u\n", upload.currentSize, written);
+            updateStarted = false;
+            return;
+        }
+        
+        totalBytes += upload.currentSize;
+        Serial.printf("Written: %u bytes (total: %u)\n", upload.currentSize, totalBytes);
+        
+    } else if (upload.status == UPLOAD_FILE_END) {
+        if (updateStarted && Update.end(true)) {
+            Serial.printf("Firmware update successful: %u bytes\n", totalBytes);
+            server.send(200, "text/plain", "OK");
+            
+            Serial.println("Restarting device in 2 seconds...");
+            delay(2000);
+            ESP.restart();
+        } else {
+            if (updateStarted) {
+                Update.printError(Serial);
+                Serial.println("OTA update end failed");
+            }
+            server.send(500, "text/plain", "Update failed");
+        }
+        updateStarted = false;
+        
+    } else if (upload.status == UPLOAD_FILE_ABORTED) {
+        if (updateStarted) {
+            Update.end();
+            Serial.println("Firmware update aborted");
+            updateStarted = false;
+        }
+    }
 }

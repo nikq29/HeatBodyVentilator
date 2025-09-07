@@ -18,8 +18,6 @@ void WiFiManager::beginAP() {
         Serial.println(WiFi.softAPIP());
         Serial.print("AP SSID: ");
         Serial.println(Config::AP_SSID);
-        Serial.print("AP Password: ");
-        Serial.println(Config::AP_PASS);
         Serial.print("Number of connected stations: ");
         Serial.println(WiFi.softAPgetStationNum());
     } else {

@@ -36,6 +36,7 @@ private:
     void handleLEDToggle();
     void handleStatus();
     void handleGetSettings();
+    void handleFirmwareUpdate();
     
     bool isAuthenticated();
 };

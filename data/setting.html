@@ -663,7 +663,7 @@
           <div class="setting-item">
             <div class="setting-label">
               <span>PWM Status</span>
-              <small class="d-block" style="color: #6c757d;">M5Stack Atom PWM Erweiterung</small>
+              <small class="d-block" style="color: #6c757d;">Pin 22 PWM Steuerung</small>
             </div>
             <div class="setting-control">
               <span class="status-indicator status-connected" id="pwm-status">
@@ -673,51 +673,15 @@
             </div>
           </div>
           
-          <!-- PWM Channel 0 -->
+          <!-- PWM Pin 22 -->
           <div class="setting-item">
             <div class="setting-label">
-              <span>Kanal 0 (Pin 25)</span>
-              <small class="d-block" style="color: #6c757d;">PWM Duty Cycle: <span id="pwm0-value">0</span>%</small>
+              <span>PWM (Pin 22)</span>
+              <small class="d-block" style="color: #6c757d;">PWM Duty Cycle: <span id="pwm-value">0</span>%</small>
             </div>
             <div class="setting-control">
-              <input type="range" id="pwm0-slider" min="0" max="255" value="0" 
-                     style="width: 120px;" onchange="updatePWM(0, this.value)">
-            </div>
-          </div>
-          
-          <!-- PWM Channel 1 -->
-          <div class="setting-item">
-            <div class="setting-label">
-              <span>Kanal 1 (Pin 26)</span>
-              <small class="d-block" style="color: #6c757d;">PWM Duty Cycle: <span id="pwm1-value">0</span>%</small>
-            </div>
-            <div class="setting-control">
-              <input type="range" id="pwm1-slider" min="0" max="255" value="0" 
-                     style="width: 120px;" onchange="updatePWM(1, this.value)">
-            </div>
-          </div>
-          
-          <!-- PWM Channel 2 -->
-          <div class="setting-item">
-            <div class="setting-label">
-              <span>Kanal 2 (Pin 27)</span>
-              <small class="d-block" style="color: #6c757d;">PWM Duty Cycle: <span id="pwm2-value">0</span>%</small>
-            </div>
-            <div class="setting-control">
-              <input type="range" id="pwm2-slider" min="0" max="255" value="0" 
-                     style="width: 120px;" onchange="updatePWM(2, this.value)">
-            </div>
-          </div>
-          
-          <!-- PWM Channel 3 -->
-          <div class="setting-item">
-            <div class="setting-label">
-              <span>Kanal 3 (Pin 28)</span>
-              <small class="d-block" style="color: #6c757d;">PWM Duty Cycle: <span id="pwm3-value">0</span>%</small>
-            </div>
-            <div class="setting-control">
-              <input type="range" id="pwm3-slider" min="0" max="255" value="0" 
-                     style="width: 120px;" onchange="updatePWM(3, this.value)">
+              <input type="range" id="pwm-slider" min="0" max="255" value="0" 
+                     style="width: 120px;" onchange="updatePWM(this.value)">
             </div>
           </div>
           
@@ -725,18 +689,104 @@
           
           <div class="setting-item">
             <div class="setting-label">
-              <span>Alle Kanäle</span>
+              <span>PWM Steuerung</span>
               <small class="d-block" style="color: #6c757d;">Schnellsteuerung</small>
             </div>
             <div class="setting-control">
-              <button class="btn btn-secondary" onclick="resetAllPWM()">
+              <button class="btn btn-secondary" onclick="resetPWM()">
                 <i class="fas fa-power-off" aria-hidden="true"></i>
-                <span class="icon-fallback">⚡</span> Alle Aus
+                <span class="icon-fallback">⚡</span> Aus
               </button>
-              <button class="btn btn-primary" onclick="testAllPWM()">
+              <button class="btn btn-primary" onclick="testPWM()">
                 <i class="fas fa-play" aria-hidden="true"></i>
                 <span class="icon-fallback">▶️</span> Test Modus
               </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- KMeter-ISO Temperature Sensor Card -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="fas fa-thermometer-half" aria-hidden="true"></i>
+              <span class="icon-fallback">🌡️</span> KMeter-ISO Sensor
+            </h3>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>Sensor Status</span>
+              <small class="d-block" style="color: #6c757d;">M5Stack KMeter-ISO Thermoelement</small>
+            </div>
+            <div class="setting-control">
+              <span class="status-indicator" id="kmeter-status">
+                <i class="fas fa-circle" aria-hidden="true"></i>
+                <span class="icon-fallback">⚪</span> <span id="kmeter-status-text">Initialisiere...</span>
+              </span>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>Thermoelement Temperatur</span>
+              <small class="d-block" style="color: #6c757d;">Externe Temperatursonde</small>
+            </div>
+            <div class="setting-control">
+              <span id="kmeter-temp-celsius" style="font-weight: bold; color: #007bff;">--°C</span>
+              <span style="margin: 0 10px; color: #6c757d;">/</span>
+              <span id="kmeter-temp-fahrenheit" style="font-weight: bold; color: #007bff;">--°F</span>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>Interne Chip Temperatur</span>
+              <small class="d-block" style="color: #6c757d;">Sensor-Chip Referenz</small>
+            </div>
+            <div class="setting-control">
+              <span id="kmeter-internal-temp" style="font-weight: bold; color: #28a745;">--°C</span>
+            </div>
+          </div>
+          
+          <div class="btn-separator"></div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>Aktualisierungsintervall</span>
+              <small class="d-block" style="color: #6c757d;">Messfrequenz einstellen</small>
+            </div>
+            <div class="setting-control">
+              <select id="kmeter-interval" onchange="updateKMeterInterval()">
+                <option value="500">500ms</option>
+                <option value="1000" selected>1 Sekunde</option>
+                <option value="2000">2 Sekunden</option>
+                <option value="5000">5 Sekunden</option>
+                <option value="10000">10 Sekunden</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>I2C Adresse</span>
+              <small class="d-block" style="color: #6c757d;">Sensor I2C-Konfiguration</small>
+            </div>
+            <div class="setting-control">
+              <span id="kmeter-i2c-addr" style="font-family: monospace;">0x66</span>
+              <button class="btn btn-sm btn-secondary" onclick="changeKMeterI2C()">
+                <i class="fas fa-edit" aria-hidden="true"></i> Ändern
+              </button>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>Firmware Version</span>
+              <small class="d-block" style="color: #6c757d;">Sensor Firmware Info</small>
+            </div>
+            <div class="setting-control">
+              <span id="kmeter-firmware" style="font-family: monospace;">--</span>
             </div>
           </div>
         </div>
@@ -1114,8 +1164,11 @@
       loadCurrentSettings();
       console.log('DEBUG: Calling updatePWMStatus for initial load');
       updatePWMStatus(); // Load initial PWM status
+      console.log('DEBUG: Calling updateKMeterStatus for initial load');
+      updateKMeterStatus(); // Load initial KMeter status
       // Auto-refresh status every 30 seconds
       setInterval(updateStatus, 30000);
+      setInterval(updateKMeterStatus, 5000); // Update KMeter every 5 seconds
       console.log('DEBUG: Setup complete');
     });
 
@@ -1262,19 +1315,19 @@
     }
 
     // PWM Control Functions
-    function updatePWM(channel, duty) {
-      console.log(`DEBUG: updatePWM called with channel=${channel}, duty=${duty}`);
+    function updatePWM(duty) {
+      console.log(`DEBUG: updatePWM called with duty=${duty}`);
       const percentage = Math.round((duty / 255) * 100);
-      document.getElementById(`pwm${channel}-value`).textContent = percentage;
+      document.getElementById('pwm-value').textContent = percentage;
       
-      console.log(`DEBUG: Sending PWM request for channel ${channel}`);
+      console.log(`DEBUG: Sending PWM request for Pin 22`);
       
       fetch('/api/pwm-control?token=' + getToken(), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: `channel=${channel}&duty=${duty}`
+        body: `duty=${duty}`
       })
         .then(response => {
           console.log(`DEBUG: PWM response status: ${response.status}`);
@@ -1283,7 +1336,7 @@
         .then(data => {
           console.log(`DEBUG: PWM response data: ${data}`);
           if (data === 'OK') {
-            showNotification(`PWM Kanal ${channel} auf ${percentage}% gesetzt`, 'success');
+            showNotification(`PWM Pin 22 auf ${percentage}% gesetzt`, 'success');
           } else {
             showNotification('PWM-Einstellung fehlgeschlagen', 'error');
           }
@@ -1303,21 +1356,19 @@
         })
         .then(data => {
           console.log('DEBUG: PWM status data:', data);
-          if (data.pwm_channels) {
-            data.pwm_channels.forEach(channel => {
-              console.log(`DEBUG: Processing channel ${channel.channel}, duty ${channel.duty}`);
-              const slider = document.getElementById(`pwm${channel.channel}-slider`);
-              const value = document.getElementById(`pwm${channel.channel}-value`);
-              if (slider && value) {
-                slider.value = channel.duty;
-                value.textContent = Math.round((channel.duty / 255) * 100);
-                console.log(`DEBUG: Updated slider ${channel.channel} to ${channel.duty}`);
-              } else {
-                console.log(`DEBUG: Slider or value element not found for channel ${channel.channel}`);
-              }
-            });
+          if (data.pwm_pin && data.duty !== undefined) {
+            console.log(`DEBUG: Processing Pin ${data.pwm_pin}, duty ${data.duty}`);
+            const slider = document.getElementById('pwm-slider');
+            const value = document.getElementById('pwm-value');
+            if (slider && value) {
+              slider.value = data.duty;
+              value.textContent = Math.round((data.duty / 255) * 100);
+              console.log(`DEBUG: Updated slider to ${data.duty}`);
+            } else {
+              console.log('DEBUG: Slider or value element not found');
+            }
           } else {
-            console.log('DEBUG: No pwm_channels in response data');
+            console.log('DEBUG: No pwm_pin or duty in response data');
           }
         })
         .catch(error => {
@@ -1326,34 +1377,135 @@
         });
     }
 
-    function resetAllPWM() {
-      if (confirm('Alle PWM-Kanäle auf 0% setzen?')) {
-        for (let i = 0; i < 4; i++) {
-          document.getElementById(`pwm${i}-slider`).value = 0;
-          updatePWM(i, 0);
-        }
-        showNotification('Alle PWM-Kanäle zurückgesetzt', 'info');
+    function resetPWM() {
+      if (confirm('PWM auf 0% setzen?')) {
+        document.getElementById('pwm-slider').value = 0;
+        updatePWM(0);
+        showNotification('PWM zurückgesetzt', 'info');
       }
     }
 
-    function testAllPWM() {
-      if (confirm('PWM Test-Modus starten? (Alle Kanäle auf 50% für 3 Sekunden)')) {
-        // Set all channels to 50% (127/255)
-        for (let i = 0; i < 4; i++) {
-          document.getElementById(`pwm${i}-slider`).value = 127;
-          updatePWM(i, 127);
-        }
+    function testPWM() {
+      if (confirm('PWM Test-Modus starten? (50% für 3 Sekunden)')) {
+        // Set to 50% (127/255)
+        document.getElementById('pwm-slider').value = 127;
+        updatePWM(127);
         
         showNotification('PWM Test-Modus läuft...', 'info');
         
         // Reset after 3 seconds
         setTimeout(() => {
-          for (let i = 0; i < 4; i++) {
-            document.getElementById(`pwm${i}-slider`).value = 0;
-            updatePWM(i, 0);
-          }
+          document.getElementById('pwm-slider').value = 0;
+          updatePWM(0);
           showNotification('PWM Test-Modus beendet', 'success');
         }, 3000);
+      }
+    }
+
+    // KMeter-ISO Sensor Functions
+    function updateKMeterStatus() {
+      console.log('DEBUG: updateKMeterStatus called');
+      fetch('/api/kmeter-status?token=' + getToken())
+        .then(response => {
+          console.log(`DEBUG: KMeter status response status: ${response.status}`);
+          return response.json();
+        })
+        .then(data => {
+          console.log('DEBUG: KMeter status data:', data);
+          
+          // Update status indicator
+          const statusEl = document.getElementById('kmeter-status');
+          const statusTextEl = document.getElementById('kmeter-status-text');
+          
+          if (data.initialized && data.ready) {
+            statusEl.className = 'status-indicator status-connected';
+            statusTextEl.textContent = data.status_string;
+          } else if (data.initialized) {
+            statusEl.className = 'status-indicator status-warning';
+            statusTextEl.textContent = data.status_string;
+          } else {
+            statusEl.className = 'status-indicator status-disconnected';
+            statusTextEl.textContent = 'Nicht initialisiert';
+          }
+          
+          // Update temperature values
+          if (data.ready) {
+            document.getElementById('kmeter-temp-celsius').textContent = data.temperature_celsius.toFixed(2) + '°C';
+            document.getElementById('kmeter-temp-fahrenheit').textContent = data.temperature_fahrenheit.toFixed(2) + '°F';
+            document.getElementById('kmeter-internal-temp').textContent = data.internal_temperature.toFixed(2) + '°C';
+          } else {
+            document.getElementById('kmeter-temp-celsius').textContent = '--°C';
+            document.getElementById('kmeter-temp-fahrenheit').textContent = '--°F';
+            document.getElementById('kmeter-internal-temp').textContent = '--°C';
+          }
+          
+          // Update configuration
+          document.getElementById('kmeter-i2c-addr').textContent = data.i2c_address;
+          document.getElementById('kmeter-interval').value = data.read_interval;
+          document.getElementById('kmeter-firmware').textContent = 'v' + data.firmware_version;
+          
+          console.log(`DEBUG: KMeter updated - Temp: ${data.temperature_celsius}°C, Status: ${data.status_string}`);
+        })
+        .catch(error => {
+          console.error('DEBUG: KMeter status error:', error);
+          document.getElementById('kmeter-status-text').textContent = 'Verbindungsfehler';
+          document.getElementById('kmeter-status').className = 'status-indicator status-disconnected';
+        });
+    }
+
+    function updateKMeterInterval() {
+      const interval = document.getElementById('kmeter-interval').value;
+      console.log(`DEBUG: Setting KMeter interval to ${interval}ms`);
+      
+      fetch('/api/kmeter-config?token=' + getToken(), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `read_interval=${interval}`
+      })
+        .then(response => response.text())
+        .then(data => {
+          if (data === 'OK') {
+            showNotification(`KMeter Intervall auf ${interval}ms gesetzt`, 'success');
+            updateKMeterStatus(); // Refresh status
+          } else {
+            showNotification('KMeter Konfiguration fehlgeschlagen', 'error');
+          }
+        })
+        .catch(error => {
+          console.error('DEBUG: KMeter config error:', error);
+          showNotification('KMeter Netzwerkfehler', 'error');
+        });
+    }
+
+    function changeKMeterI2C() {
+      const currentAddr = document.getElementById('kmeter-i2c-addr').textContent;
+      const newAddr = prompt(`Neue I2C-Adresse eingeben (aktuell: ${currentAddr}):`, '0x67');
+      
+      if (newAddr && newAddr !== currentAddr) {
+        console.log(`DEBUG: Changing KMeter I2C address to ${newAddr}`);
+        
+        fetch('/api/kmeter-config?token=' + getToken(), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: `i2c_address=${newAddr}`
+        })
+          .then(response => response.text())
+          .then(data => {
+            if (data === 'OK') {
+              showNotification(`I2C-Adresse geändert zu ${newAddr}`, 'success');
+              updateKMeterStatus(); // Refresh status
+            } else {
+              showNotification('I2C-Adresse ändern fehlgeschlagen', 'error');
+            }
+          })
+          .catch(error => {
+            console.error('DEBUG: KMeter I2C change error:', error);
+            showNotification('I2C-Adresse Netzwerkfehler', 'error');
+          });
       }
     }
 

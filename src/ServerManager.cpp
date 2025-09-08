@@ -3,6 +3,7 @@
 #include "WiFiManager.h"
 #include "MQTTManager.h"
 #include "LEDManager.h"
+#include "KMeterManager.h"
 #include <WiFi.h> // oder #include <ESP8266WiFi.h> für ESP8266
 #include <Preferences.h>
 #include <Update.h>
@@ -35,9 +36,56 @@ ServerManager::ServerManager()
 
 void ServerManager::begin() {
     setupRoutes();
+    initializePWM(); // PWM-System initialisieren
+    
+    // KMeter-ISO Sensor initialisieren
+    Serial.println("DEBUG: Initializing KMeter-ISO sensor...");
+    if (kmeterManager.begin()) {
+        Serial.println("KMeter-ISO sensor initialized successfully");
+    } else {
+        Serial.println("Warning: KMeter-ISO sensor initialization failed");
+    }
+    
     server.begin();
     Serial.print("Web server started on port ");
     Serial.println(Config::HTTP_PORT);
+}
+
+void ServerManager::initializePWM() {
+    Serial.println("DEBUG: Initializing PWM system...");
+
+    // PWM-Kanal 0 für Pin 5 konfigurieren
+    // Frequency: 1kHz, Resolution: 8-bit (0-255)
+    if (ledcSetup(0, 1000, 8)) {
+        Serial.println("DEBUG: PWM Channel 0 setup successful");
+        
+        // Pin 5 an PWM-Kanal 0 anhängen
+        ledcAttachPin(5, 0);
+        Serial.println("DEBUG: PWM Pin 5 attached to channel 0");
+
+        // Initial PWM auf 0 setzen (aus)
+        ledcWrite(0, 0);
+        Serial.println("DEBUG: PWM initialized - Pin 5 set to 0%");
+    } else {
+        Serial.println("ERROR: PWM Channel 0 setup failed");
+    }
+}
+
+void ServerManager::setPWMDuty(int duty) {
+    // Validierung
+    if (duty < 0 || duty > 255) {
+        Serial.printf("ERROR: Invalid PWM duty cycle: %d (must be 0-255)\n", duty);
+        return;
+    }
+    
+    // PWM-Wert setzen
+    ledcWrite(0, duty);
+    Serial.printf("PWM Pin 22 set to duty cycle %d (%.1f%%)\n", duty, (duty / 255.0) * 100);
+}
+
+void ServerManager::updateSensors() {
+    // Update KMeter-ISO Sensor
+    kmeterManager.update();
 }
 
 void ServerManager::handleClient() {
@@ -104,6 +152,14 @@ void ServerManager::setupRoutes() {
   server.on("/api/system-info", HTTP_GET, [this]() { 
     Serial.println("DEBUG: System Info route triggered");
     handleSystemInfo(); 
+  });
+  server.on("/api/kmeter-status", HTTP_GET, [this]() { 
+    Serial.println("DEBUG: KMeter Status route triggered");
+    handleKMeterStatus(); 
+  });
+  server.on("/api/kmeter-config", HTTP_POST, [this]() { 
+    Serial.println("DEBUG: KMeter Config route triggered");
+    handleKMeterConfig(); 
   });
   
   // Firmware update with file upload support
@@ -734,18 +790,10 @@ void ServerManager::handlePWMControl() {
     
     Serial.println("DEBUG: PWM Control - Authentication successful");
     
-    if (server.hasArg("channel") && server.hasArg("duty")) {
-        int channel = server.arg("channel").toInt();
+    if (server.hasArg("duty")) {
         int duty = server.arg("duty").toInt();
         
-        Serial.printf("DEBUG: PWM Control - Received channel=%d, duty=%d\n", channel, duty);
-        
-        // Validate channel (0-3 for M5Stack Atom PWM)
-        if (channel < 0 || channel > 3) {
-            Serial.printf("DEBUG: PWM Control - Invalid channel: %d\n", channel);
-            server.send(400, "text/plain", "Invalid channel");
-            return;
-        }
+        Serial.printf("DEBUG: PWM Control - Received duty=%d\n", duty);
         
         // Validate duty cycle (0-255)
         if (duty < 0 || duty > 255) {
@@ -754,14 +802,11 @@ void ServerManager::handlePWMControl() {
             return;
         }
         
-        Serial.printf("DEBUG: PWM Control - Configuring PWM channel %d with duty %d\n", channel, duty);
+        Serial.printf("DEBUG: PWM Control - Setting PWM Pin 22 to duty %d\n", duty);
         
-        // Configure PWM channel
-        ledcSetup(channel, 1000, 8); // 1kHz frequency, 8-bit resolution
-        ledcAttachPin(25 + channel, channel); // M5Stack Atom PWM pins start at 25
-        ledcWrite(channel, duty);
+        // PWM-Wert über zentrale Funktion setzen
+        setPWMDuty(duty);
         
-        Serial.printf("PWM Channel %d set to duty cycle %d\n", channel, duty);
         Serial.println("DEBUG: PWM Control - Sending OK response");
         server.send(200, "text/plain", "OK");
     } else {
@@ -788,23 +833,82 @@ void ServerManager::handlePWMStatus() {
     Serial.println("DEBUG: PWM Status - Building JSON response");
     
     String json = "{";
-    json += "\"pwm_channels\": [";
-    
-    // Return status for 4 PWM channels (typical for M5Stack Atom PWM)
-    for (int i = 0; i < 4; i++) {
-        if (i > 0) json += ",";
-        json += "{";
-        json += "\"channel\": " + String(i) + ",";
-        json += "\"pin\": " + String(25 + i) + ",";
-        json += "\"duty\": " + String(ledcRead(i));
-        json += "}";
-        
-        Serial.printf("DEBUG: PWM Status - Channel %d, Pin %d, Duty %d\n", i, 25 + i, ledcRead(i));
-    }
-    
-    json += "]";
+    json += "\"pwm_pin\": 22,";
+    json += "\"duty\": " + String(ledcRead(0));
     json += "}";
     
+    Serial.printf("DEBUG: PWM Status - Pin 22, Duty %d\n", ledcRead(0));
     Serial.printf("DEBUG: PWM Status - JSON: %s\n", json.c_str());
     server.send(200, "application/json", json);
+}
+
+// KMeter Status Handler
+void ServerManager::handleKMeterStatus() {
+    Serial.println("DEBUG: KMeter Status Handler called");
+    
+    if (!isAuthenticated()) {
+        Serial.println("DEBUG: KMeter Status - Authentication failed");
+        server.send(401, "text/plain", "Unauthorized");
+        return;
+    }
+    
+    Serial.println("DEBUG: KMeter Status - Authentication successful");
+    
+    // Update sensor vor dem Lesen
+    kmeterManager.update();
+    
+    String json = "{";
+    json += "\"initialized\": " + String(kmeterManager.isInitialized() ? "true" : "false") + ",";
+    json += "\"ready\": " + String(kmeterManager.isReady() ? "true" : "false") + ",";
+    json += "\"temperature_celsius\": " + String(kmeterManager.getTemperatureCelsius(), 2) + ",";
+    json += "\"temperature_fahrenheit\": " + String(kmeterManager.getTemperatureFahrenheit(), 2) + ",";
+    json += "\"internal_temperature\": " + String(kmeterManager.getInternalTemperature(), 2) + ",";
+    json += "\"error_status\": " + String(kmeterManager.getErrorStatus()) + ",";
+    json += "\"status_string\": \"" + kmeterManager.getStatusString() + "\",";
+    json += "\"i2c_address\": \"0x" + String(kmeterManager.getI2CAddress(), HEX) + "\",";
+    json += "\"read_interval\": " + String(kmeterManager.getReadInterval()) + ",";
+    json += "\"firmware_version\": " + String(kmeterManager.getFirmwareVersion());
+    json += "}";
+    
+    Serial.printf("DEBUG: KMeter Status - JSON: %s\n", json.c_str());
+    server.send(200, "application/json", json);
+}
+
+// KMeter Configuration Handler
+void ServerManager::handleKMeterConfig() {
+    Serial.println("DEBUG: KMeter Config Handler called");
+    
+    if (!isAuthenticated()) {
+        Serial.println("DEBUG: KMeter Config - Authentication failed");
+        server.send(401, "text/plain", "Unauthorized");
+        return;
+    }
+    
+    Serial.println("DEBUG: KMeter Config - Authentication successful");
+    
+    if (server.hasArg("read_interval")) {
+        unsigned long interval = server.arg("read_interval").toInt();
+        if (interval >= 500 && interval <= 60000) { // 500ms bis 60s
+            kmeterManager.setReadInterval(interval);
+            Serial.printf("KMeter read interval set to %lu ms\n", interval);
+            server.send(200, "text/plain", "OK");
+        } else {
+            server.send(400, "text/plain", "Invalid interval (500-60000ms)");
+        }
+    } else if (server.hasArg("i2c_address")) {
+        String addrStr = server.arg("i2c_address");
+        uint8_t addr = (uint8_t)strtol(addrStr.c_str(), NULL, 16);
+        
+        if (addr >= 0x08 && addr <= 0x77) { // Gültige I2C-Adressen
+            if (kmeterManager.setI2CAddress(addr)) {
+                server.send(200, "text/plain", "OK");
+            } else {
+                server.send(500, "text/plain", "Failed to change I2C address");
+            }
+        } else {
+            server.send(400, "text/plain", "Invalid I2C address");
+        }
+    } else {
+        server.send(400, "text/plain", "Missing parameters");
+    }
 }

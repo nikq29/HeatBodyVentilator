@@ -1,12 +1,17 @@
 #pragma once
 #include <WebServer.h>
 #include "Config.h"
+#include "KMeterManager.h"
 
 class ServerManager {
 public:
     ServerManager();
     void begin();
     void handleClient();
+    void initializePWM(); // PWM-Initialisierung
+    void setPWMDuty(int duty); // Öffentliche PWM-Steuerung für andere Funktionen
+    void updateSensors(); // Sensor-Updates
+    KMeterManager* getKMeterManager() { return &kmeterManager; } // Zugriff auf KMeter
 private:
     WebServer server;
     void setupRoutes();
@@ -40,6 +45,11 @@ private:
     void handlePWMControl();
     void handlePWMStatus();
     void handleSystemInfo(); // Neue API für Platzhalter-Daten
+    void handleKMeterStatus(); // KMeter Sensor Status
+    void handleKMeterConfig(); // KMeter Konfiguration
     
     bool isAuthenticated();
+    
+    // Sensor Manager
+    KMeterManager kmeterManager;
 };

@@ -758,11 +758,11 @@
             </div>
             <div class="setting-control">
               <select id="kmeter-interval" onchange="updateKMeterInterval()">
-                <option value="500">500ms</option>
-                <option value="1000" selected>1 Sekunde</option>
-                <option value="2000">2 Sekunden</option>
-                <option value="5000">5 Sekunden</option>
+                <option value="5000" selected>5 Sekunden</option>
                 <option value="10000">10 Sekunden</option>
+                <option value="30000">30 Sekunden</option>
+                <option value="60000">1 Minute</option>
+                <option value="300000">5 Minuten</option>
               </select>
             </div>
           </div>
@@ -777,16 +777,6 @@
               <button class="btn btn-sm btn-secondary" onclick="changeKMeterI2C()">
                 <i class="fas fa-edit" aria-hidden="true"></i> Ändern
               </button>
-            </div>
-          </div>
-          
-          <div class="setting-item">
-            <div class="setting-label">
-              <span>Firmware Version</span>
-              <small class="d-block" style="color: #6c757d;">Sensor Firmware Info</small>
-            </div>
-            <div class="setting-control">
-              <span id="kmeter-firmware" style="font-family: monospace;">--</span>
             </div>
           </div>
         </div>
@@ -1442,7 +1432,6 @@
           // Update configuration
           document.getElementById('kmeter-i2c-addr').textContent = data.i2c_address;
           document.getElementById('kmeter-interval').value = data.read_interval;
-          document.getElementById('kmeter-firmware').textContent = 'v' + data.firmware_version;
           
           console.log(`DEBUG: KMeter updated - Temp: ${data.temperature_celsius}°C, Status: ${data.status_string}`);
         })

@@ -8,26 +8,67 @@ KMeterManager::KMeterManager() {
     internalTempCelsius = 0.0;
     errorStatus = 255; // Uninitialized
     
-    // Standard-Konfiguration
+    // M5Stack Atom Lite I2C-Pins (alternative Pins um Konflikte zu vermeiden)
     i2cAddress = 0x66;
-    sdaPin = 21;
-    sclPin = 22;
+    sdaPin = 26; // G26 für SDA (alternativ zu G25)
+    sclPin = 32; // G32 für SCL (alternativ zu G21)
     i2cSpeed = 100000L;
-    readInterval = 1000; // 1 Sekunde
+    readInterval = 5000; // 5 Sekunden (weniger häufige Updates für bessere Performance)
 }
 
 bool KMeterManager::begin(uint8_t addr, uint8_t sda, uint8_t scl, uint32_t speed) {
     Serial.println("DEBUG: KMeterManager::begin() called");
+    Serial.printf("DEBUG: Attempting I2C connection - Addr: 0x%02X, SDA: %d, SCL: %d, Speed: %lu\n", 
+                  addr, sda, scl, speed);
     
     i2cAddress = addr;
     sdaPin = sda;
     sclPin = scl;
     i2cSpeed = speed;
     
+    // I2C-Bus initialisieren
+    Wire.begin(sdaPin, sclPin);
+    Wire.setClock(i2cSpeed);
+    delay(100); // Kurze Wartezeit für I2C-Initialisierung
+    
+    // I2C-Scanner - prüfe ob Gerät auf dem Bus ist
+    Serial.println("DEBUG: Scanning I2C bus...");
+    Wire.beginTransmission(i2cAddress);
+    uint8_t error = Wire.endTransmission();
+    
+    if (error == 0) {
+        Serial.printf("DEBUG: I2C device found at address 0x%02X\n", i2cAddress);
+    } else {
+        Serial.printf("DEBUG: No I2C device found at address 0x%02X (error: %d)\n", i2cAddress, error);
+        Serial.println("DEBUG: Scanning all I2C addresses...");
+        
+        // Vollständiger I2C-Scan
+        int deviceCount = 0;
+        for (uint8_t address = 1; address < 127; address++) {
+            Wire.beginTransmission(address);
+            uint8_t scanError = Wire.endTransmission();
+            if (scanError == 0) {
+                Serial.printf("DEBUG: I2C device found at address 0x%02X\n", address);
+                deviceCount++;
+            }
+        }
+        
+        if (deviceCount == 0) {
+            Serial.println("DEBUG: No I2C devices found on the bus!");
+        } else {
+            Serial.printf("DEBUG: Found %d I2C device(s)\n", deviceCount);
+        }
+    }
+    
     // Initialisiere KMeter-ISO Sensor
+    Serial.println("DEBUG: Initializing KMeter-ISO sensor...");
     if (kmeter.begin(&Wire, i2cAddress, sdaPin, sclPin, i2cSpeed)) {
         initialized = true;
-        Serial.printf("KMeter-ISO initialized on I2C address 0x%02X\n", i2cAddress);
+        Serial.printf("KMeter-ISO initialized successfully on I2C address 0x%02X\n", i2cAddress);
+        
+        // Teste Firmware-Version
+        uint8_t fwVersion = kmeter.getFirmwareVersion();
+        Serial.printf("DEBUG: KMeter-ISO Firmware Version: %d\n", fwVersion);
         
         // Erste Messung
         update();
@@ -35,19 +76,29 @@ bool KMeterManager::begin(uint8_t addr, uint8_t sda, uint8_t scl, uint32_t speed
     } else {
         initialized = false;
         Serial.printf("Failed to initialize KMeter-ISO on I2C address 0x%02X\n", i2cAddress);
+        
+        // Zusätzliche Diagnose
+        Serial.println("DEBUG: Troubleshooting steps:");
+        Serial.println("1. Check if KMeter-ISO module is properly connected");
+        Serial.println("2. Verify SDA (Pin G25) and SCL (Pin G21) connections");
+        Serial.println("3. Check if I2C address is correct (default: 0x66)");
+        Serial.println("4. Ensure proper power supply to the module");
+        
         return false;
     }
 }
 
 void KMeterManager::update() {
-    if (!initialized) return;
+    if (!initialized) {
+        return; // Entferne Debug-Output für bessere Performance
+    }
     
     unsigned long currentTime = millis();
     if (currentTime - lastReadTime < readInterval) {
         return; // Noch nicht Zeit für nächste Messung
     }
     
-    // Lese Sensor-Status
+    // Lese Sensor-Status (still)
     errorStatus = kmeter.getReadyStatus();
     
     if (errorStatus == 0) {
@@ -61,10 +112,7 @@ void KMeterManager::update() {
         currentTempFahrenheit = (float)tempF / 100.0;
         internalTempCelsius = (float)internalC / 100.0;
         
-        Serial.printf("KMeter-ISO: %.2f°C / %.2f°F (Internal: %.2f°C)\n", 
-                     currentTempCelsius, currentTempFahrenheit, internalTempCelsius);
-    } else {
-        Serial.printf("KMeter-ISO Error Status: %d\n", errorStatus);
+        // Komplett kein Serial-Output mehr für maximale Performance
     }
     
     lastReadTime = currentTime;

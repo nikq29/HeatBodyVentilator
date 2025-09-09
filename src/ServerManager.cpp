@@ -38,12 +38,17 @@ void ServerManager::begin() {
     setupRoutes();
     initializePWM(); // PWM-System initialisieren
     
-    // KMeter-ISO Sensor initialisieren
+    // Kurze Pause zwischen PWM und I2C Initialisierung
+    delay(500);
+    
+    // KMeter-ISO Sensor initialisieren mit alternativen Pins (Konflikte vermeiden)
     Serial.println("DEBUG: Initializing KMeter-ISO sensor...");
-    if (kmeterManager.begin()) {
+    Serial.println("DEBUG: Using alternative I2C pins to avoid conflicts with PWM");
+    if (kmeterManager.begin(0x66, 26, 32)) { // SDA=G26, SCL=G32
         Serial.println("KMeter-ISO sensor initialized successfully");
     } else {
         Serial.println("Warning: KMeter-ISO sensor initialization failed");
+        Serial.println("DEBUG: Will continue without KMeter sensor");
     }
     
     server.begin();
@@ -866,8 +871,7 @@ void ServerManager::handleKMeterStatus() {
     json += "\"error_status\": " + String(kmeterManager.getErrorStatus()) + ",";
     json += "\"status_string\": \"" + kmeterManager.getStatusString() + "\",";
     json += "\"i2c_address\": \"0x" + String(kmeterManager.getI2CAddress(), HEX) + "\",";
-    json += "\"read_interval\": " + String(kmeterManager.getReadInterval()) + ",";
-    json += "\"firmware_version\": " + String(kmeterManager.getFirmwareVersion());
+    json += "\"read_interval\": " + String(kmeterManager.getReadInterval());
     json += "}";
     
     Serial.printf("DEBUG: KMeter Status - JSON: %s\n", json.c_str());
@@ -888,12 +892,12 @@ void ServerManager::handleKMeterConfig() {
     
     if (server.hasArg("read_interval")) {
         unsigned long interval = server.arg("read_interval").toInt();
-        if (interval >= 500 && interval <= 60000) { // 500ms bis 60s
+        if (interval >= 5000 && interval <= 300000) { // 5s bis 5min
             kmeterManager.setReadInterval(interval);
             Serial.printf("KMeter read interval set to %lu ms\n", interval);
             server.send(200, "text/plain", "OK");
         } else {
-            server.send(400, "text/plain", "Invalid interval (500-60000ms)");
+            server.send(400, "text/plain", "Invalid interval (5s-5min)");
         }
     } else if (server.hasArg("i2c_address")) {
         String addrStr = server.arg("i2c_address");

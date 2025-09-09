@@ -95,8 +95,12 @@ void loop() {
     web.handleClient();
     mqttManager.loop();
     
-    // Update sensors
-    web.updateSensors();
+    // Update sensors less frequently for better web performance
+    static unsigned long lastSensorUpdate = 0;
+    if (millis() - lastSensorUpdate > 2000) { // Update sensors every 2 seconds
+        web.updateSensors();
+        lastSensorUpdate = millis();
+    }
     
     // Check WiFi connection periodically, not every loop iteration
     if (hasWifiCredentials && (millis() - lastWifiCheck > WIFI_CHECK_INTERVAL)) {

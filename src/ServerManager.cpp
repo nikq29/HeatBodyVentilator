@@ -63,14 +63,14 @@ void ServerManager::initializePWM() {
     // Frequency: 1kHz, Resolution: 8-bit (0-255)
     if (ledcSetup(0, 1000, 8)) {
         Serial.println("DEBUG: PWM Channel 0 setup successful");
-        
-        // Pin 5 an PWM-Kanal 0 anhängen
-        ledcAttachPin(5, 0);
-        Serial.println("DEBUG: PWM Pin 5 attached to channel 0");
+
+        // Pin 22 an PWM-Kanal 0 anhängen
+        ledcAttachPin(22, 0);
+        Serial.println("DEBUG: PWM Pin 22 attached to channel 0");
 
         // Initial PWM auf 0 setzen (aus)
         ledcWrite(0, 0);
-        Serial.println("DEBUG: PWM initialized - Pin 5 set to 0%");
+        Serial.println("DEBUG: PWM initialized - Pin 22 set to 0%");
     } else {
         Serial.println("ERROR: PWM Channel 0 setup failed");
     }
@@ -91,6 +91,9 @@ void ServerManager::setPWMDuty(int duty) {
 void ServerManager::updateSensors() {
     // Update KMeter-ISO Sensor
     kmeterManager.update();
+    
+    // Update Auto PWM if enabled
+    updateAutoPWM();
 }
 
 void ServerManager::handleClient() {
@@ -165,6 +168,18 @@ void ServerManager::setupRoutes() {
   server.on("/api/kmeter-config", HTTP_POST, [this]() { 
     Serial.println("DEBUG: KMeter Config route triggered");
     handleKMeterConfig(); 
+  });
+  server.on("/api/temp-mapping", HTTP_POST, [this]() { 
+    Serial.println("DEBUG: Temperature Mapping route triggered");
+    handleTempMapping(); 
+  });
+  server.on("/api/temp-mapping-status", HTTP_GET, [this]() { 
+    Serial.println("DEBUG: Temperature Mapping Status route triggered");
+    handleTempMappingStatus(); 
+  });
+  server.on("/api/auto-pwm", HTTP_POST, [this]() { 
+    Serial.println("DEBUG: Auto PWM route triggered");
+    handleAutoPWM(); 
   });
   
   // Firmware update with file upload support
@@ -638,7 +653,7 @@ void ServerManager::handleLEDToggle() {
     }
     
     if (ledState) {
-        led.setColor(CRGB::Blue);  // LED an (blau)
+        led.setColor(CRGB::White);  // LED an (weiß)
     } else {
         led.setColor(CRGB::Black); // LED aus
     }
@@ -915,4 +930,143 @@ void ServerManager::handleKMeterConfig() {
     } else {
         server.send(400, "text/plain", "Missing parameters");
     }
+}
+
+// Temperature Mapping Handler
+void ServerManager::handleTempMapping() {
+    Serial.println("DEBUG: Temperature Mapping Handler called");
+    
+    if (!isAuthenticated()) {
+        Serial.println("DEBUG: Temperature Mapping - Authentication failed");
+        server.send(401, "text/plain", "Unauthorized");
+        return;
+    }
+    
+    Serial.println("DEBUG: Temperature Mapping - Authentication successful");
+    
+    if (server.hasArg("startTemp") && server.hasArg("maxTemp")) {
+        float startTemp = server.arg("startTemp").toFloat();
+        float maxTemp = server.arg("maxTemp").toFloat();
+        
+        Serial.printf("DEBUG: Temperature Mapping - Received startTemp=%.1f, maxTemp=%.1f\n", startTemp, maxTemp);
+        
+        // Validate temperature values
+        if (startTemp < 0 || startTemp > 200 || maxTemp < 0 || maxTemp > 200) {
+            Serial.println("DEBUG: Temperature Mapping - Invalid temperature range");
+            server.send(400, "text/plain", "Invalid temperature range");
+            return;
+        }
+        
+        if (startTemp >= maxTemp) {
+            Serial.println("DEBUG: Temperature Mapping - Start temperature must be lower than max temperature");
+            server.send(400, "text/plain", "Start temperature must be lower than max temperature");
+            return;
+        }
+        
+        // Save settings
+        Config::saveTempMapping(startTemp, maxTemp);
+        
+        Serial.printf("DEBUG: Temperature Mapping - Saved startTemp=%.1f°C, maxTemp=%.1f°C\n", startTemp, maxTemp);
+        server.send(200, "text/plain", "OK");
+    } else {
+        Serial.println("DEBUG: Temperature Mapping - Missing parameters");
+        server.send(400, "text/plain", "Missing parameters");
+    }
+}
+
+// Temperature Mapping Status Handler
+void ServerManager::handleTempMappingStatus() {
+    Serial.println("DEBUG: Temperature Mapping Status Handler called");
+    
+    if (!isAuthenticated()) {
+        Serial.println("DEBUG: Temperature Mapping Status - Authentication failed");
+        server.send(401, "text/plain", "Unauthorized");
+        return;
+    }
+    
+    Serial.println("DEBUG: Temperature Mapping Status - Authentication successful");
+    
+    String json = "{";
+    json += "\"startTemp\": " + String(Config::TEMP_START, 1) + ",";
+    json += "\"maxTemp\": " + String(Config::TEMP_MAX, 1) + ",";
+    json += "\"autoEnabled\": " + String(Config::AUTO_PWM_ENABLED ? "true" : "false");
+    json += "}";
+    
+    Serial.printf("DEBUG: Temperature Mapping Status - JSON: %s\n", json.c_str());
+    server.send(200, "application/json", json);
+}
+
+// Auto PWM Handler
+void ServerManager::handleAutoPWM() {
+    Serial.println("DEBUG: Auto PWM Handler called");
+    
+    if (!isAuthenticated()) {
+        Serial.println("DEBUG: Auto PWM - Authentication failed");
+        server.send(401, "text/plain", "Unauthorized");
+        return;
+    }
+    
+    Serial.println("DEBUG: Auto PWM - Authentication successful");
+    
+    if (server.hasArg("enabled")) {
+        bool enabled = server.arg("enabled").toInt() == 1;
+        
+        Serial.printf("DEBUG: Auto PWM - Setting enabled=%s\n", enabled ? "true" : "false");
+        
+        // Save setting
+        Config::saveAutoPWMEnabled(enabled);
+        
+        if (enabled) {
+            // If auto PWM is enabled, immediately update PWM based on current temperature
+            updateAutoPWM();
+        }
+        
+        Serial.printf("DEBUG: Auto PWM - Saved enabled=%s\n", enabled ? "true" : "false");
+        server.send(200, "text/plain", "OK");
+    } else {
+        Serial.println("DEBUG: Auto PWM - Missing parameters");
+        server.send(400, "text/plain", "Missing parameters");
+    }
+}
+
+// Map temperature to PWM duty cycle (1-255)
+int ServerManager::mapTemperatureToPWM(float temperature) {
+    // If temperature is below start temperature, return 0 (off)
+    if (temperature <= Config::TEMP_START) {
+        return 0;
+    }
+    
+    // If temperature is above max temperature, return 255 (full power)
+    if (temperature >= Config::TEMP_MAX) {
+        return 255;
+    }
+    
+    // Map temperature between start and max to PWM range 1-255
+    // Using Arduino map function: map(value, fromLow, fromHigh, toLow, toHigh)
+    int pwmValue = map((int)(temperature * 10), 
+                      (int)(Config::TEMP_START * 10), 
+                      (int)(Config::TEMP_MAX * 10), 
+                      1, 255);
+    
+    return pwmValue;
+}
+
+// Update PWM based on current temperature (called from auto PWM mode)
+void ServerManager::updateAutoPWM() {
+    if (!Config::AUTO_PWM_ENABLED) {
+        return; // Auto PWM is disabled
+    }
+    
+    if (!kmeterManager.isInitialized() || !kmeterManager.isReady()) {
+        Serial.println("WARNING: Auto PWM - KMeter sensor not ready");
+        return;
+    }
+    
+    float currentTemp = kmeterManager.getTemperatureCelsius();
+    int pwmValue = mapTemperatureToPWM(currentTemp);
+    
+    Serial.printf("Auto PWM: Temperature=%.1f°C -> PWM=%d\n", currentTemp, pwmValue);
+    
+    // Set PWM value
+    setPWMDuty(pwmValue);
 }

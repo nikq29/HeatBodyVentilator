@@ -21,6 +21,11 @@ namespace Config {
     extern char TEMP_UNIT[16];
     extern bool AP_ENABLED;
     extern char LAST_PASSWORD_CHANGE[32];
+    
+    // Temperature Mapping Settings
+    extern float TEMP_START;      // Start temperature for PWM duty 1
+    extern float TEMP_MAX;        // Max temperature for PWM duty 255
+    extern bool AUTO_PWM_ENABLED; // Auto PWM based on temperature
 
     void loadSettings();
     void saveWebPassword(const char* newPassword);
@@ -28,6 +33,8 @@ namespace Config {
     void saveMQTTSettings(const char* server, uint16_t port, const char* user, const char* pass, const char* topic);
     void saveTempUnit(const char* unit);
     void saveAPEnabled(bool enabled);
+    void saveTempMapping(float startTemp, float maxTemp);
+    void saveAutoPWMEnabled(bool enabled);
     void factoryReset();
     String getLastPasswordChange();
 }

@@ -47,8 +47,15 @@ private:
     void handleSystemInfo(); // Neue API für Platzhalter-Daten
     void handleKMeterStatus(); // KMeter Sensor Status
     void handleKMeterConfig(); // KMeter Konfiguration
+    void handleTempMapping(); // Temperature mapping settings
+    void handleTempMappingStatus(); // Temperature mapping status
+    void handleAutoPWM(); // Auto PWM toggle
     
     bool isAuthenticated();
+    
+    // Temperature to PWM mapping functions
+    int mapTemperatureToPWM(float temperature);
+    void updateAutoPWM(); // Update PWM based on current temperature
     
     // Sensor Manager
     KMeterManager kmeterManager;

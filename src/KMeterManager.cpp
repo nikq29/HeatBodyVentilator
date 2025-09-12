@@ -98,7 +98,7 @@ void KMeterManager::update() {
         return; // Noch nicht Zeit für nächste Messung
     }
     
-    // Lese Sensor-Status (still)
+    // Lese Sensor-Status
     errorStatus = kmeter.getReadyStatus();
     
     if (errorStatus == 0) {
@@ -112,7 +112,8 @@ void KMeterManager::update() {
         currentTempFahrenheit = (float)tempF / 100.0;
         internalTempCelsius = (float)internalC / 100.0;
         
-        // Komplett kein Serial-Output mehr für maximale Performance
+        // Reduziere Serial-Output für bessere Performance
+        Serial.printf("KMeter: %.2f°C / %.2f°F\n", currentTempCelsius, currentTempFahrenheit);
     }
     
     lastReadTime = currentTime;

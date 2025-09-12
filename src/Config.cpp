@@ -13,6 +13,11 @@ namespace Config {
     char TEMP_UNIT[16] = "celsius";
     bool AP_ENABLED = true;
     char LAST_PASSWORD_CHANGE[32] = "Nie geändert";
+    
+    // Temperature Mapping Settings
+    float TEMP_START = 30.0;      // Default start temperature (°C)
+    float TEMP_MAX = 80.0;        // Default max temperature (°C)
+    bool AUTO_PWM_ENABLED = false; // Auto PWM disabled by default
 
     void loadSettings() {
         Preferences prefs;
@@ -56,6 +61,11 @@ namespace Config {
         String lastPwChange = prefs.getString("last_pw_change", "Nie geändert");
         strncpy(LAST_PASSWORD_CHANGE, lastPwChange.c_str(), sizeof(LAST_PASSWORD_CHANGE));
         LAST_PASSWORD_CHANGE[sizeof(LAST_PASSWORD_CHANGE)-1] = '\0';
+        
+        // Load temperature mapping settings
+        TEMP_START = prefs.getFloat("temp_start", 30.0);
+        TEMP_MAX = prefs.getFloat("temp_max", 80.0);
+        AUTO_PWM_ENABLED = prefs.getBool("auto_pwm", false);
         
         prefs.end();
         Serial.println("Settings loaded successfully");
@@ -175,7 +185,44 @@ namespace Config {
         AP_ENABLED = true;
         strcpy(LAST_PASSWORD_CHANGE, "Nie geändert");
         
+        // Reset temperature mapping settings
+        TEMP_START = 30.0;
+        TEMP_MAX = 80.0;
+        AUTO_PWM_ENABLED = false;
+        
         Serial.println("Factory reset completed");
+    }
+
+    void saveTempMapping(float startTemp, float maxTemp) {
+        Preferences prefs;
+        if (prefs.begin("settings", false)) {
+            prefs.putFloat("temp_start", startTemp);
+            prefs.putFloat("temp_max", maxTemp);
+            prefs.end();
+            
+            // Update global variables
+            TEMP_START = startTemp;
+            TEMP_MAX = maxTemp;
+            
+            Serial.printf("Temperature mapping saved: Start=%.1f°C, Max=%.1f°C\n", startTemp, maxTemp);
+        } else {
+            Serial.println("Error: Failed to save temperature mapping");
+        }
+    }
+
+    void saveAutoPWMEnabled(bool enabled) {
+        Preferences prefs;
+        if (prefs.begin("settings", false)) {
+            prefs.putBool("auto_pwm", enabled);
+            prefs.end();
+            
+            // Update global variable
+            AUTO_PWM_ENABLED = enabled;
+            
+            Serial.printf("Auto PWM setting saved: %s\n", enabled ? "Enabled" : "Disabled");
+        } else {
+            Serial.println("Error: Failed to save auto PWM setting");
+        }
     }
 
     String getLastPasswordChange() {

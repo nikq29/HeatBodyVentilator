@@ -490,7 +490,7 @@
               <span class="status-indicator status-connected" id="wifi-status">
                 <i class="fas fa-check-circle"></i>
                 <span class="icon-fallback">✅</span>
-                %WIFI_SSID%
+                <span id="wifi-ssid-display">Verbunden</span>
               </span>
             </div>
           </div>
@@ -651,37 +651,25 @@
           </div>
         </div>
 
-        <!-- PWM Control Card -->
+        <!-- Fan Control Card -->
         <div class="card">
           <div class="card-header">
             <h3 class="card-title">
-              <i class="fas fa-sliders-h" aria-hidden="true"></i>
-              <span class="icon-fallback">🎛️</span> PWM Steuerung
+              <i class="fas fa-fan" aria-hidden="true"></i>
+              <span class="icon-fallback">�</span> Lüfter-Steuerung
             </h3>
           </div>
           
           <div class="setting-item">
             <div class="setting-label">
-              <span>PWM Status</span>
-              <small class="d-block" style="color: #6c757d;">Pin 22 PWM Steuerung</small>
+              <span>Lüfter Status</span>
+              <small class="d-block" style="color: #6c757d;">Automatische temperaturbasierte Steuerung</small>
             </div>
             <div class="setting-control">
               <span class="status-indicator status-connected" id="pwm-status">
-                <i class="fas fa-wave-square" aria-hidden="true"></i>
-                <span class="icon-fallback">📶</span> Bereit
+                <i class="fas fa-fan" aria-hidden="true"></i>
+                <span class="icon-fallback">🌀</span> Aktiv
               </span>
-            </div>
-          </div>
-          
-          <!-- PWM Pin 22 -->
-          <div class="setting-item">
-            <div class="setting-label">
-              <span>PWM (Pin 22)</span>
-              <small class="d-block" style="color: #6c757d;">PWM Duty Cycle: <span id="pwm-value">0</span>%</small>
-            </div>
-            <div class="setting-control">
-              <input type="range" id="pwm-slider" min="0" max="255" value="0" 
-                     style="width: 120px;" onchange="updatePWM(this.value)">
             </div>
           </div>
           
@@ -691,7 +679,7 @@
           <div class="setting-item">
             <div class="setting-label">
               <span>Starttemperatur</span>
-              <small class="d-block" style="color: #6c757d;">Temperatur für PWM Duty 1 (°C)</small>
+              <small class="d-block" style="color: #6c757d;">Temperatur bei der der Lüfter anläuft (°C)</small>
             </div>
             <div class="setting-control">
               <input type="number" id="start-temp" min="0" max="200" value="30" 
@@ -703,44 +691,12 @@
           <div class="setting-item">
             <div class="setting-label">
               <span>Maximaltemperatur</span>
-              <small class="d-block" style="color: #6c757d;">Temperatur für PWM Duty 255 (°C)</small>
+              <small class="d-block" style="color: #6c757d;">Temperatur bei der der Lüfter Vollgas läuft (°C)</small>
             </div>
             <div class="setting-control">
               <input type="number" id="max-temp" min="0" max="200" value="80" 
                      style="width: 80px;" onchange="updateTempMapping()">
               <span style="margin-left: 5px;">°C</span>
-            </div>
-          </div>
-          
-          <div class="setting-item">
-            <div class="setting-label">
-              <span>Auto-PWM Modus</span>
-              <small class="d-block" style="color: #6c757d;">Automatische PWM basierend auf Temperatur</small>
-            </div>
-            <div class="setting-control">
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="auto-pwm-toggle" onchange="toggleAutoPWM()">
-                <label class="form-check-label" for="auto-pwm-toggle">Auto-PWM</label>
-              </div>
-            </div>
-          </div>
-          
-          <div class="btn-separator"></div>
-          
-          <div class="setting-item">
-            <div class="setting-label">
-              <span>PWM Steuerung</span>
-              <small class="d-block" style="color: #6c757d;">Schnellsteuerung</small>
-            </div>
-            <div class="setting-control">
-              <button class="btn btn-secondary" onclick="resetPWM()">
-                <i class="fas fa-power-off" aria-hidden="true"></i>
-                <span class="icon-fallback">⚡</span> Aus
-              </button>
-              <button class="btn btn-primary" onclick="testPWM()">
-                <i class="fas fa-play" aria-hidden="true"></i>
-                <span class="icon-fallback">▶️</span> Test Modus
-              </button>
             </div>
           </div>
         </div>
@@ -774,8 +730,6 @@
             </div>
             <div class="setting-control">
               <span id="kmeter-temp-celsius" style="font-weight: bold; color: #007bff;">--°C</span>
-              <span style="margin: 0 10px; color: #6c757d;">/</span>
-              <span id="kmeter-temp-fahrenheit" style="font-weight: bold; color: #007bff;">--°F</span>
             </div>
           </div>
           
@@ -817,16 +771,6 @@
               <button class="btn btn-sm btn-secondary" onclick="changeKMeterI2C()">
                 <i class="fas fa-edit" aria-hidden="true"></i> Ändern
               </button>
-            </div>
-          </div>
-          
-          <div class="setting-item">
-            <div class="setting-label">
-              <span>Firmware Version</span>
-              <small class="d-block" style="color: #6c757d;">Sensor Firmware Info</small>
-            </div>
-            <div class="setting-control">
-              <span id="kmeter-firmware" style="font-family: monospace;">--</span>
             </div>
           </div>
         </div>
@@ -890,7 +834,7 @@
               <span>Firmware Version</span>
             </div>
             <div class="setting-control">
-              <span>%FIRMWARE_VERSION%</span>
+              <span id="firmware-version">--</span>
             </div>
           </div>
           
@@ -949,7 +893,7 @@
             </div>
             <div class="setting-control">
               <div style="display: flex; gap: 8px; align-items: center;">
-                <input type="text" id="device-name" value="%DEVICE_NAME%" placeholder="Enter device name" 
+                <input type="text" id="device-name" value="" placeholder="Enter device name" 
                        style="flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
                 <button class="btn-primary" onclick="saveDeviceName()" style="padding: 8px 16px; white-space: nowrap;">Save</button>
               </div>
@@ -1202,14 +1146,18 @@
       console.log('DEBUG: DOMContentLoaded event fired');
       loadSystemInfo(); // Load system info first
       loadCurrentSettings();
-      console.log('DEBUG: Calling updatePWMStatus for initial load');
-      updatePWMStatus(); // Load initial PWM status
+      console.log('DEBUG: Calling updateFanStatus for initial load');
+      updateFanStatus(); // Load initial fan status
       console.log('DEBUG: Calling updateKMeterStatus for initial load');
       updateKMeterStatus(); // Load initial KMeter status
       updateTempMappingStatus(); // Load initial temperature mapping settings
+      console.log('DEBUG: Calling updateWiFiStatus for initial load');
+      updateWiFiStatus(); // Load initial WiFi status
       // Auto-refresh status every 30 seconds
       setInterval(updateStatus, 30000);
       setInterval(updateKMeterStatus, 5000); // Update KMeter every 5 seconds
+      setInterval(updateWiFiStatus, 10000); // Update WiFi status every 10 seconds
+      setInterval(updateFanStatus, 15000); // Update fan status every 15 seconds
       console.log('DEBUG: Setup complete');
     });
 
@@ -1219,6 +1167,11 @@
         .then(data => {
           // Update AP toggle
           document.getElementById('toggleAP').checked = data.ap_enabled;
+          
+          // Update device name input
+          if (data.device_name) {
+            document.getElementById('device-name').value = data.device_name;
+          }
           
           // Update MQTT form fields
           if (data.mqtt_server) {
@@ -1243,12 +1196,14 @@
             updateLEDStatus(data.led_state);
           }
           
-          // Update system info
-          if (data.uptime) {
-            document.getElementById('uptime').textContent = data.uptime;
+          // Update last password change
+          if (data.last_password_change) {
+            document.getElementById('last-password-change').textContent = data.last_password_change;
           }
-          if (data.free_memory) {
-            document.getElementById('free-memory').textContent = data.free_memory + ' KB';
+          
+          // Update firmware version
+          if (data.firmware_version) {
+            document.getElementById('firmware-version').textContent = 'v' + data.firmware_version;
           }
         })
         .catch(error => console.log('Laden der Einstellungen fehlgeschlagen:', error));
@@ -1355,92 +1310,34 @@
       }
     }
 
-    // PWM Control Functions
-    function updatePWM(duty) {
-      console.log(`DEBUG: updatePWM called with duty=${duty}`);
-      const percentage = Math.round((duty / 255) * 100);
-      document.getElementById('pwm-value').textContent = percentage;
-      
-      console.log(`DEBUG: Sending PWM request for Pin 22`);
-      
-      fetch('/api/pwm-control?token=' + getToken(), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: `duty=${duty}`
-      })
-        .then(response => {
-          console.log(`DEBUG: PWM response status: ${response.status}`);
-          return response.text();
-        })
-        .then(data => {
-          console.log(`DEBUG: PWM response data: ${data}`);
-          if (data === 'OK') {
-            showNotification(`PWM Pin 22 auf ${percentage}% gesetzt`, 'success');
-          } else {
-            showNotification('PWM-Einstellung fehlgeschlagen', 'error');
-          }
-        })
-        .catch(error => {
-          console.error('DEBUG: PWM request error:', error);
-          showNotification('PWM-Netzwerkfehler', 'error');
-        });
-    }
-
-    function updatePWMStatus() {
-      console.log('DEBUG: updatePWMStatus called');
+    // Fan Control Functions
+    function updateFanStatus() {
+      console.log('DEBUG: updateFanStatus called');
       fetch('/api/pwm-status?token=' + getToken())
         .then(response => {
-          console.log(`DEBUG: PWM status response status: ${response.status}`);
+          console.log(`DEBUG: Fan status response status: ${response.status}`);
           return response.json();
         })
         .then(data => {
-          console.log('DEBUG: PWM status data:', data);
-          if (data.pwm_pin && data.duty !== undefined) {
-            console.log(`DEBUG: Processing Pin ${data.pwm_pin}, duty ${data.duty}`);
-            const slider = document.getElementById('pwm-slider');
-            const value = document.getElementById('pwm-value');
-            if (slider && value) {
-              slider.value = data.duty;
-              value.textContent = Math.round((data.duty / 255) * 100);
-              console.log(`DEBUG: Updated slider to ${data.duty}`);
+          console.log('DEBUG: Fan status data:', data);
+          // Fan status is managed automatically, just update the display
+          const fanStatus = document.getElementById('pwm-status');
+          if (fanStatus) {
+            if (data.duty !== undefined && data.duty > 0) {
+              fanStatus.innerHTML = '<i class="fas fa-fan"></i><span class="icon-fallback">🌀</span> Läuft (' + Math.round((data.duty / 255) * 100) + '%)';
             } else {
-              console.log('DEBUG: Slider or value element not found');
+              fanStatus.innerHTML = '<i class="fas fa-fan"></i><span class="icon-fallback">🌀</span> Bereit';
             }
-          } else {
-            console.log('DEBUG: No pwm_pin or duty in response data');
           }
+          console.log(`DEBUG: Fan status updated - Duty: ${data.duty}`);
         })
         .catch(error => {
-          console.error('DEBUG: PWM status error:', error);
-          console.log('PWM-Status-Update fehlgeschlagen:', error);
+          console.error('DEBUG: Fan status error:', error);
+          const fanStatus = document.getElementById('pwm-status');
+          if (fanStatus) {
+            fanStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span class="icon-fallback">⚠️</span> Fehler';
+          }
         });
-    }
-
-    function resetPWM() {
-      if (confirm('PWM auf 0% setzen?')) {
-        document.getElementById('pwm-slider').value = 0;
-        updatePWM(0);
-        showNotification('PWM zurückgesetzt', 'info');
-      }
-    }
-
-    function testPWM() {
-      if (confirm('PWM Test-Modus starten? (50% für 3 Sekunden)')) {
-        // Set to 50% (127/255)
-        document.getElementById('pwm-slider').value = 127;
-        updatePWM(127);
-        
-        showNotification('PWM Test-Modus läuft...', 'info');
-        
-        // Reset after 3 seconds
-        setTimeout(() => {
-          document.getElementById('pwm-slider').value = 0;
-          updatePWM(0);
-          showNotification('PWM Test-Modus beendet', 'success');
-        }, 3000);
-      }
     }
 
     // Temperature Mapping Functions
@@ -1475,41 +1372,6 @@
         });
     }
 
-    function toggleAutoPWM() {
-      const isEnabled = document.getElementById('auto-pwm-toggle').checked;
-      
-      fetch('/api/auto-pwm?token=' + getToken(), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: `enabled=${isEnabled ? 1 : 0}`
-      })
-        .then(response => response.text())
-        .then(data => {
-          if (data === 'OK') {
-            showNotification(`Auto-PWM ${isEnabled ? 'aktiviert' : 'deaktiviert'}`, 'success');
-            
-            // Disable manual PWM slider when auto mode is on
-            document.getElementById('pwm-slider').disabled = isEnabled;
-            
-            if (isEnabled) {
-              showNotification('PWM wird nun automatisch durch Temperatur gesteuert', 'info');
-            }
-          } else {
-            showNotification('Auto-PWM-Einstellung fehlgeschlagen', 'error');
-            // Revert toggle on error
-            document.getElementById('auto-pwm-toggle').checked = !isEnabled;
-          }
-        })
-        .catch(error => {
-          console.error('Auto-PWM error:', error);
-          showNotification('Auto-PWM-Netzwerkfehler', 'error');
-          // Revert toggle on error
-          document.getElementById('auto-pwm-toggle').checked = !isEnabled;
-        });
-    }
-
     function updateTempMappingStatus() {
       fetch('/api/temp-mapping-status?token=' + getToken())
         .then(response => response.json())
@@ -1517,10 +1379,6 @@
           if (data.startTemp !== undefined && data.maxTemp !== undefined) {
             document.getElementById('start-temp').value = data.startTemp;
             document.getElementById('max-temp').value = data.maxTemp;
-          }
-          if (data.autoEnabled !== undefined) {
-            document.getElementById('auto-pwm-toggle').checked = data.autoEnabled;
-            document.getElementById('pwm-slider').disabled = data.autoEnabled;
           }
         })
         .catch(error => {
@@ -1557,18 +1415,15 @@
           // Update temperature values
           if (data.ready) {
             document.getElementById('kmeter-temp-celsius').textContent = data.temperature_celsius.toFixed(2) + '°C';
-            document.getElementById('kmeter-temp-fahrenheit').textContent = data.temperature_fahrenheit.toFixed(2) + '°F';
             document.getElementById('kmeter-internal-temp').textContent = data.internal_temperature.toFixed(2) + '°C';
           } else {
             document.getElementById('kmeter-temp-celsius').textContent = '--°C';
-            document.getElementById('kmeter-temp-fahrenheit').textContent = '--°F';
             document.getElementById('kmeter-internal-temp').textContent = '--°C';
           }
           
           // Update configuration
           document.getElementById('kmeter-i2c-addr').textContent = data.i2c_address;
           document.getElementById('kmeter-interval').value = data.read_interval;
-          document.getElementById('kmeter-firmware').textContent = 'v' + data.firmware_version;
           
           console.log(`DEBUG: KMeter updated - Temp: ${data.temperature_celsius}°C, Status: ${data.status_string}`);
         })
@@ -1759,6 +1614,51 @@
       // Clear form fields when closing
       document.getElementById('ssid').value = '';
       document.getElementById('password').value = '';
+    }
+
+    // WiFi Status Update Function
+    function updateWiFiStatus() {
+      console.log('DEBUG: updateWiFiStatus called');
+      fetch('/api/wifi-status?token=' + getToken())
+        .then(response => {
+          console.log(`DEBUG: WiFi status response status: ${response.status}`);
+          return response.json();
+        })
+        .then(data => {
+          console.log('DEBUG: WiFi status data:', data);
+          
+          // Update WiFi connection status
+          const wifiStatus = document.getElementById('wifi-status');
+          const wifiSsidDisplay = document.getElementById('wifi-ssid-display');
+          const wifiIp = document.getElementById('wifi-ip');
+          const wifiMac = document.getElementById('wifi-mac');
+          const wifiSignal = document.getElementById('wifi-signal');
+          
+          if (data.connected && data.ssid) {
+            // Connected
+            wifiStatus.className = 'status-indicator status-connected';
+            wifiStatus.innerHTML = '<i class="fas fa-check-circle"></i><span class="icon-fallback">✅</span><span id="wifi-ssid-display">' + data.ssid + '</span>';
+            wifiIp.textContent = data.ip || 'Unbekannt';
+            wifiMac.textContent = data.mac || 'Unbekannt';
+            wifiSignal.textContent = (data.rssi || '--') + ' dBm';
+          } else {
+            // Disconnected
+            wifiStatus.className = 'status-indicator status-disconnected';
+            wifiStatus.innerHTML = '<i class="fas fa-times-circle"></i><span class="icon-fallback">❌</span><span id="wifi-ssid-display">Nicht verbunden</span>';
+            wifiIp.textContent = 'Nicht verfügbar';
+            wifiMac.textContent = data.mac || 'Unbekannt';
+            wifiSignal.textContent = '-- dBm';
+          }
+          
+          console.log(`DEBUG: WiFi status updated - Connected: ${data.connected}, SSID: ${data.ssid}`);
+        })
+        .catch(error => {
+          console.error('DEBUG: WiFi status error:', error);
+          // Show error state
+          const wifiStatus = document.getElementById('wifi-status');
+          wifiStatus.className = 'status-indicator status-disconnected';
+          wifiStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span class="icon-fallback">⚠️</span><span id="wifi-ssid-display">Fehler</span>';
+        });
     }
 
     function scanWifi() {

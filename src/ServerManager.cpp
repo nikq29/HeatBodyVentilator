@@ -51,6 +51,10 @@ void ServerManager::begin() {
         Serial.println("DEBUG: Will continue without KMeter sensor");
     }
     
+    // Ensure Auto-PWM is enabled on startup
+    Config::saveAutoPWMEnabled(true);
+    Serial.println("DEBUG: Auto-PWM enabled for fan control");
+    
     server.begin();
     Serial.print("Web server started on port ");
     Serial.println(Config::HTTP_PORT);
@@ -545,12 +549,14 @@ void ServerManager::handleWiFiStatus() {
         json += "\"ssid\":\"" + WiFi.SSID() + "\",";
         json += "\"ip\":\"" + WiFi.localIP().toString() + "\",";
         json += "\"mac\":\"" + WiFi.macAddress() + "\",";
+        json += "\"rssi\":" + String(WiFi.RSSI()) + ",";
         json += "\"status\":\"Connected (RSSI: " + String(WiFi.RSSI()) + "dBm)\"";
     } else {
         json += "\"connected\":false,";
         json += "\"ssid\":\"-\",";
         json += "\"ip\":\"-\",";
         json += "\"mac\":\"" + WiFi.macAddress() + "\",";
+        json += "\"rssi\":-100,";
         json += "\"status\":\"Not connected\"";
     }
     json += "}";
@@ -662,9 +668,27 @@ void ServerManager::handleLEDToggle() {
 }
 
 void ServerManager::handleStatus() {
+    unsigned long uptimeSeconds = millis() / 1000;
+    unsigned long days = uptimeSeconds / 86400;
+    unsigned long hours = (uptimeSeconds % 86400) / 3600;
+    unsigned long minutes = (uptimeSeconds % 3600) / 60;
+    unsigned long seconds = uptimeSeconds % 60;
+    
+    String uptimeStr = "";
+    if (days > 0) {
+        uptimeStr += String(days) + "d ";
+    }
+    if (hours > 0 || days > 0) {
+        uptimeStr += String(hours) + "h ";
+    }
+    if (minutes > 0 || hours > 0 || days > 0) {
+        uptimeStr += String(minutes) + "m ";
+    }
+    uptimeStr += String(seconds) + "s";
+    
     String status = "{";
-    status += "\"uptime\":" + String(millis()/1000) + ",";
-    status += "\"heap\":" + String(ESP.getFreeHeap()) + ",";
+    status += "\"uptime\":\"" + uptimeStr + "\",";
+    status += "\"free_memory\":" + String(ESP.getFreeHeap() / 1024) + ","; // in KB
     status += "\"wifi_connected\":" + String(WiFi.status() == WL_CONNECTED ? "true" : "false") + ",";
     status += "\"wifi_ip\":\"" + WiFi.localIP().toString() + "\",";
     status += "\"wifi_rssi\":" + String(WiFi.RSSI()) + ",";
@@ -690,6 +714,8 @@ void ServerManager::handleGetSettings() {
     settings += "\"mqtt_pass\":\"" + maskedPassword + "\",";
     settings += "\"ap_enabled\":" + String(Config::AP_ENABLED ? "true" : "false") + ",";
     settings += "\"temp_unit\":\"" + String(Config::TEMP_UNIT) + "\",";
+    settings += "\"last_password_change\":\"" + Config::getLastPasswordChange() + "\",";
+    settings += "\"firmware_version\":\"" + String(Config::FIRMWARE_VERSION) + "\",";
     settings += "\"mqtt_connected\":" + String(mqttManager.isConnected() ? "true" : "false") + ",";
     settings += "\"led_state\":" + String(ledState ? "true" : "false");
     settings += "}";

@@ -17,7 +17,7 @@ namespace Config {
     // Temperature Mapping Settings
     float TEMP_START = 30.0;      // Default start temperature (°C)
     float TEMP_MAX = 80.0;        // Default max temperature (°C)
-    bool AUTO_PWM_ENABLED = false; // Auto PWM disabled by default
+    bool AUTO_PWM_ENABLED = true; // Auto PWM enabled by default (always on)
 
     void loadSettings() {
         Preferences prefs;
@@ -65,7 +65,7 @@ namespace Config {
         // Load temperature mapping settings
         TEMP_START = prefs.getFloat("temp_start", 30.0);
         TEMP_MAX = prefs.getFloat("temp_max", 80.0);
-        AUTO_PWM_ENABLED = prefs.getBool("auto_pwm", false);
+        AUTO_PWM_ENABLED = prefs.getBool("auto_pwm", true); // Default to enabled
         
         prefs.end();
         Serial.println("Settings loaded successfully");
@@ -188,7 +188,7 @@ namespace Config {
         // Reset temperature mapping settings
         TEMP_START = 30.0;
         TEMP_MAX = 80.0;
-        AUTO_PWM_ENABLED = false;
+        AUTO_PWM_ENABLED = true; // Always enabled
         
         Serial.println("Factory reset completed");
     }

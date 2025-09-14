@@ -977,7 +977,7 @@ void ServerManager::handleTempMapping() {
         Serial.printf("DEBUG: Temperature Mapping - Received startTemp=%.1f, maxTemp=%.1f\n", startTemp, maxTemp);
         
         // Validate temperature values
-        if (startTemp < 0 || startTemp > 200 || maxTemp < 0 || maxTemp > 200) {
+        if (startTemp < 0 || startTemp > 70 || maxTemp < 0 || maxTemp > 70) {
             Serial.println("DEBUG: Temperature Mapping - Invalid temperature range");
             server.send(400, "text/plain", "Invalid temperature range");
             return;
@@ -1072,7 +1072,7 @@ int ServerManager::mapTemperatureToPWM(float temperature) {
     int pwmValue = map((int)(temperature * 10), 
                       (int)(Config::TEMP_START * 10), 
                       (int)(Config::TEMP_MAX * 10), 
-                      1, 255);
+                      25, 255);
     
     return pwmValue;
 }

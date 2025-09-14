@@ -312,26 +312,22 @@
     <div class="container">
       <!-- System Status Grid -->
       <div class="dashboard-grid">
-        <!-- System Overview Card -->
+        <!-- Fan Status Card -->
         <div class="card">
           <div class="card-header">
-            <h3 class="card-title">System Overview</h3>
+            <h3 class="card-title">Lüfter - Status</h3>
           </div>
           <div class="status-item">
-            <span class="status-label">Uptime</span>
-            <span class="status-value" id="uptime">%UPTIME%</span>
+            <span class="status-label">Lüfter-Geschwindigkeit</span>
+            <span class="status-value" id="fan-speed">--</span>
           </div>
           <div class="status-item">
-            <span class="status-label">Memory Usage</span>
-            <span class="status-value" id="memory">%MEMORY_USAGE%</span>
+            <span class="status-label">Aktuelle Temperatur</span>
+            <span class="status-value" id="temperature">--°C</span>
           </div>
           <div class="status-item">
-            <span class="status-label">Temperature</span>
-            <span class="status-value" id="temperature">%TEMPERATURE%°C</span>
-          </div>
-          <div class="status-item">
-            <span class="status-label">Firmware</span>
-            <span class="status-value">%FIRMWARE_VERSION%</span>
+            <span class="status-label">Zieltemperatur</span>
+            <span class="status-value" id="target-temp">30-80°C</span>
           </div>
         </div>
         
@@ -377,20 +373,50 @@
   <script>
     // Auto-refresh data every 30 seconds
     setInterval(() => {
+      // Update Fan Status
+      fetch('/api/pwm-status?token=' + getToken())
+        .then(response => response.json())
+        .then(data => {
+          if (data.duty !== undefined) {
+            const percentage = Math.round((data.duty / 255) * 100);
+            document.getElementById('fan-speed').textContent = percentage + '%';
+          }
+        })
+        .catch(error => console.log('Fan status update failed:', error));
+      
+      // Update Temperature and other status
+      fetch('/api/kmeter-status?token=' + getToken())
+        .then(response => response.json())
+        .then(data => {
+          if (data.ready && data.temperature_celsius !== undefined) {
+            document.getElementById('temperature').textContent = data.temperature_celsius.toFixed(1) + '°C';
+          } else {
+            document.getElementById('temperature').textContent = '--°C';
+          }
+        })
+        .catch(error => console.log('Temperature update failed:', error));
+      
+      // Update Temperature Mapping Settings
+      fetch('/api/temp-mapping-status?token=' + getToken())
+        .then(response => response.json())
+        .then(data => {
+          if (data.startTemp !== undefined && data.maxTemp !== undefined) {
+            document.getElementById('target-temp').textContent = data.startTemp + '-' + data.maxTemp + '°C';
+          }
+        })
+        .catch(error => console.log('Temperature mapping update failed:', error));
+      
+      // Update general status for LED
       fetch('/api/status?token=' + getToken())
         .then(response => response.json())
         .then(data => {
-          document.getElementById('uptime').textContent = data.uptime;
-          document.getElementById('memory').textContent = data.memory_usage + '%';
-          document.getElementById('temperature').textContent = data.temperature + '°C';
-          
           // Update LED status
           if (data.led_state !== undefined) {
             document.getElementById('toggleLED-main').checked = data.led_state;
             updateLEDStatusMain(data.led_state);
           }
         })
-        .catch(error => console.log('Update failed:', error));
+        .catch(error => console.log('Status update failed:', error));
     }, 30000);
 
     function toggleLEDMain() {
@@ -514,6 +540,53 @@
       }
     }
     
+    // Load initial status when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      // Load fan status immediately
+      fetch('/api/pwm-status?token=' + getToken())
+        .then(response => response.json())
+        .then(data => {
+          if (data.duty !== undefined) {
+            const percentage = Math.round((data.duty / 255) * 100);
+            document.getElementById('fan-speed').textContent = percentage + '%';
+          }
+        })
+        .catch(error => console.log('Initial fan status load failed:', error));
+      
+      // Load temperature immediately
+      fetch('/api/kmeter-status?token=' + getToken())
+        .then(response => response.json())
+        .then(data => {
+          if (data.ready && data.temperature_celsius !== undefined) {
+            document.getElementById('temperature').textContent = data.temperature_celsius.toFixed(1) + '°C';
+          } else {
+            document.getElementById('temperature').textContent = '--°C';
+          }
+        })
+        .catch(error => console.log('Initial temperature load failed:', error));
+      
+      // Load temperature mapping settings immediately
+      fetch('/api/temp-mapping-status?token=' + getToken())
+        .then(response => response.json())
+        .then(data => {
+          if (data.startTemp !== undefined && data.maxTemp !== undefined) {
+            document.getElementById('target-temp').textContent = data.startTemp + '-' + data.maxTemp + '°C';
+          }
+        })
+        .catch(error => console.log('Initial temperature mapping load failed:', error));
+      
+      // Load general status immediately
+      fetch('/api/status?token=' + getToken())
+        .then(response => response.json())
+        .then(data => {
+          if (data.led_state !== undefined) {
+            document.getElementById('toggleLED-main').checked = data.led_state;
+            updateLEDStatusMain(data.led_state);
+          }
+        })
+        .catch(error => console.log('Initial status load failed:', error));
+    });
+
     // Add keyboard navigation support
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {

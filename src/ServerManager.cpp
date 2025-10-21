@@ -90,11 +90,20 @@ void ServerManager::setPWMDuty(int duty) {
     // PWM-Wert setzen
     ledcWrite(0, duty);
     Serial.printf("PWM Pin 22 set to duty cycle %d (%.1f%%)\n", duty, (duty / 255.0) * 100);
+    
+    // Publish to MQTT
+    mqttManager.publishFanSpeed(duty);
 }
 
 void ServerManager::updateSensors() {
     // Update KMeter-ISO Sensor
     kmeterManager.update();
+    
+    // Publish temperature to MQTT if sensor is ready
+    if (kmeterManager.isInitialized() && kmeterManager.isReady()) {
+        float temp = kmeterManager.getTemperatureCelsius();
+        mqttManager.publishTemperature(temp);
+    }
     
     // Update Auto PWM if enabled
     updateAutoPWM();

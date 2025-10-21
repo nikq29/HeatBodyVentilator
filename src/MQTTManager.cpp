@@ -226,6 +226,56 @@ void MQTTManager::publishSensorDiscovery() {
     result = mqttClient.publish(discoveryTopic.c_str(), uptimePayload.c_str(), true);
     Serial.println("MQTT: Uptime sensor publish result: " + String(result ? "SUCCESS" : "FAILED"));
     
+    // Fan Speed Sensor (PWM percentage)
+    DynamicJsonDocument fanSensor(512);
+    fanSensor["unique_id"] = deviceId + "_fan_speed";
+    fanSensor["name"] = String(Config::DEVICE_NAME) + " Lüfter";
+    fanSensor["state_topic"] = baseTopic + "/sensor/fan_speed";
+    fanSensor["unit_of_measurement"] = "%";
+    fanSensor["icon"] = "mdi:fan";
+    fanSensor["state_class"] = "measurement";
+    
+    JsonObject device3 = fanSensor.createNestedObject("device");
+    device3["identifiers"][0] = deviceId;
+    device3["name"] = Config::DEVICE_NAME;
+    device3["model"] = DEVICE_MODEL;
+    device3["manufacturer"] = DEVICE_MANUFACTURER;
+    device3["sw_version"] = Config::FIRMWARE_VERSION;
+    device3["configuration_url"] = "http://" + WiFi.localIP().toString();
+    
+    discoveryTopic = getDiscoveryTopic("sensor", "fan_speed");
+    String fanPayload;
+    serializeJson(fanSensor, fanPayload);
+    
+    Serial.println("MQTT: Publishing fan speed sensor to topic: " + discoveryTopic);
+    result = mqttClient.publish(discoveryTopic.c_str(), fanPayload.c_str(), true);
+    Serial.println("MQTT: Fan speed sensor publish result: " + String(result ? "SUCCESS" : "FAILED"));
+    
+    // Temperature Sensor (from KMeter)
+    DynamicJsonDocument tempSensor(512);
+    tempSensor["unique_id"] = deviceId + "_temperature";
+    tempSensor["name"] = String(Config::DEVICE_NAME) + " Temperatur";
+    tempSensor["state_topic"] = baseTopic + "/sensor/temperature";
+    tempSensor["unit_of_measurement"] = "°C";
+    tempSensor["device_class"] = "temperature";
+    tempSensor["state_class"] = "measurement";
+    
+    JsonObject device4 = tempSensor.createNestedObject("device");
+    device4["identifiers"][0] = deviceId;
+    device4["name"] = Config::DEVICE_NAME;
+    device4["model"] = DEVICE_MODEL;
+    device4["manufacturer"] = DEVICE_MANUFACTURER;
+    device4["sw_version"] = Config::FIRMWARE_VERSION;
+    device4["configuration_url"] = "http://" + WiFi.localIP().toString();
+    
+    discoveryTopic = getDiscoveryTopic("sensor", "temperature");
+    String tempPayload;
+    serializeJson(tempSensor, tempPayload);
+    
+    Serial.println("MQTT: Publishing temperature sensor to topic: " + discoveryTopic);
+    result = mqttClient.publish(discoveryTopic.c_str(), tempPayload.c_str(), true);
+    Serial.println("MQTT: Temperature sensor publish result: " + String(result ? "SUCCESS" : "FAILED"));
+    
     Serial.println("MQTT: Published sensor discoveries");
 }
 
@@ -286,9 +336,36 @@ void MQTTManager::publishDeviceState() {
     String uptimeTopic = baseTopic + "/sensor/uptime";
     mqttClient.publish(uptimeTopic.c_str(), String(uptime).c_str());
     
+    // Publish current fan speed (read from PWM channel 0)
+    int currentPWM = ledcRead(0);
+    publishFanSpeed(currentPWM);
+    
     // Publish online status
     String statusTopic = baseTopic + "/status";
     mqttClient.publish(statusTopic.c_str(), "online", true);
+}
+
+void MQTTManager::publishFanSpeed(int pwmDuty) {
+    if (!mqttClient.connected()) return;
+    
+    String baseTopic = getHomeAssistantBaseTopic();
+    String fanTopic = baseTopic + "/sensor/fan_speed";
+    
+    // Convert PWM duty (0-255) to percentage (0-100)
+    float percentage = (pwmDuty / 255.0) * 100.0;
+    
+    mqttClient.publish(fanTopic.c_str(), String(percentage, 1).c_str());
+    Serial.printf("MQTT: Published fan speed: %.1f%%\n", percentage);
+}
+
+void MQTTManager::publishTemperature(float tempCelsius) {
+    if (!mqttClient.connected()) return;
+    
+    String baseTopic = getHomeAssistantBaseTopic();
+    String tempTopic = baseTopic + "/sensor/temperature";
+    
+    mqttClient.publish(tempTopic.c_str(), String(tempCelsius, 1).c_str());
+    Serial.printf("MQTT: Published temperature: %.1f°C\n", tempCelsius);
 }
 
 void MQTTManager::publishSensorData(const String& sensor, float value, const String& unit) {

@@ -227,8 +227,8 @@ Dieses Projekt ist unter der MIT-Lizenz lizenziert - siehe [LICENSE](LICENSE) Da
 
 ## 📝 Changelog
 
-### Version 1.0.0 (2025-10-21)
-- ✨ Initiale Release-Version
+### Version 0.0.1 (2025-10-21)
+- ✨ Initiale Entwicklungs-Version
 - 🌡️ KMeter-ISO Temperatursensor-Integration
 - 💨 Intelligente Lüftersteuerung mit Auto-Modus
 - 📡 Vollständige Home Assistant MQTT Integration

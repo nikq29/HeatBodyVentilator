@@ -1,21 +1,132 @@
-MIT License
+CUSTOM SOURCE-AVAILABLE LICENSE
 
-Copyright (c) 2025 SmartHome-Assistant
+Copyright (c) 2025 SmartHome-Assistant (Markus Schwarz)
+All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+=============================================================================
+LIZENZVEREINBARUNG FÜR ESP32 SMART HOME SERVER
+=============================================================================
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Dieses Projekt ("Software") wird unter den folgenden Bedingungen zur Verfügung 
+gestellt. Durch das Herunterladen, Kopieren, Verwenden oder Modifizieren der 
+Software erklären Sie sich mit diesen Bedingungen einverstanden.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+-----------------------------------------------------------------------------
+1. ERLAUBTE NUTZUNG
+-----------------------------------------------------------------------------
+
+Sie dürfen:
+✓ Die Software für PRIVATE, NICHT-KOMMERZIELLE Zwecke verwenden
+✓ Die Software für Bildungs- und Lernzwecke nutzen
+✓ Die Software auf Ihren eigenen Geräten installieren und ausführen
+✓ Den Quellcode studieren und zu Lernzwecken ansehen
+
+-----------------------------------------------------------------------------
+2. EINGESCHRÄNKTE RECHTE
+-----------------------------------------------------------------------------
+
+Sie dürfen NICHT ohne ausdrückliche schriftliche Zustimmung des Urhebers:
+✗ Die Software oder modifizierte Versionen kommerziell nutzen
+✗ Die Software oder Teile davon verkaufen oder vermieten
+✗ Modifizierte Versionen der Software veröffentlichen oder verteilen
+✗ Die Software in kommerzielle Produkte oder Dienstleistungen integrieren
+✗ Die Software als Grundlage für kommerzielle Projekte verwenden
+
+-----------------------------------------------------------------------------
+3. VERÖFFENTLICHUNG UND WEITERGABE
+-----------------------------------------------------------------------------
+
+Die Veröffentlichung oder Verbreitung von modifiziertem Code erfordert:
+• Ausdrückliche schriftliche Zustimmung des ursprünglichen Urhebers
+• Nennung des ursprünglichen Urhebers (SmartHome-Assistant / Markus Schwarz)
+• Beibehaltung dieser Lizenzvereinbarung
+• Kennzeichnung aller vorgenommenen Änderungen
+
+-----------------------------------------------------------------------------
+4. KOMMERZIELLE NUTZUNG
+-----------------------------------------------------------------------------
+
+Jegliche kommerzielle Nutzung bedarf einer separaten kommerziellen Lizenz.
+Für Anfragen bezüglich kommerzieller Nutzung kontaktieren Sie bitte:
+• GitHub: https://github.com/smarthome-assistant
+• Email: [Ihre Email einfügen]
+
+Kommerzielle Nutzung umfasst, ist aber nicht beschränkt auf:
+• Verwendung in kommerziellen Produkten oder Dienstleistungen
+• Integration in kostenpflichtige Systeme
+• Nutzung durch Unternehmen oder Organisation mit kommerziellem Zweck
+• Verkauf von Geräten mit dieser Software
+
+-----------------------------------------------------------------------------
+5. URHEBERRECHTSHINWEIS
+-----------------------------------------------------------------------------
+
+Bei jeglicher erlaubter Nutzung oder Weitergabe muss folgender 
+Urheberrechtshinweis sichtbar enthalten sein:
+
+    "Basiert auf ESP32 Smart Home Server
+     Copyright (c) 2025 SmartHome-Assistant (Markus Schwarz)
+     https://github.com/smarthome-assistant"
+
+-----------------------------------------------------------------------------
+6. BEITRÄGE (CONTRIBUTIONS)
+-----------------------------------------------------------------------------
+
+Beiträge zu diesem Projekt (Pull Requests, Issues, etc.) werden begrüßt.
+Mit der Einreichung eines Beitrags:
+• Übertragen Sie dem Projekt-Urheber die Rechte an Ihrem Beitrag
+• Bestätigen Sie, dass Sie die Rechte an Ihrem Beitrag besitzen
+• Akzeptieren Sie, dass Ihr Beitrag unter dieser Lizenz veröffentlicht wird
+
+-----------------------------------------------------------------------------
+7. GEWÄHRLEISTUNGSAUSSCHLUSS
+-----------------------------------------------------------------------------
+
+DIE SOFTWARE WIRD "WIE BESEHEN" OHNE JEGLICHE AUSDRÜCKLICHE ODER STILLSCHWEIGENDE 
+GEWÄHRLEISTUNG ZUR VERFÜGUNG GESTELLT, EINSCHLIESSLICH, ABER NICHT BESCHRÄNKT 
+AUF GEWÄHRLEISTUNGEN DER MARKTGÄNGIGKEIT, EIGNUNG FÜR EINEN BESTIMMTEN ZWECK 
+UND NICHTVERLETZUNG VON RECHTEN DRITTER.
+
+IN KEINEM FALL HAFTEN DIE AUTOREN ODER URHEBERRECHTSINHABER FÜR ANSPRÜCHE, 
+SCHÄDEN ODER ANDERE VERPFLICHTUNGEN, OB IN EINER VERTRAGS- ODER HAFTUNGSKLAGE, 
+UNERLAUBTER HANDLUNG ODER ANDERWEITIG, DIE SICH AUS ODER IN VERBINDUNG MIT DER 
+SOFTWARE ODER DER NUTZUNG ODER ANDEREN GESCHÄFTEN MIT DER SOFTWARE ERGEBEN.
+
+-----------------------------------------------------------------------------
+8. HAFTUNGSBESCHRÄNKUNG
+-----------------------------------------------------------------------------
+
+Die Nutzung erfolgt auf eigenes Risiko. Der Urheber übernimmt keine Haftung für:
+• Schäden an Hardware oder Geräten
+• Datenverlust oder Datenschutzverletzungen
+• Funktionsstörungen oder Ausfälle
+• Folgeschäden jeglicher Art
+
+-----------------------------------------------------------------------------
+9. BEENDIGUNG DER LIZENZ
+-----------------------------------------------------------------------------
+
+Diese Lizenz endet automatisch bei Verstoß gegen eine der Bedingungen.
+Bei Beendigung müssen Sie:
+• Die Nutzung der Software einstellen
+• Alle Kopien der Software löschen
+• Alle darauf basierenden Projekte einstellen
+
+-----------------------------------------------------------------------------
+10. KONTAKT FÜR LIZENZANFRAGEN
+-----------------------------------------------------------------------------
+
+Für Anfragen bezüglich:
+• Kommerzieller Nutzung
+• Veröffentlichung modifizierter Versionen
+• Sondervereinbarungen
+
+Kontaktieren Sie:
+GitHub: https://github.com/smarthome-assistant
+Repository: https://github.com/smarthome-assistant/HeatBodyVentilator
+
+=============================================================================
+
+Version: 1.0
+Datum: 24. Oktober 2025
+Urheber: SmartHome-Assistant (Markus Schwarz)

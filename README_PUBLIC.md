@@ -2,7 +2,7 @@
 
 Ein professionelles ESP32-basiertes Smart Home Server-Projekt mit vollständiger Home Assistant Integration, Temperaturüberwachung und intelligenter Lüftersteuerung.
 
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-Custom-red.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-ESP32-green.svg)](https://www.espressif.com/en/products/socs/esp32)
 [![Framework](https://img.shields.io/badge/Framework-Arduino-blue.svg)](https://www.arduino.cc/)
 
@@ -211,13 +211,28 @@ Das Gerät bietet REST-APIs für externe Integration:
 
 ## 📄 Lizenz
 
-Dieses Projekt ist unter der MIT-Lizenz lizenziert - siehe [LICENSE](LICENSE) Datei für Details.
+Dieses Projekt ist unter einer **Custom Source-Available Lizenz** lizenziert - siehe [LICENSE](LICENSE) Datei für Details.
 
-## 👤 Autor
+### ⚠️ Wichtige Lizenzbedingungen:
 
-**SmartHome-Assistant**
+- ✅ **Private Nutzung**: Frei für private, nicht-kommerzielle Zwecke
+- ✅ **Lernen & Bildung**: Quellcode studieren und zu Lernzwecken nutzen
+- ❌ **Kommerzielle Nutzung**: Nur mit ausdrücklicher Genehmigung
+- ❌ **Veröffentlichung**: Modifizierter Code darf nur mit Zustimmung veröffentlicht werden
+- � **Urhebernennung**: Bei jeglicher Nutzung muss der Urheber genannt werden
+
+Für kommerzielle Nutzung oder Veröffentlichung modifizierter Versionen kontaktieren Sie bitte den Autor.
+
+## �👤 Autor
+
+**SmartHome-Assistant (Markus Schwarz)**
 - GitHub: [@smarthome-assistant](https://github.com/smarthome-assistant)
-- Website: [SmartHome-Assistant.info](https://smarthome-assistant.info)
+- Repository: [HeatBodyVentilator](https://github.com/smarthome-assistant/HeatBodyVentilator)
+
+**Kontakt für Lizenzanfragen:**
+- Kommerzielle Nutzung
+- Veröffentlichung modifizierter Versionen
+- Sondervereinbarungen
 
 ## 🙏 Danksagungen
 

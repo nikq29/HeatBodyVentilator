@@ -1,6 +1,12 @@
 # 📜 Lizenz-Zusammenfassung (Deutsch)
 
-**Copyright © 2025 SmartHome-Assistant (Markus Schwarz)**
+**Copyright © 2025 SmartHome-Assistant.info (Markus Reza Tain)**
+
+---
+
+**⚠️ WICHTIG**: Diese Lizenz gilt NUR für den eigenen Programmcode dieses Projekts (Dateien in `/src` und `/data`). Verwendete Open-Source-Bibliotheken (FastLED, ArduinoJson, PubSubClient, M5Unit-KMeterISO) stehen unter eigenen MIT-Lizenzen. Siehe [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) für Details.
+
+---
 
 ## ✅ Was Sie dürfen:
 
@@ -19,7 +25,7 @@
 ## 📝 Pflichten bei erlaubter Nutzung:
 
 Bei jeglicher Nutzung müssen Sie:
-1. **Den Urheber nennen**: SmartHome-Assistant (Markus Schwarz)
+1. **Den Urheber nennen**: SmartHome-Assistant.info (Markus Reza Tain)
 2. **Diese Lizenz beibehalten**
 3. **Änderungen kennzeichnen** (falls zutreffend)
 
@@ -37,7 +43,22 @@ Sie können gerne:
 - **Pull Requests** einreichen
 - **Verbesserungsvorschläge** machen
 
-Mit der Einreichung übertragen Sie die Rechte an Ihrem Beitrag an das Projekt.
+Mit der Einreichung:
+- Bestätigen Sie, dass Sie die Rechte an Ihrem Beitrag besitzen
+- Lizenzieren Sie Ihren Beitrag unter dieser Lizenz für die Verwendung in diesem Projekt
+- Erlauben Sie dem Projekt-Urheber, Ihren Beitrag zu nutzen und zu integrieren
+- **BEHALTEN** Sie jedoch Ihr Urheberrecht an Ihrem ursprünglichen Beitrag
+- Stimmen Sie zu, in der CONTRIBUTORS.md Datei als Mitwirkender genannt zu werden
+
+## 📚 Verwendete Bibliotheken
+
+Dieses Projekt verwendet folgende **MIT-lizenzierte** Bibliotheken:
+- **FastLED** - LED-Steuerung
+- **ArduinoJson** - JSON-Verarbeitung  
+- **PubSubClient** - MQTT-Client
+- **M5Unit-KMeterISO** - Temperatursensor
+
+Diese Bibliotheken unterliegen **NICHT** dieser Lizenz, sondern ihren eigenen MIT-Lizenzen, die kommerzielle Nutzung erlauben. Vollständige Lizenztexte: [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md)
 
 ## ⚖️ Vollständige Lizenz
 

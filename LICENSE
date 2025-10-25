@@ -1,6 +1,6 @@
 CUSTOM SOURCE-AVAILABLE LICENSE
 
-Copyright (c) 2025 SmartHome-Assistant (Markus Schwarz)
+Copyright (c) 2025 SmartHome-Assistant.info (Markus Reza Tain)
 All rights reserved.
 
 =============================================================================
@@ -10,6 +10,11 @@ LIZENZVEREINBARUNG FÜR ESP32 SMART HOME SERVER
 Dieses Projekt ("Software") wird unter den folgenden Bedingungen zur Verfügung 
 gestellt. Durch das Herunterladen, Kopieren, Verwenden oder Modifizieren der 
 Software erklären Sie sich mit diesen Bedingungen einverstanden.
+
+WICHTIG: Diese Lizenz gilt NUR für den eigenen Programmcode dieses Projekts
+(Dateien in /src und /data). Verwendete Open-Source-Bibliotheken (FastLED,
+ArduinoJson, PubSubClient, M5Unit-KMeterISO) stehen unter eigenen Lizenzen.
+Siehe THIRD_PARTY_LICENSES.md für Details.
 
 -----------------------------------------------------------------------------
 1. ERLAUBTE NUTZUNG
@@ -38,7 +43,7 @@ Sie dürfen NICHT ohne ausdrückliche schriftliche Zustimmung des Urhebers:
 
 Die Veröffentlichung oder Verbreitung von modifiziertem Code erfordert:
 • Ausdrückliche schriftliche Zustimmung des ursprünglichen Urhebers
-• Nennung des ursprünglichen Urhebers (SmartHome-Assistant / Markus Reza Tain)
+• Nennung des ursprünglichen Urhebers (SmartHome-Assistant.info / Markus Reza Tain)
 • Beibehaltung dieser Lizenzvereinbarung
 • Kennzeichnung aller vorgenommenen Änderungen
 
@@ -65,7 +70,7 @@ Bei jeglicher erlaubter Nutzung oder Weitergabe muss folgender
 Urheberrechtshinweis sichtbar enthalten sein:
 
     "Basiert auf HeatBodyVentilator
-     Copyright (c) 2025 SmartHome-Assistant (Markus Reza Tain)
+     Copyright (c) 2025 SmartHome-Assistant.info (Markus Reza Tain)
      https://github.com/smarthome-assistant"
 
 -----------------------------------------------------------------------------
@@ -74,9 +79,16 @@ Urheberrechtshinweis sichtbar enthalten sein:
 
 Beiträge zu diesem Projekt (Pull Requests, Issues, etc.) werden begrüßt.
 Mit der Einreichung eines Beitrags:
-• Übertragen Sie dem Projekt-Urheber die Rechte an Ihrem Beitrag
 • Bestätigen Sie, dass Sie die Rechte an Ihrem Beitrag besitzen
-• Akzeptieren Sie, dass Ihr Beitrag unter dieser Lizenz veröffentlicht wird
+• Lizenzieren Sie Ihren Beitrag unter dieser Lizenz für die Verwendung in 
+  diesem Projekt
+• Erlauben Sie dem Projekt-Urheber, Ihren Beitrag zu nutzen und zu integrieren
+• BEHALTEN Sie jedoch Ihr Urheberrecht an Ihrem ursprünglichen Beitrag
+• Stimmen Sie zu, in der CONTRIBUTORS.md Datei als Mitwirkender genannt zu werden
+
+Der Projekt-Urheber behält sich das Recht vor, die Lizenz für zukünftige 
+Versionen anzupassen, wobei bereits veröffentlichte Versionen unter ihrer 
+ursprünglichen Lizenz bleiben.
 
 -----------------------------------------------------------------------------
 7. GEWÄHRLEISTUNGSAUSSCHLUSS
@@ -111,9 +123,26 @@ Bei Beendigung müssen Sie:
 • Die Nutzung der Software einstellen
 • Alle Kopien der Software löschen
 • Alle darauf basierenden Projekte einstellen
+• Schadensersatz leisten
 
 -----------------------------------------------------------------------------
-10. KONTAKT FÜR LIZENZANFRAGEN
+11. VERWENDETE OPEN-SOURCE-BIBLIOTHEKEN
+-----------------------------------------------------------------------------
+
+Dieses Projekt verwendet folgende Open-Source-Bibliotheken mit eigenen Lizenzen:
+
+• FastLED (MIT License) - LED-Steuerung
+• ArduinoJson (MIT License) - JSON-Verarbeitung  
+• PubSubClient (MIT License) - MQTT-Client
+• M5Unit-KMeterISO (MIT License) - Temperatursensor
+
+Diese Bibliotheken unterliegen NICHT dieser Lizenz, sondern ihren eigenen
+MIT-Lizenzen, die kommerzielle Nutzung erlauben.
+
+Vollständige Lizenztexte: siehe THIRD_PARTY_LICENSES.md
+
+-----------------------------------------------------------------------------
+12. KONTAKT FÜR LIZENZANFRAGEN
 -----------------------------------------------------------------------------
 
 Für Anfragen bezüglich:
@@ -129,4 +158,4 @@ Repository: https://github.com/smarthome-assistant/HeatBodyVentilator
 
 Version: 1.0
 Datum: 24. Oktober 2025
-Urheber: SmartHome-Assistant (Markus Reza Tain)
+Urheber: SmartHome-Assistant.info (Markus Reza Tain)

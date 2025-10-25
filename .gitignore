@@ -65,3 +65,15 @@ config_local.h
 # User-specific data
 data/credentials.json
 data/config.json
+
+# Private scripts and tools
+auto-backup.ps1
+auto-backup.sh
+BACKUP-JETZT.bat
+watch-and-commit.ps1
+
+# IDE workspace files
+*.code-workspace
+
+# Internal documentation (keep private)
+docs/

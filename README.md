@@ -1,85 +1,245 @@
-# ESP32 Server Project Core
+# 🏠 HeatBodyVentilator
 
-Ein ESP32-basiertes Webserver-Projekt mit MQTT-Integration für Home Assistant.
+Der HeatBodyVentilator als Heizkörper-Lüfter Einheit mit vollständiger Home Assistant Integration, Temperaturüberwachung und intelligenter Lüftersteuerung.
 
-## Features
+[![License](https://img.shields.io/badge/License-Custom-red.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-ESP32-green.svg)](https://www.espressif.com/en/products/socs/esp32)
+[![Framework](https://img.shields.io/badge/Framework-Arduino-blue.svg)](https://www.arduino.cc/)
 
-- 🌐 **Web Interface**: Responsive Weboberfläche mit Hamburger-Menü123
-- 📡 **MQTT Integration**: Home Assistant Auto Discovery Support
-- 💡 **LED Control**: FastLED-basierte LED-Steuerung
-- 🔐 **Authentication**: Token-basierte Authentifizierung
-- 📱 **Responsive Design**: Mobile-optimierte Benutzeroberfläche
-- ⚙️ **Configuration**: WiFi und MQTT Einstellungen über Web-Interface
+## ✨ Features
 
-## Hardware
+### 🌐 Web Interface
+- **Responsive Design**: Mobile-optimierte Benutzeroberfläche
+- **Sicherer Login**: Token-basierte Authentifizierung
+- **Echtzeit-Dashboard**: Live-Anzeige aller Sensordaten
+- **Einstellungsseite**: Konfiguration von WiFi, MQTT und Geräteparametern
+- **Deutschsprachig**: Vollständig lokalisierte Benutzeroberfläche
 
-- ESP32 M5Stack Atom
-- Integrierte LED (FastLED)
+### 📡 Home Assistant Integration
+- **MQTT Auto-Discovery**: Automatische Erkennung in Home Assistant
+- **Sensoren**:
+  - 🌡️ Temperatur (KMeter-ISO Thermoelement)
+  - 💨 Lüfter-Geschwindigkeit in %
+  - 📶 WiFi Signal-Stärke
+  - ⏱️ Uptime
+- **Steuerung**:
+  - 💡 LED An/Aus
+  - 🔄 Neustart-Button
+- **Status**: Online/Offline Überwachung
 
-## Software Stack
+### 🌡️ Temperaturüberwachung
+- **KMeter-ISO Sensor**: Professionelle K-Type Thermoelement-Unterstützung
+- **Temperatureinheiten**: Celsius und Fahrenheit
+- **Interne Temperatur**: Zusätzlicher interner Sensor
+- **Fehlerüberwachung**: Sensor-Statusmeldungen
 
-- **Platform**: PlatformIO
-- **Framework**: Arduino
-- **Libraries**: 
-  - FastLED
-  - WebServer
-  - WiFi
-  - Preferences
-  - ArduinoJson
+### 💨 Intelligente Lüftersteuerung
+- **PWM-Steuerung**: Präzise Geschwindigkeitsregelung (0-100%)
+- **Auto-Modus**: Temperaturbasierte automatische Regelung
+- **Manueller Modus**: Direkte Geschwindigkeitseinstellung
+- **Temperatur-Mapping**: Konfigurierbare Start- und Maximaltemperatur
 
-## Project Structure
+### 🔐 Sicherheit
+- **Passwortschutz**: Sicherer Web-Zugang
+- **Session-Management**: Token-basierte Sitzungen
+- **Passwort-Änderung**: Über Web-Interface
+- **Factory Reset**: Zurücksetzen auf Werkseinstellungen
+
+### 📶 WiFi Management
+- **Station Mode**: Verbindung zu bestehendem WiFi
+- **Access Point Mode**: Eigener Hotspot für Setup
+- **Dual Mode**: Gleichzeitige AP und STA Funktion
+- **WiFi Scanner**: Verfügbare Netzwerke anzeigen
+- **Verbindungsstatus**: Live-Überwachung
+
+## 🔧 Hardware-Anforderungen
+
+### Minimal
+- **ESP32**: M5Stack Atom oder kompatibles Board
+- **Stromversorgung**: USB 5V
+
+### Empfohlen
+- **ESP32**: M5Stack Atom Lite
+- **Temperatursensor**: M5Stack KMeter-ISO Unit (K-Type Thermoelement)
+- **Lüfter**: 12V PWM-Lüfter (Pin 22)
+- **LED**: FastLED-kompatible RGB LED (integriert bei M5Stack Atom Lite)
+
+## 📦 Installation
+
+### Voraussetzungen
+- [VS Code](https://code.visualstudio.com/)
+- [PlatformIO Extension](https://platformio.org/install/ide?install=vscode)
+- USB-Treiber für ESP32
+
+### Schritt 1: Repository klonen
+```bash
+git clone https://github.com/smarthome-assistant/ESP32_Server_Project_Core.git
+cd ESP32_Server_Project_Core
+```
+
+### Schritt 2: Projekt in VS Code öffnen
+```bash
+code .
+```
+
+### Schritt 3: Build und Upload
+1. Öffnen Sie PlatformIO Home (Alien-Icon in der Sidebar)
+2. Klicken Sie auf "Build" (✓)
+3. Verbinden Sie Ihr ESP32 via USB
+4. Klicken Sie auf "Upload" (→)
+
+### Schritt 4: Erste Konfiguration
+1. ESP32 startet einen Access Point: `SmartHome-Assistant-AP`
+2. Verbinden Sie sich mit diesem WiFi (Passwort: `smarthome-assistant.info`)
+3. Öffnen Sie im Browser: `http://192.168.4.1`
+4. Login mit Standard-Passwort: `smarthome-assistant.info`
+5. Konfigurieren Sie WiFi und MQTT
+
+## ⚙️ Konfiguration
+
+### WiFi Einstellungen
+- **SSID**: Ihr WiFi-Netzwerkname
+- **Passwort**: Ihr WiFi-Passwort
+- **Access Point**: Optional zusätzlicher AP-Modus
+
+### MQTT Einstellungen
+- **Server**: MQTT Broker IP/Hostname
+- **Port**: Standard 1883
+- **Username**: Optional
+- **Password**: Optional
+- **Topic**: Base-Topic für Nachrichten
+
+### Lüftersteuerung
+- **Start-Temperatur**: Temperatur ab der der Lüfter startet
+- **Max-Temperatur**: Temperatur bei voller Geschwindigkeit
+
+## 🏗️ Projektstruktur
 
 ```
-├── data/                   # Web files (HTML, CSS, Images)
-│   ├── index.html         # Login page
-│   ├── main.html          # Main dashboard
-│   ├── setting.html       # Settings page
-│   └── style.css          # Unified styles
-├── src/                   # Source code
-│   ├── main.cpp           # Main application
-│   ├── ServerManager.*    # Web server management
-│   ├── WiFiManager.*      # WiFi connection handling
-│   ├── LEDManager.*       # LED control
-│   ├── MQTTManager.*      # MQTT functionality
-│   └── Config.*           # Configuration management
-└── platformio.ini         # PlatformIO configuration
+ESP32_Server_Project_Core/
+├── data/                      # Web-Dateien (HTML, CSS, Bilder)
+│   ├── index.html            # Login-Seite
+│   ├── login.html            # Login-Formular
+│   ├── main.html             # Haupt-Dashboard
+│   ├── setting.html          # Einstellungen
+│   ├── style.css             # Einheitliche Styles
+│   └── img/
+│       └── logo.png          # Logo
+├── src/                       # Quellcode
+│   ├── main.cpp              # Hauptprogramm
+│   ├── Config.*              # Konfigurationsverwaltung
+│   ├── ServerManager.*       # Webserver-Management
+│   ├── WiFiManager.*         # WiFi-Verbindungsverwaltung
+│   ├── MQTTManager.*         # MQTT-Funktionalität
+│   ├── LEDManager.*          # LED-Steuerung
+│   └── KMeterManager.*       # Temperatursensor-Management
+├── platformio.ini            # PlatformIO-Konfiguration
+└── README.md                 # Diese Datei
 ```
 
-## Getting Started
+## 📚 Libraries
 
-1. Clone this repository
-2. Open in PlatformIO (VS Code with PlatformIO extension)
-3. Build and upload to your ESP32 device
-4. Connect to the device's WiFi AP for initial setup
-5. Configure WiFi and MQTT settings through web interface
+- **FastLED** 3.9.20 - LED-Steuerung
+- **ArduinoJson** 6.21.5 - JSON-Verarbeitung
+- **PubSubClient** 2.8.0 - MQTT-Client
+- **M5Unit-KMeterISO** 1.0.1 - Temperatursensor
+- **Preferences** - ESP32 NVS Storage
+- **WiFi** - ESP32 WiFi
+- **WebServer** - ESP32 Webserver
+- **Update** - OTA Updates
 
-## Web Interface
+## 🐛 Troubleshooting
 
-The web interface provides:
-- **Home**: Main dashboard with device status
-- **Settings**: WiFi and MQTT configuration
-- **LED Control**: Toggle device LED
-- **Logout**: Secure session management
+### ESP32 startet nicht
+- Drücken Sie den Reset-Button
+- Überprüfen Sie die Stromversorgung
+- Versuchen Sie einen Factory Reset
 
-## MQTT Integration
+### Keine WiFi-Verbindung
+- Überprüfen Sie SSID und Passwort
+- Stellen Sie sicher, dass 2.4GHz WiFi verwendet wird
+- Aktivieren Sie den AP-Modus für Neukonfiguration
 
-Supports Home Assistant Auto Discovery with:
-- Device registration
-- LED state control
-- Status reporting
+### MQTT verbindet nicht
+- Überprüfen Sie Broker-IP und Port
+- Testen Sie die Verbindung mit MQTT Explorer
+- Überprüfen Sie Username/Password (falls verwendet)
 
-## Development
+### Sensor zeigt keine Daten
+- Überprüfen Sie die I2C-Verbindung
+- Stellen Sie sicher, dass KMeter-ISO korrekt angeschlossen ist
+- Prüfen Sie die Sensor-Adresse (Standard: 0x66)
 
-Built with:
-- PlatformIO for embedded development
-- Modern C++ practices
-- Modular architecture
-- Token-based security
+## 🚀 Erweiterte Funktionen
 
-## License
+### OTA Updates
+- Firmware-Updates über Web-Interface
 
-Private Project - All Rights Reserved
+### API Endpoints
+Das Gerät bietet REST-APIs für externe Integration:
+- `GET /api/wifi-status` - WiFi-Status
+- `GET /api/mqtt-status` - MQTT-Status
+- `POST /api/pwm-control` - Lüftersteuerung
+- `GET /api/kmeter-status` - Temperaturdaten
 
-## Version History
+## 📄 Lizenz
 
-See git commit history for detailed version information.
+### Eigener Code (Custom Source-Available License)
+
+Der eigene Programmcode dieses Projekts (alle Dateien in `/src` und `/data`) unterliegt einer **Custom Source-Available License**:
+
+- ✅ **Erlaubt**: Private und nicht-kommerzielle Nutzung, Bildungszwecke, Studium des Codes
+- ❌ **Nicht erlaubt ohne Genehmigung**: Kommerzielle Nutzung, Verkauf, Veröffentlichung modifizierter Versionen
+- 📄 **Details**: Siehe [LICENSE](LICENSE) Datei
+
+**Für kommerzielle Nutzung** kontaktieren Sie bitte:
+- GitHub: [@smarthome-assistant](https://github.com/smarthome-assistant)
+- Email: markus.reza.tain@smarthome-assistant.info
+
+### Verwendete Open-Source Bibliotheken
+
+Dieses Projekt nutzt folgende **MIT-lizenzierte** Open-Source-Bibliotheken, die kommerzielle Nutzung erlauben:
+
+| Bibliothek | Lizenz | Zweck |
+|------------|--------|-------|
+| [FastLED](https://github.com/FastLED/FastLED) | MIT | LED-Steuerung |
+| [ArduinoJson](https://github.com/bblanchon/ArduinoJson) | MIT | JSON-Verarbeitung |
+| [PubSubClient](https://github.com/knolleary/pubsubclient) | MIT | MQTT-Client |
+| [M5Unit-KMeterISO](https://github.com/m5stack/M5Unit-KMeterISO) | MIT | Temperatursensor |
+
+📋 **Vollständige Lizenztexte**: Siehe [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md)
+
+---
+
+**Hinweis**: Die restriktive Lizenz gilt NUR für den eigenen Code. Die verwendeten Bibliotheken bleiben unter ihren permissiven MIT-Lizenzen verfügbar.
+
+## �👤 Autor
+
+**SmartHome-Assistant.info (Markus Reza Tain)**
+- GitHub: [@smarthome-assistant](https://github.com/smarthome-assistant)
+- Repository: [HeatBodyVentilator](https://github.com/smarthome-assistant/HeatBodyVentilator)
+
+**Kontakt für Lizenzanfragen:**
+- Kommerzielle Nutzung
+- Veröffentlichung modifizierter Versionen
+- Sondervereinbarungen
+
+## 🙏 Danksagungen
+
+- M5Stack für die hervorragende Hardware
+- Home Assistant Community
+- PlatformIO Team
+
+## 📝 Changelog
+
+### Version 0.0.1 (2025-10-21)
+- ✨ Initiale Entwicklungs-Version
+- 🌡️ KMeter-ISO Temperatursensor-Integration
+- 💨 Intelligente Lüftersteuerung mit Auto-Modus
+- 📡 Vollständige Home Assistant MQTT Integration
+- 🌐 Responsive Web-Interface
+- 🔐 Sicherheitsfunktionen implementiert
+
+---
+
+**Hinweis**: Dies ist ein Community-Projekt. Beiträge sind willkommen!

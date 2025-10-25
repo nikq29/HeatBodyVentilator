@@ -11,4 +11,4 @@ public:
     bool isConnected();
     void checkWiFiConnection();
 };
-extern WiFiManager wifi; // Nur Deklaration!
+extern WiFiManager wifi;

@@ -519,3 +519,73 @@ p {
     border: 1px solid #ccc;
   }
 }
+
+/* Footer Styles */
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: white;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-top: 3px solid var(--primary);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+}
+
+.footer-content {
+  text-align: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-content p {
+  margin: var(--spacing-xs) 0;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.95);
+  line-height: 1.5;
+}
+
+.footer-links {
+  font-size: 0.8rem !important;
+}
+
+.footer-links a {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  transition: color var(--transition-base);
+  margin: 0 var(--spacing-xs);
+}
+
+.footer-links a:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+/* Add padding to body to prevent content from being hidden behind fixed footer */
+body {
+  padding-bottom: 80px;
+}
+
+@media (max-width: 576px) {
+  .footer {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+  
+  .footer-content p {
+    font-size: 0.75rem;
+  }
+  
+  .footer-links {
+    font-size: 0.7rem !important;
+  }
+  
+  .footer-links a {
+    margin: 0 2px;
+  }
+  
+  body {
+    padding-bottom: 90px;
+  }
+}

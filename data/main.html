@@ -298,7 +298,7 @@
       <h3>HeatBodyVentilator - %DEVICE_NAME%</h3>
     </div>
     <ul class="nav-menu">
-      <li><a href="#" onclick="navigateWithToken('index')">🏠 Home</a></li>
+      <li><a href="#" onclick="navigateWithToken('main')">🏠 Home</a></li>
       <li><a href="#" onclick="navigateWithToken('setting')">⚙️ Einstellungen</a></li>
       <li><a href="#" onclick="logout()">🚪 Logout</a></li>
     </ul>
@@ -369,6 +369,18 @@
       </div>
     </div>
   </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <p>&copy; 2025 SmartHome-Assistant.info (Markus Reza Tain). Alle Rechte vorbehalten.</p>
+      <p class="footer-links">
+        <a href="https://github.com/smarthome-assistant/HeatBodyVentilator" onclick="showLicense(); return false;">Lizenz</a> | 
+        <a href="https://smarthome-assistant.info" target="_blank" rel="noopener">SmartHome-Assistant.info</a> | 
+        <a href="https://heatbodyventilator.smarthome-assistant.info" target="_blank" rel="noopener">Dokumentation</a>
+      </p>
+    </div>
+  </footer>
 
   <script>
     // Auto-refresh data every 30 seconds
@@ -538,6 +550,24 @@
       if (confirm('Sind Sie sicher, dass Sie sich abmelden möchten?')) {
         window.location.href = 'login.html';
       }
+    }
+    
+    // Footer functions
+    function showLicense() {
+      const licenseText = `HeatBodyVentilator - Custom Source-Available License
+
+Copyright (c) 2025 SmartHome-Assistant (Markus Reza Tain)
+
+Nutzungsbedingungen:
+- Dieser Code steht unter einer benutzerdefinierten Lizenz
+- Kommerzielle Nutzung ist ohne ausdrückliche Genehmigung nicht gestattet
+- Modifikationen dürfen nicht ohne Erlaubnis veröffentlicht werden
+- Bei Nutzung muss eine Namensnennung erfolgen
+
+Für kommerzielle Nutzungsrechte kontaktieren Sie bitte:
+SmartHome-Assistant (Markus Reza Tain)`;
+      
+      alert(licenseText);
     }
     
     // Load initial status when page loads

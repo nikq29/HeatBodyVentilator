@@ -14,10 +14,9 @@ namespace Config {
     bool AP_ENABLED = true;
     char LAST_PASSWORD_CHANGE[32] = "Nie geändert";
     
-    // Temperature Mapping Settings
-    float TEMP_START = 30.0;      // Default start temperature (°C)
-    float TEMP_MAX = 80.0;        // Default max temperature (°C)
-    bool AUTO_PWM_ENABLED = true; // Auto PWM enabled by default (always on)
+    float TEMP_START = 30.0;
+    float TEMP_MAX = 80.0;
+    bool AUTO_PWM_ENABLED = true;
 
     void loadSettings() {
         Preferences prefs;
@@ -26,7 +25,7 @@ namespace Config {
             return;
         }
         
-        String pw = prefs.getString("webpw", "your_password_here");
+        String pw = prefs.getString("webpw", "smarthome-assistant.info");
         strncpy(WEB_PASSWORD, pw.c_str(), sizeof(WEB_PASSWORD));
         WEB_PASSWORD[sizeof(WEB_PASSWORD)-1] = '\0';
         
@@ -62,10 +61,9 @@ namespace Config {
         strncpy(LAST_PASSWORD_CHANGE, lastPwChange.c_str(), sizeof(LAST_PASSWORD_CHANGE));
         LAST_PASSWORD_CHANGE[sizeof(LAST_PASSWORD_CHANGE)-1] = '\0';
         
-        // Load temperature mapping settings
         TEMP_START = prefs.getFloat("temp_start", 30.0);
         TEMP_MAX = prefs.getFloat("temp_max", 80.0);
-        AUTO_PWM_ENABLED = prefs.getBool("auto_pwm", true); // Default to enabled
+        AUTO_PWM_ENABLED = prefs.getBool("auto_pwm", true);
         
         prefs.end();
         Serial.println("Settings loaded successfully");
@@ -81,7 +79,6 @@ namespace Config {
         strncpy(WEB_PASSWORD, newPassword, sizeof(WEB_PASSWORD));
         WEB_PASSWORD[sizeof(WEB_PASSWORD)-1] = '\0';
         
-        // Save timestamp
         time_t now = time(nullptr);
         struct tm* timeinfo = localtime(&now);
         char timestamp[32];
@@ -173,7 +170,6 @@ namespace Config {
             Serial.println("Warning: Failed to clear WiFi preferences");
         }
         
-        // Reset to defaults
         strcpy(WEB_PASSWORD, "your_password_here");
         strcpy(DEVICE_NAME, "ESP32-Test");
         strcpy(MQTT_SERVER, "");
@@ -185,10 +181,9 @@ namespace Config {
         AP_ENABLED = true;
         strcpy(LAST_PASSWORD_CHANGE, "Nie geändert");
         
-        // Reset temperature mapping settings
         TEMP_START = 30.0;
         TEMP_MAX = 80.0;
-        AUTO_PWM_ENABLED = true; // Always enabled
+        AUTO_PWM_ENABLED = true;
         
         Serial.println("Factory reset completed");
     }
@@ -200,7 +195,6 @@ namespace Config {
             prefs.putFloat("temp_max", maxTemp);
             prefs.end();
             
-            // Update global variables
             TEMP_START = startTemp;
             TEMP_MAX = maxTemp;
             
@@ -216,7 +210,6 @@ namespace Config {
             prefs.putBool("auto_pwm", enabled);
             prefs.end();
             
-            // Update global variable
             AUTO_PWM_ENABLED = enabled;
             
             Serial.printf("Auto PWM setting saved: %s\n", enabled ? "Enabled" : "Disabled");

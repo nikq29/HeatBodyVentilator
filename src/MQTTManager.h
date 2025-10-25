@@ -12,15 +12,12 @@ public:
     bool isConnected();
     void disconnect();
     
-    // Home Assistant Auto Discovery
     void publishAutoDiscovery();
     void publishDeviceState();
     
-    // Sensor data publishing
     void publishFanSpeed(int pwmDuty);
     void publishTemperature(float tempCelsius);
     
-    // Device controls
     void publishSensorData(const String& sensor, float value, const String& unit = "");
     void handleIncomingMessage(char* topic, byte* payload, unsigned int length);
     void setLEDCallback(void (*callback)(bool state));

@@ -1,14 +1,13 @@
-#include "ServerManager.h"
+﻿#include "ServerManager.h"
 #include "Config.h"
 #include "WiFiManager.h"
 #include "MQTTManager.h"
 #include "LEDManager.h"
 #include "KMeterManager.h"
-#include <WiFi.h> // oder #include <ESP8266WiFi.h> für ESP8266
+#include <WiFi.h>
 #include <Preferences.h>
 #include <Update.h>
 
-// External references
 extern LEDManager led;
 extern MQTTManager mqttManager;
 
@@ -22,12 +21,9 @@ extern const uint8_t _binary_data_img_logo_png_start[]   asm("_binary_data_img_l
 extern const uint8_t _binary_data_img_logo_png_end[]     asm("_binary_data_img_logo_png_end");
 extern const uint8_t _binary_data_main_html_start[] asm("_binary_data_main_html_start");
 extern const uint8_t _binary_data_main_html_end[]   asm("_binary_data_main_html_end");
-// Removed: setting_wifi.html - using modals in settings page instead
-// extern const uint8_t _binary_data_setting_wifi_html_start[] asm("_binary_data_setting_wifi_html_start");
-// extern const uint8_t _binary_data_setting_wifi_html_end[]   asm("_binary_data_setting_wifi_html_end");
 
 String sessionToken;
-static bool ledState = false; // Global LED state tracking
+static bool ledState = false;
 
 
 
@@ -36,22 +32,19 @@ ServerManager::ServerManager()
 
 void ServerManager::begin() {
     setupRoutes();
-    initializePWM(); // PWM-System initialisieren
+    initializePWM();
     
-    // Kurze Pause zwischen PWM und I2C Initialisierung
     delay(500);
     
-    // KMeter-ISO Sensor initialisieren mit alternativen Pins (Konflikte vermeiden)
     Serial.println("DEBUG: Initializing KMeter-ISO sensor...");
     Serial.println("DEBUG: Using alternative I2C pins to avoid conflicts with PWM");
-    if (kmeterManager.begin(0x66, 26, 32)) { // SDA=G26, SCL=G32
+    if (kmeterManager.begin(0x66, 26, 32)) {
         Serial.println("KMeter-ISO sensor initialized successfully");
     } else {
         Serial.println("Warning: KMeter-ISO sensor initialization failed");
         Serial.println("DEBUG: Will continue without KMeter sensor");
     }
     
-    // Ensure Auto-PWM is enabled on startup
     Config::saveAutoPWMEnabled(true);
     Serial.println("DEBUG: Auto-PWM enabled for fan control");
     
@@ -63,16 +56,12 @@ void ServerManager::begin() {
 void ServerManager::initializePWM() {
     Serial.println("DEBUG: Initializing PWM system...");
 
-    // PWM-Kanal 0 für Pin 5 konfigurieren
-    // Frequency: 1kHz, Resolution: 8-bit (0-255)
     if (ledcSetup(0, 1000, 8)) {
         Serial.println("DEBUG: PWM Channel 0 setup successful");
 
-        // Pin 22 an PWM-Kanal 0 anhängen
         ledcAttachPin(22, 0);
         Serial.println("DEBUG: PWM Pin 22 attached to channel 0");
 
-        // Initial PWM auf 0 setzen (aus)
         ledcWrite(0, 0);
         Serial.println("DEBUG: PWM initialized - Pin 22 set to 0%");
     } else {
@@ -81,31 +70,25 @@ void ServerManager::initializePWM() {
 }
 
 void ServerManager::setPWMDuty(int duty) {
-    // Validierung
     if (duty < 0 || duty > 255) {
         Serial.printf("ERROR: Invalid PWM duty cycle: %d (must be 0-255)\n", duty);
         return;
     }
     
-    // PWM-Wert setzen
     ledcWrite(0, duty);
     Serial.printf("PWM Pin 22 set to duty cycle %d (%.1f%%)\n", duty, (duty / 255.0) * 100);
     
-    // Publish to MQTT
     mqttManager.publishFanSpeed(duty);
 }
 
 void ServerManager::updateSensors() {
-    // Update KMeter-ISO Sensor
     kmeterManager.update();
     
-    // Publish temperature to MQTT if sensor is ready
     if (kmeterManager.isInitialized() && kmeterManager.isReady()) {
         float temp = kmeterManager.getTemperatureCelsius();
         mqttManager.publishTemperature(temp);
     }
     
-    // Update Auto PWM if enabled
     updateAutoPWM();
 }
 
@@ -114,27 +97,26 @@ void ServerManager::handleClient() {
 }
 
 void ServerManager::setupRoutes() {
-  // index.html
   server.on("/", HTTP_GET, [this]() {
     server.sendHeader("Location", "/main");
     server.send(302);
   });
   server.on("/main", HTTP_GET, [this]() { handleMain(); });
-  // style.css
   server.on("/style.css", HTTP_GET, [this]() {
     size_t len = _binary_data_style_css_end - _binary_data_style_css_start;
     server.setContentLength(len);
     server.send(200, "text/css", "");
     server.sendContent_P(reinterpret_cast<const char*>(_binary_data_style_css_start), len);
   });
-  // favicon, login etc. wie gehabt…
   server.on("/favicon.ico", HTTP_GET, [this]() { server.send(204); });
-  server.on("/index", HTTP_GET, [this]() { handleIndex(); });
+  server.on("/index", HTTP_GET, [this]() {
+    server.sendHeader("Location", "/main");
+    server.send(302);
+  });
   server.on("/login", HTTP_GET, [this]() { handleLogin(); });
   server.on("/login", HTTP_POST, [this]() { handleLogin(); });
   server.onNotFound([this]() { handleNotFound(); });
 
-    // Logo
   server.on("/img/logo.png", HTTP_GET, [this]() {
     size_t len = _binary_data_img_logo_png_end - _binary_data_img_logo_png_start;
     server.setContentLength(len);
@@ -142,10 +124,8 @@ void ServerManager::setupRoutes() {
     server.sendContent_P(reinterpret_cast<const char*>(_binary_data_img_logo_png_start), len);
   });
   server.on("/setting", HTTP_GET, [this]() { handleSetting(); });
-  // server.on("/setting_wifi", HTTP_GET, [this]() { handleSettingWifi(); }); // Removed - using modals in settings page
   server.on("/wifi_connect", HTTP_POST, [this]() { handleWifiConnect(); });
   
-  // New API endpoints
   server.on("/api/device-name", HTTP_POST, [this]() { handleDeviceName(); });
   server.on("/api/reboot", HTTP_POST, [this]() { handleReboot(); });
   server.on("/api/factory-reset", HTTP_POST, [this]() { handleFactoryReset(); });
@@ -195,11 +175,8 @@ void ServerManager::setupRoutes() {
     handleAutoPWM(); 
   });
   
-  // Firmware update with file upload support
   server.on("/api/firmware-update", HTTP_POST, 
     [this]() { 
-      // This is called when upload is complete - don't send response here
-      // Response is handled in handleFirmwareUpdate
     },
     [this]() { 
       // This is called during upload process
@@ -214,11 +191,9 @@ void ServerManager::handleRoot() {
         server.send(302);
         return;
     }
-    // Lade index.html als String
     String html(reinterpret_cast<const char*>(_binary_data_index_html_start),
                 _binary_data_index_html_end - _binary_data_index_html_start);
 
-    // Lade main.html als Content
     String pageContent(reinterpret_cast<const char*>(_binary_data_main_html_start),
                        _binary_data_main_html_end - _binary_data_main_html_start);
 
@@ -243,7 +218,6 @@ void ServerManager::handleLogin() {
       Serial.println("Password correct - redirecting");
       sessionToken = String(random(0xffff), HEX);
       
-      // Direkte Weiterleitung zur Hauptseite
       server.sendHeader("Location", "/main?token=" + sessionToken);
       server.send(302);
       return;
@@ -254,7 +228,6 @@ void ServerManager::handleLogin() {
     Serial.println("GET request - showing login page");
   }
   
-  // Login-Seite anzeigen (bei GET oder falschem Passwort)
   Serial.println("Sending login page");
   size_t len = _binary_data_login_html_end - _binary_data_login_html_start;
   server.setContentLength(len);
@@ -274,30 +247,9 @@ void ServerManager::handleMain() {
         return;
     }
     
-    // Lade main.html direkt
     String html(reinterpret_cast<const char*>(_binary_data_main_html_start),
                 _binary_data_main_html_end - _binary_data_main_html_start);
 
-    // Replace dynamic values
-    html.replace("%DEVICE_NAME%", Config::DEVICE_NAME);
-    html.replace("%TOKEN%", sessionToken);
-
-    server.setContentLength(html.length());
-    server.send(200, "text/html", html);
-}
-
-void ServerManager::handleIndex() {
-    if (!isAuthenticated()) {
-        server.sendHeader("Location", "/login");
-        server.send(302);
-        return;
-    }
-    
-    // Lade index.html direkt
-    String html(reinterpret_cast<const char*>(_binary_data_index_html_start),
-                _binary_data_index_html_end - _binary_data_index_html_start);
-
-    // Replace dynamic values
     html.replace("%DEVICE_NAME%", Config::DEVICE_NAME);
     html.replace("%TOKEN%", sessionToken);
 
@@ -324,38 +276,19 @@ void ServerManager::handleSetting() {
     
     Serial.println("DEBUG: handleSetting() - Authentication successful");
     
-    // Lade setting.html direkt
     extern const uint8_t _binary_data_setting_html_start[] asm("_binary_data_setting_html_start");
     extern const uint8_t _binary_data_setting_html_end[]   asm("_binary_data_setting_html_end");
     
     size_t htmlSize = _binary_data_setting_html_end - _binary_data_setting_html_start;
     Serial.printf("DEBUG: setting.html binary size: %d bytes\n", htmlSize);
     
-    // Einfache Lösung: Sende HTML ohne Platzhalter-Ersetzung erstmal
-    // Die Platzhalter werden später via JavaScript ersetzt
     const char* htmlData = reinterpret_cast<const char*>(_binary_data_setting_html_start);
     
-    // Verwende send_P für direkte Übertragung
     server.setContentLength(htmlSize);
     server.send_P(200, "text/html", htmlData, htmlSize);
     
     Serial.println("DEBUG: HTML response sent directly");
 }
-
-/*
-// DEPRECATED: WiFi configuration moved to modal dialogs in settings page
-void ServerManager::handleSettingWifi() {
-    if (!isAuthenticated()) {
-        server.sendHeader("Location", "/login");
-        server.send(302);
-        return;
-    }
-
-    // Redirect to settings page with WiFi modal
-    server.sendHeader("Location", "/setting");
-    server.send(302);
-}
-*/
 
 void ServerManager::handleWifiConnect() {
     if (!isAuthenticated()) {
@@ -365,7 +298,6 @@ void ServerManager::handleWifiConnect() {
     String ssid = server.arg("ssid");
     String password = server.arg("password");
 
-    // Speichern in Preferences
     Preferences prefs;
     if (prefs.begin("wifi", false)) {
         prefs.putString("ssid", ssid);
@@ -426,26 +358,23 @@ void ServerManager::handleChangePassword() {
     String currentPassword = server.arg("current_password");
     String newPassword = server.arg("new_password");
     
-    // Validate current password
     if (currentPassword != Config::WEB_PASSWORD) {
         server.send(200, "text/plain", "INVALID");
         return;
     }
     
-    // Validate new password
     if (newPassword.length() < 6 || newPassword.length() >= 32) {
         server.send(400, "text/plain", "Password must be 6-31 characters");
         return;
     }
     
-    // Check if new password is different from current
     if (newPassword == currentPassword) {
         server.send(400, "text/plain", "New password must be different");
         return;
     }
     
     Config::saveWebPassword(newPassword.c_str());
-    sessionToken = ""; // Invalidate current session
+    sessionToken = "";
     server.send(200, "text/plain", "OK");
 }
 
@@ -490,13 +419,10 @@ void ServerManager::handleMQTTSettings() {
     if (server_arg.length() > 0 && port_arg.toInt() > 0) {
         uint16_t port = port_arg.toInt();
         
-        // Disconnect current MQTT connection
         mqttManager.disconnect();
         
-        // Save new settings
         Config::saveMQTTSettings(server_arg.c_str(), port, user_arg.c_str(), pass_arg.c_str(), topic_arg.c_str());
         
-        // Restart MQTT with new settings
         mqttManager.begin();
         
         server.send(200, "text/plain", "OK");

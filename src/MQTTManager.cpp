@@ -2,7 +2,6 @@
 #include "LEDManager.h"
 #include <WiFi.h>
 
-// Device Information Constants - Hier kannst du die Geräteinformationen ändern
 const String DEVICE_MODEL = "M5Stack Atom";
 const String DEVICE_MANUFACTURER = "SmartHome-Assistant.info";
 
@@ -19,7 +18,7 @@ void MQTTManager::begin() {
     }
     
     mqttClient.setServer(Config::MQTT_SERVER, Config::MQTT_PORT);
-    mqttClient.setBufferSize(2048); // Increase buffer size for larger payloads
+    mqttClient.setBufferSize(2048);
     mqttClient.setCallback([this](char* topic, byte* payload, unsigned int length) {
         this->handleIncomingMessage(topic, payload, length);
     });
@@ -34,7 +33,7 @@ void MQTTManager::loop() {
     
     if (!mqttClient.connected()) {
         unsigned long now = millis();
-        if (now - lastReconnectAttempt > 30000) { // Try only every 30 seconds instead of 5
+        if (now - lastReconnectAttempt > 30000) {
             lastReconnectAttempt = now;
             if (connect()) {
                 Serial.println("MQTT: Connected successfully");
@@ -47,7 +46,6 @@ void MQTTManager::loop() {
     } else {
         mqttClient.loop();
         
-        // Publish heartbeat every 30 seconds
         unsigned long now = millis();
         if (now - lastHeartbeat > 30000) {
             lastHeartbeat = now;
@@ -62,7 +60,6 @@ bool MQTTManager::isConnected() {
 
 void MQTTManager::disconnect() {
     if (mqttClient.connected()) {
-        // Publish offline status before disconnecting
         String statusTopic = getBaseTopic() + "/status";
         mqttClient.publish(statusTopic.c_str(), "offline", true);
         mqttClient.disconnect();
@@ -87,7 +84,6 @@ bool MQTTManager::connect() {
     }
     
     if (connected) {
-        // Publish online status
         mqttClient.publish(statusTopic.c_str(), "online", true);
         Serial.println("MQTT: Connected as " + clientId);
     } else {
@@ -102,10 +98,8 @@ void MQTTManager::publishAutoDiscovery() {
     
     Serial.println("MQTT: Publishing Home Assistant Auto Discovery...");
     
-    // Publish device info first
     publishDeviceInfo();
     
-    // Publish component discoveries
     publishSwitchDiscovery();
     publishSensorDiscovery();
     publishButtonDiscovery();
@@ -117,7 +111,6 @@ void MQTTManager::publishDeviceInfo() {
     String deviceId = getDeviceId();
     String baseTopic = getBaseTopic();
     
-    // Device registry information
     DynamicJsonDocument device(1024);
     device["identifiers"][0] = deviceId;
     device["name"] = Config::DEVICE_NAME;
@@ -127,7 +120,6 @@ void MQTTManager::publishDeviceInfo() {
     device["hw_version"] = "1.0";
     device["configuration_url"] = "http://" + WiFi.localIP().toString();
     
-    // Add network information
     JsonObject connections = device.createNestedObject("connections");
     JsonArray wifi = connections.createNestedArray("wifi");
     wifi.add(getMacAddress());
@@ -135,9 +127,8 @@ void MQTTManager::publishDeviceInfo() {
 
 void MQTTManager::publishSwitchDiscovery() {
     String deviceId = getDeviceId();
-    String baseTopic = getHomeAssistantBaseTopic(); // Use HA topic for consistency
+    String baseTopic = getHomeAssistantBaseTopic();
     
-    // LED Switch - use smaller JSON document
     DynamicJsonDocument ledSwitch(512);
     ledSwitch["unique_id"] = deviceId + "_led";
     ledSwitch["name"] = String(Config::DEVICE_NAME) + " LED";
@@ -148,7 +139,6 @@ void MQTTManager::publishSwitchDiscovery() {
     ledSwitch["optimistic"] = false;
     ledSwitch["retain"] = true;
     
-    // Device info - simplified
     JsonObject device = ledSwitch.createNestedObject("device");
     device["identifiers"][0] = deviceId;
     device["name"] = Config::DEVICE_NAME;
@@ -172,9 +162,8 @@ void MQTTManager::publishSwitchDiscovery() {
 
 void MQTTManager::publishSensorDiscovery() {
     String deviceId = getDeviceId();
-    String baseTopic = getHomeAssistantBaseTopic(); // Use HA topic for consistency
+    String baseTopic = getHomeAssistantBaseTopic();
     
-    // WiFi Signal Strength Sensor - smaller JSON
     DynamicJsonDocument wifiSensor(512);
     wifiSensor["unique_id"] = deviceId + "_wifi_signal";
     wifiSensor["name"] = String(Config::DEVICE_NAME) + " WiFi";
@@ -200,7 +189,6 @@ void MQTTManager::publishSensorDiscovery() {
     bool result = mqttClient.publish(discoveryTopic.c_str(), payload.c_str(), true);
     Serial.println("MQTT: Sensor publish result: " + String(result ? "SUCCESS" : "FAILED"));
     
-    // Uptime Sensor - Create new payload string
     DynamicJsonDocument uptimeSensor(512);
     uptimeSensor["unique_id"] = deviceId + "_uptime";
     uptimeSensor["name"] = String(Config::DEVICE_NAME) + " Uptime";
@@ -226,7 +214,6 @@ void MQTTManager::publishSensorDiscovery() {
     result = mqttClient.publish(discoveryTopic.c_str(), uptimePayload.c_str(), true);
     Serial.println("MQTT: Uptime sensor publish result: " + String(result ? "SUCCESS" : "FAILED"));
     
-    // Fan Speed Sensor (PWM percentage)
     DynamicJsonDocument fanSensor(512);
     fanSensor["unique_id"] = deviceId + "_fan_speed";
     fanSensor["name"] = String(Config::DEVICE_NAME) + " Lüfter";
@@ -251,7 +238,6 @@ void MQTTManager::publishSensorDiscovery() {
     result = mqttClient.publish(discoveryTopic.c_str(), fanPayload.c_str(), true);
     Serial.println("MQTT: Fan speed sensor publish result: " + String(result ? "SUCCESS" : "FAILED"));
     
-    // Temperature Sensor (from KMeter)
     DynamicJsonDocument tempSensor(512);
     tempSensor["unique_id"] = deviceId + "_temperature";
     tempSensor["name"] = String(Config::DEVICE_NAME) + " Temperatur";
@@ -281,9 +267,8 @@ void MQTTManager::publishSensorDiscovery() {
 
 void MQTTManager::publishButtonDiscovery() {
     String deviceId = getDeviceId();
-    String baseTopic = getHomeAssistantBaseTopic(); // Use HA topic for consistency
+    String baseTopic = getHomeAssistantBaseTopic();
     
-    // Restart Button
     DynamicJsonDocument restartButton(1024);
     restartButton["unique_id"] = deviceId + "_restart";
     restartButton["name"] = String(Config::DEVICE_NAME) + " Restart";
@@ -308,13 +293,11 @@ void MQTTManager::publishButtonDiscovery() {
 }
 
 void MQTTManager::subscribeToCommands() {
-    String baseTopic = getHomeAssistantBaseTopic(); // Use HA topic for consistency
+    String baseTopic = getHomeAssistantBaseTopic();
     
-    // Subscribe to LED control
     String ledTopic = baseTopic + "/led/set";
     mqttClient.subscribe(ledTopic.c_str());
     
-    // Subscribe to restart button
     String restartTopic = baseTopic + "/button/restart";
     mqttClient.subscribe(restartTopic.c_str());
     
@@ -324,23 +307,19 @@ void MQTTManager::subscribeToCommands() {
 void MQTTManager::publishDeviceState() {
     if (!mqttClient.connected()) return;
     
-    String baseTopic = getHomeAssistantBaseTopic(); // Use HA topic for consistency
+    String baseTopic = getHomeAssistantBaseTopic();
     
-    // Publish WiFi signal strength
     int rssi = WiFi.RSSI();
     String wifiTopic = baseTopic + "/sensor/wifi_signal";
     mqttClient.publish(wifiTopic.c_str(), String(rssi).c_str());
     
-    // Publish uptime
     unsigned long uptime = millis() / 1000;
     String uptimeTopic = baseTopic + "/sensor/uptime";
     mqttClient.publish(uptimeTopic.c_str(), String(uptime).c_str());
     
-    // Publish current fan speed (read from PWM channel 0)
     int currentPWM = ledcRead(0);
     publishFanSpeed(currentPWM);
     
-    // Publish online status
     String statusTopic = baseTopic + "/status";
     mqttClient.publish(statusTopic.c_str(), "online", true);
 }
@@ -351,7 +330,6 @@ void MQTTManager::publishFanSpeed(int pwmDuty) {
     String baseTopic = getHomeAssistantBaseTopic();
     String fanTopic = baseTopic + "/sensor/fan_speed";
     
-    // Convert PWM duty (0-255) to percentage (0-100)
     float percentage = (pwmDuty / 255.0) * 100.0;
     
     mqttClient.publish(fanTopic.c_str(), String(percentage, 1).c_str());
@@ -382,11 +360,10 @@ void MQTTManager::handleIncomingMessage(char* topic, byte* payload, unsigned int
     }
     
     String topicStr = String(topic);
-    String baseTopic = getHomeAssistantBaseTopic(); // Use HA topic for consistency
+    String baseTopic = getHomeAssistantBaseTopic();
     
     Serial.println("MQTT: Received message on " + topicStr + ": " + message);
     
-    // Handle LED control
     if (topicStr == baseTopic + "/led/set") {
         if (message == "ON") {
             if (ledCallback) {
@@ -401,7 +378,6 @@ void MQTTManager::handleIncomingMessage(char* topic, byte* payload, unsigned int
         }
     }
     
-    // Handle restart button
     if (topicStr == baseTopic + "/button/restart") {
         Serial.println("MQTT: Restart requested via Home Assistant");
         delay(1000);
@@ -410,8 +386,8 @@ void MQTTManager::handleIncomingMessage(char* topic, byte* payload, unsigned int
 }
 
 String MQTTManager::getDeviceId() {
-    String mac = getMacAddress().substring(9); // Last 3 bytes of MAC
-    mac.replace(":", "_"); // Replace colons with underscores for MQTT compatibility
+    String mac = getMacAddress().substring(9);
+    mac.replace(":", "_");
     return mac;
 }
 

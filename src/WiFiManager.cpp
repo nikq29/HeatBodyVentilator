@@ -2,13 +2,12 @@
 #include <EEPROM.h>
 #include <Preferences.h>
 
-WiFiManager wifi; // Nur HIER die Definition!
+WiFiManager wifi;
 
 void WiFiManager::beginAP() {
     Serial.println("DEBUG: Starting Access Point...");
     Serial.println("DEBUG: AP_ENABLED = " + String(Config::AP_ENABLED));
     
-    // Use config values instead of hardcoded values
     WiFi.mode(WIFI_AP_STA);
     bool result = WiFi.softAP(Config::AP_SSID, Config::AP_PASS);
     
@@ -33,7 +32,7 @@ void WiFiManager::stopAP() {
 }
 
 void WiFiManager::beginSTA(const char* ssid, const char* pass) {
-    WiFi.mode(WIFI_AP_STA); // Dual Mode aktivieren
+    WiFi.mode(WIFI_AP_STA);
     WiFi.begin(ssid, pass);
 
     while (WiFi.status() != WL_CONNECTED) {
@@ -43,7 +42,6 @@ void WiFiManager::beginSTA(const char* ssid, const char* pass) {
 
     Serial.println("Connected to WiFi!");
     Serial.println("Station IP Address: " + WiFi.localIP().toString());
-    // TODO: Füge Timeout und Fallback hinzu
 }
 
 void WiFiManager::beginAutoSTA() {
@@ -54,7 +52,6 @@ void WiFiManager::beginAutoSTA() {
     prefs.end();
     
     if (savedSsid.length() > 0 && savedPassword.length() > 0) {
-        // Start with STA mode first for clean connection attempt
         WiFi.mode(WIFI_STA);
         WiFi.begin(savedSsid.c_str(), savedPassword.c_str());
         
@@ -69,7 +66,6 @@ void WiFiManager::beginAutoSTA() {
             Serial.println("Station IP Address: " + WiFi.localIP().toString());
         } else {
             Serial.println("Could not connect to saved WiFi.");
-            // Emergency fallback: Start AP for user access, regardless of AP_ENABLED setting
             Serial.println("Starting emergency Access Point for initial setup/troubleshooting...");
             WiFi.mode(WIFI_AP_STA);
             WiFi.softAP(Config::AP_SSID, Config::AP_PASS);
@@ -79,7 +75,7 @@ void WiFiManager::beginAutoSTA() {
         }
     } else {
         Serial.println("No saved WiFi credentials found. Starting in AP mode for initial setup.");
-        beginAP(); // Use the regular AP start function
+        beginAP();
     }
 }
 
@@ -102,7 +98,6 @@ void WiFiManager::checkWiFiConnection() {
             WiFi.disconnect();
             delay(1000);
             
-            // Preserve dual mode if AP is enabled, otherwise use STA only
             if (Config::AP_ENABLED) {
                 Serial.println("DEBUG: Preserving dual mode (AP+STA) for WiFi reconnect");
                 WiFi.mode(WIFI_AP_STA);
@@ -123,7 +118,6 @@ void WiFiManager::checkWiFiConnection() {
                 Serial.println("Station IP Address: " + WiFi.localIP().toString());
             } else {
                 Serial.println("Reconnect failed. Starting emergency Access Point for user access...");
-                // Emergency fallback: Start AP regardless of user setting
                 WiFi.mode(WIFI_AP_STA);
                 WiFi.softAP(Config::AP_SSID, Config::AP_PASS);
                 Serial.println("Emergency AP started - user can access via " + String(Config::AP_SSID) + " network");
@@ -132,9 +126,8 @@ void WiFiManager::checkWiFiConnection() {
             }
         }
     } else {
-        // Verbindung ist OK, gelegentlich IP-Adresse ausgeben
         static unsigned long lastIPOutput = 0;
-        if (millis() - lastIPOutput > 60000) { // Alle 60 Sekunden
+        if (millis() - lastIPOutput > 60000) {
             Serial.println("WiFi connected. IP: " + WiFi.localIP().toString());
             lastIPOutput = millis();
         }

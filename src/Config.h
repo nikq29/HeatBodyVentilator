@@ -7,9 +7,8 @@ namespace Config {
     constexpr uint16_t NUM_LEDS  = 1;
     constexpr char FIRMWARE_VERSION[] = "0.0.1";
 
-    // Access Point Credentials
-    constexpr char AP_SSID[] = "M5AtomAP";
-    constexpr char AP_PASS[] = "12345678";
+    constexpr char AP_SSID[] = "Smarthome-Assistant-AP";
+    constexpr char AP_PASS[] = "smarthome-assistant.info";
 
     extern char WEB_PASSWORD[32];
     extern char DEVICE_NAME[32];
@@ -22,10 +21,9 @@ namespace Config {
     extern bool AP_ENABLED;
     extern char LAST_PASSWORD_CHANGE[32];
     
-    // Temperature Mapping Settings
-    extern float TEMP_START;      // Start temperature for PWM duty 1
-    extern float TEMP_MAX;        // Max temperature for PWM duty 255
-    extern bool AUTO_PWM_ENABLED; // Auto PWM based on temperature
+    extern float TEMP_START;
+    extern float TEMP_MAX;
+    extern bool AUTO_PWM_ENABLED;
 
     void loadSettings();
     void saveWebPassword(const char* newPassword);

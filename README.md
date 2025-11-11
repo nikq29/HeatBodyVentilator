@@ -232,6 +232,9 @@ Dieses Projekt nutzt folgende **MIT-lizenzierte** Open-Source-Bibliotheken, die 
 
 ## 📝 Changelog
 
+### Version 0.0.2 (2025-11-11)
+- ⚡ Optimierte PWM-Frequenz für verbesserte Lüftersteuerung
+
 ### Version 0.0.1 (2025-10-21)
 - ✨ Initiale Entwicklungs-Version
 - 🌡️ KMeter-ISO Temperatursensor-Integration

@@ -2,8 +2,15 @@
 #include "Config.h"
 #include <time.h>
 
+#if __has_include("secrets.h")
+#include "secrets.h"
+#endif
+#ifndef SECRET_WEB_PASSWORD
+#define SECRET_WEB_PASSWORD "smarthome-assistant.info"
+#endif
+
 namespace Config {
-    char WEB_PASSWORD[32] = "your_password_here";
+    char WEB_PASSWORD[32] = SECRET_WEB_PASSWORD;
     char DEVICE_NAME[32] = "ESP32-Test";
     char MQTT_SERVER[64] = "";
     uint16_t MQTT_PORT = 1883;
@@ -25,7 +32,7 @@ namespace Config {
             return;
         }
         
-        String pw = prefs.getString("webpw", "smarthome-assistant.info");
+        String pw = prefs.getString("webpw", SECRET_WEB_PASSWORD);
         strncpy(WEB_PASSWORD, pw.c_str(), sizeof(WEB_PASSWORD));
         WEB_PASSWORD[sizeof(WEB_PASSWORD)-1] = '\0';
         
@@ -170,7 +177,7 @@ namespace Config {
             Serial.println("Warning: Failed to clear WiFi preferences");
         }
         
-        strcpy(WEB_PASSWORD, "your_password_here");
+        strcpy(WEB_PASSWORD, SECRET_WEB_PASSWORD);
         strcpy(DEVICE_NAME, "ESP32-Test");
         strcpy(MQTT_SERVER, "");
         MQTT_PORT = 1883;

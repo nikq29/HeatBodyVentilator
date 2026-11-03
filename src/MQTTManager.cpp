@@ -317,7 +317,7 @@ void MQTTManager::publishDeviceState() {
     String uptimeTopic = baseTopic + "/sensor/uptime";
     mqttClient.publish(uptimeTopic.c_str(), String(uptime).c_str());
     
-    int currentPWM = ledcRead(0);
+    int currentPWM = ledcRead(22);
     publishFanSpeed(currentPWM);
     
     String statusTopic = baseTopic + "/status";

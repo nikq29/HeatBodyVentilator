@@ -56,16 +56,13 @@ void ServerManager::begin() {
 void ServerManager::initializePWM() {
     Serial.println("DEBUG: Initializing PWM system...");
 
-    if (ledcSetup(0, 1000, 8)) {
-        Serial.println("DEBUG: PWM Channel 0 setup successful");
+    if (ledcAttach(22, 1000, 8)) {
+        Serial.println("DEBUG: PWM Pin 22 attached");
 
-        ledcAttachPin(22, 0);
-        Serial.println("DEBUG: PWM Pin 22 attached to channel 0");
-
-        ledcWrite(0, 0);
+        ledcWrite(22, 0);
         Serial.println("DEBUG: PWM initialized - Pin 22 set to 0%");
     } else {
-        Serial.println("ERROR: PWM Channel 0 setup failed");
+        Serial.println("ERROR: PWM Pin 22 attach failed");
     }
 }
 
@@ -75,7 +72,7 @@ void ServerManager::setPWMDuty(int duty) {
         return;
     }
     
-    ledcWrite(0, duty);
+    ledcWrite(22, duty);
     Serial.printf("PWM Pin 22 set to duty cycle %d (%.1f%%)\n", duty, (duty / 255.0) * 100);
     
     mqttManager.publishFanSpeed(duty);
@@ -298,6 +295,11 @@ void ServerManager::handleWifiConnect() {
     String ssid = server.arg("ssid");
     String password = server.arg("password");
 
+    if (!wifi.beginSTA(ssid.c_str(), password.c_str())) {
+        server.send(502, "text/plain", "Connection failed");
+        return;
+    }
+
     Preferences prefs;
     if (prefs.begin("wifi", false)) {
         prefs.putString("ssid", ssid);
@@ -310,7 +312,6 @@ void ServerManager::handleWifiConnect() {
         return;
     }
 
-    wifi.beginSTA(ssid.c_str(), password.c_str());
     server.send(200, "text/plain", "OK");
 }
 
@@ -815,10 +816,10 @@ void ServerManager::handlePWMStatus() {
     
     String json = "{";
     json += "\"pwm_pin\": 22,";
-    json += "\"duty\": " + String(ledcRead(0));
+    json += "\"duty\": " + String(ledcRead(22));
     json += "}";
-    
-    Serial.printf("DEBUG: PWM Status - Pin 22, Duty %d\n", ledcRead(0));
+
+    Serial.printf("DEBUG: PWM Status - Pin 22, Duty %lu\n", ledcRead(22));
     Serial.printf("DEBUG: PWM Status - JSON: %s\n", json.c_str());
     server.send(200, "application/json", json);
 }

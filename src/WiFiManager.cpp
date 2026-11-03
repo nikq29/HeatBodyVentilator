@@ -2,6 +2,16 @@
 #include <EEPROM.h>
 #include <Preferences.h>
 
+#if __has_include("secrets.h")
+#include "secrets.h"
+#endif
+#ifndef SECRET_WIFI_SSID
+#define SECRET_WIFI_SSID ""
+#endif
+#ifndef SECRET_WIFI_PASSWORD
+#define SECRET_WIFI_PASSWORD ""
+#endif
+
 WiFiManager wifi;
 
 void WiFiManager::beginAP() {
@@ -31,27 +41,51 @@ void WiFiManager::stopAP() {
     Serial.println("Access Point stopped - WiFi mode set to STA only");
 }
 
-void WiFiManager::beginSTA(const char* ssid, const char* pass) {
+bool WiFiManager::beginSTA(const char* ssid, const char* pass) {
     WiFi.mode(WIFI_AP_STA);
     WiFi.begin(ssid, pass);
 
-    while (WiFi.status() != WL_CONNECTED) {
+    unsigned long startAttemptTime = millis();
+    while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 15000) {
         delay(500);
         Serial.println("Connecting to WiFi...");
     }
 
+    if (WiFi.status() != WL_CONNECTED) {
+        Serial.println("Could not connect to WiFi. Starting emergency Access Point...");
+        WiFi.disconnect();
+        WiFi.softAP(Config::AP_SSID, Config::AP_PASS);
+        return false;
+    }
+
     Serial.println("Connected to WiFi!");
     Serial.println("Station IP Address: " + WiFi.localIP().toString());
+    return true;
+}
+
+bool WiFiManager::loadCredentials(String& ssid, String& pass) {
+    ssid = "";
+    pass = "";
+
+    Preferences prefs;
+    if (prefs.begin("wifi", true)) {
+        ssid = prefs.getString("ssid", "");
+        pass = prefs.getString("password", "");
+        prefs.end();
+    }
+
+    if (ssid.length() == 0 || pass.length() == 0) {
+        ssid = SECRET_WIFI_SSID;
+        pass = SECRET_WIFI_PASSWORD;
+    }
+
+    return ssid.length() > 0 && pass.length() > 0;
 }
 
 void WiFiManager::beginAutoSTA() {
-    Preferences prefs;
-    prefs.begin("wifi", true);
-    String savedSsid = prefs.getString("ssid", "");
-    String savedPassword = prefs.getString("password", "");
-    prefs.end();
-    
-    if (savedSsid.length() > 0 && savedPassword.length() > 0) {
+    String savedSsid, savedPassword;
+
+    if (loadCredentials(savedSsid, savedPassword)) {
         WiFi.mode(WIFI_STA);
         WiFi.begin(savedSsid.c_str(), savedPassword.c_str());
         
@@ -88,13 +122,9 @@ void WiFiManager::checkWiFiConnection() {
         Serial.println("WiFi connection lost. Status: " + String(WiFi.status()));
         Serial.println("Attempting to reconnect...");
         
-        Preferences prefs;
-        prefs.begin("wifi", true);
-        String savedSsid = prefs.getString("ssid", "");
-        String savedPassword = prefs.getString("password", "");
-        prefs.end();
-        
-        if (savedSsid.length() > 0 && savedPassword.length() > 0) {
+        String savedSsid, savedPassword;
+
+        if (loadCredentials(savedSsid, savedPassword)) {
             WiFi.disconnect();
             delay(1000);
             

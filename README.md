@@ -92,8 +92,15 @@ code .
 1. ESP32 startet einen Access Point: `SmartHome-Assistant-AP`
 2. Verbinden Sie sich mit diesem WiFi (Passwort: `smarthome-assistant.info`)
 3. Öffnen Sie im Browser: `http://192.168.4.1`
-4. Login mit Standard-Passwort: `smarthome-assistant.info`
+4. Login mit Standard-Passwort: `smarthome-assistant.info` (überschreibbar über `SECRET_WEB_PASSWORD` in `include/secrets.h`)
 5. Konfigurieren Sie WiFi und MQTT
+
+**Alternative: WiFi direkt in der Firmware hinterlegen**
+1. Kopieren Sie `include/secrets.example.h` nach `include/secrets.h`
+2. Tragen Sie SSID und Passwort ein (`secrets.h` wird von Git ignoriert)
+3. Build und Upload wie in Schritt 3
+
+Im Webinterface gespeicherte Zugangsdaten haben Vorrang vor `secrets.h`. Die Werte liegen unverschlüsselt in der Firmware, geben Sie die `.bin`-Datei daher nicht weiter.
 
 ## ⚙️ Konfiguration
 

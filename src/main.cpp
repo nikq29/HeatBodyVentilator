@@ -3,6 +3,7 @@
 #include "ServerManager.h"
 #include "LEDManager.h"
 #include "MQTTManager.h"
+#include "FanManager.h"
 #include "Config.h"
 #include <nvs_flash.h>
 #include <time.h>
@@ -63,7 +64,7 @@ void setup() {
     web.begin();
     mqttManager.begin();
     
-    configTime(1 * 3600, 0, "pool.ntp.org", "time.nist.gov");
+    configTzTime("CET-1CEST,M3.5.0,M10.5.0/3", "pool.ntp.org", "time.nist.gov");
     Serial.println("NTP time configured");
     
     mqttManager.setLEDCallback(onLEDStateChange);
@@ -74,7 +75,8 @@ void setup() {
 void loop() {
     web.handleClient();
     mqttManager.loop();
-    
+    fanManager.loop();
+
     static unsigned long lastSensorUpdate = 0;
     if (millis() - lastSensorUpdate > 2000) {
         web.updateSensors();
